@@ -303,7 +303,7 @@ Ezio, 35, is the chief of one of the Organizational Unit that composes a worldwi
 
 ### Use case 2, UC2 - Manage Orders
 
-| Actors Involved  | Warhouse Manager |
+| Actors Involved  | Warehouse Manager |
 |:---------------- |:-------------:|
 | Precondition     | Warehouse Manager WM has an account |
 |                  | Warehouse Manager WM is authenticated |
