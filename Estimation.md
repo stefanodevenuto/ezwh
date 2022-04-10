@@ -1,41 +1,56 @@
 # Project Estimation  
-Date:
+Date: 09/04/2022
 
-Version:
+Version: 0.0
 
 
 # Estimation approach
 Consider the EZWH  project as described in YOUR requirement document, assume that you are going to develop the project INDEPENDENT of the deadlines of the course
 # Estimate by size
 ### 
-|             | Estimate                        |             
-| ----------- | ------------------------------- |  
-| NC =  Estimated number of classes to be developed   |                             |             
-|  A = Estimated average size per class, in LOC       |                            | 
-| S = Estimated size of project, in LOC (= NC * A) | |
-| E = Estimated effort, in person hours (here use productivity 10 LOC per person hour)  |                                      |   
-| C = Estimated cost, in euro (here use 1 person hour cost = 30 euro) | | 
-| Estimated calendar time, in calendar weeks (Assume team of 4 people, 8 hours per day, 5 days per week ) |                    |               
+|                                                       | Estimate                          |             
+| ----------------------------------------------------- | --------------------------------- |  
+| NC =  Estimated number of classes to be developed     |   40                              |             
+| A = Estimated average size per class, in LOC          |   100                             | 
+| S = Estimated size of project, in LOC (= NC * A)      |   4000                            |
+| E = Estimated effort, in person hours (here use productivity 10 LOC per person hour)  |    400                                 |   
+| C = Estimated cost, in euro (here use 1 person hour cost = 30 euro)                   |    12000                               | 
+| Estimated calendar time, in calendar weeks (Assume team of 4 people, 8 hours per day, 5 days per week ) |  2.5 calendar weeks  |               
 
 # Estimate by product decomposition
 ### 
-|         component name    | Estimated effort (person hours)   |             
-| ----------- | ------------------------------- | 
-|requirement document    | |
-| GUI prototype ||
-|design document ||
-|code ||
-| unit tests ||
-| api tests ||
-| management documents  ||
+| component name            | Estimated effort (person hours)   |             
+| ------------------------- | --------------------------------- | 
+| requirement document      |                 50                |
+| GUI prototype             |                 25                |
+| design document           |                                   |
+| code                      |                                   |
+| unit tests                |                                   |
+| api tests                 |                                   |
+| management documents      |                                   |
 
 
 
 # Estimate by activity decomposition
 ### 
-|         Activity name    | Estimated effort (person hours)   |             
-| ----------- | ------------------------------- | 
-| | |
+| Activity name             | Sub-activity name          |  Estimated effort (person hours) |           
+| ------------------------- | -------------------------- | -------------------------------- |
+| Requirements planning     |                            |                                  |
+|                           | Review existing systems  |                                  |
+|                           | Perform work analysis    |                                  |
+|                           | Model process            |                                  |
+|                           | Identify user requirements  |                                  |
+|                           | Identify performance requirements |                                  |
+| Design                    |                       |                                  |
+|                           |                       |                                  |
+| Implementation            |                       |                                  |
+| Integration               |                       |                                  |
+|                           |                       |                                  |
+|                           |                       |                                  |
+|                           |                       |                                  |
+|                           |                       |                                  |
+
+###
 ###
 Insert here Gantt chart with above activities
 
@@ -43,11 +58,11 @@ Insert here Gantt chart with above activities
 
 Report here the results of the three estimation approaches. The  estimates may differ. Discuss here the possible reasons for the difference
 
-|             | Estimated effort                        |   Estimated duration |          
-| ----------- | ------------------------------- | ---------------|
-| estimate by size ||
-| estimate by product decomposition ||
-| estimate by activity decomposition ||
+|                                       | Estimated effort                        |   Estimated duration |          
+| ------------------------------------- | --------------------------------------- | -------------------- |
+| estimate by size                      |                                         |                      |
+| estimate by product decomposition     |                                         |                      |
+| estimate by activity decomposition    |                                         |                      |
 
 
 
