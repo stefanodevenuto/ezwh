@@ -8,23 +8,23 @@ Count only effort spent on EZWh (so do not count effort spent in virtual labs, s
 
 These figures will not be used to evaluate neither the project nor the team, they are meant as practical application of basic project management.
 
-| Week | requirement engineering | design | coding | unit testing | integration testing | acceptance testing | management | git maven |
-|:-----------:|:-------:|:-----------:|:-----------:|:----------:|:------------:|:---------------:|:-------------:|:--------------:|
-| mar 21 - 27 |    16   | | | | | | | |
-| mar 28 - apr 3 | 6    | | | | | | | |
-| apr 4 - 10 |   24     | | | | | | | |
-| apr 11 - 17 |         | | | | | | | | 
-| apr 18 - 24 |         | | | | | | | | 
-| apr 25 - may 1 |      | | | | | | | | 
-| may 2 - 8 |           | | | | | | | | 
-| may 9 - 15 |          | | | | | | | | 
-| may 16 - 22 |         | | | | | | | | 
-| may 23 - 29 |         | | | | | | | | 
-| may 30 - jun 5 |      | | | | | | | | 
-| jun 6 - 12 |          | | | | | | | | 
-| jun 13 -19 |          | | | | | | | | 
-| jun 20 - 26 |         | | | | | | | | 
-| jun 27 - 3 |          | | | | | | | | 
-| jul 4 - 10 |          | | | | | | | | 
-| jul 11 -17 |          | | | | | | | |
+| Week        | requirement engineering |    design   | coding | unit testing | integration testing | acceptance testing | management | git maven |
+|:-----------:|:-----------------------:|:-----------:|:-----------:|:----------:|:------------:|:---------------:|:-------------:|:--------------:|
+| mar 21 - 27 |         24              |             | | | | | | |
+| mar 28 - apr 3 |      6               |      12     | | | | | | |
+| apr 4 - 10 |          24              |      12     | | | | | | |
+| apr 11 - 17 |                         |             | | | | | | | 
+| apr 18 - 24 |                         | | | | | | | | 
+| apr 25 - may 1 |                      | | | | | | | | 
+| may 2 - 8 |                           | | | | | | | | 
+| may 9 - 15 |                          | | | | | | | | 
+| may 16 - 22 |                         | | | | | | | | 
+| may 23 - 29 |                         | | | | | | | | 
+| may 30 - jun 5 |                      | | | | | | | | 
+| jun 6 - 12 |                          | | | | | | | | 
+| jun 13 -19 |                          | | | | | | | | 
+| jun 20 - 26 |                         | | | | | | | | 
+| jun 27 - 3 |                          | | | | | | | | 
+| jul 4 - 10 |                          | | | | | | | | 
+| jul 11 -17 |                          | | | | | | | |
 | jul 18 -24 |          | | | | | | | |
