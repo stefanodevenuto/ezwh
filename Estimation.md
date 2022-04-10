@@ -22,12 +22,12 @@ Consider the EZWH  project as described in YOUR requirement document, assume tha
 | component name            | Estimated effort (person hours)   |             
 | ------------------------- | --------------------------------- | 
 | requirement document      |                 50                |
-| GUI prototype             |                 25                |
-| design document           |                                   |
-| code                      |                                   |
-| unit tests                |                                   |
-| api tests                 |                                   |
-| management documents      |                                   |
+| GUI prototype             |                 30                |
+| design document           |                 40                |
+| code                      |                 120               |
+| unit tests                |                 30                |
+| api tests                 |                 30                |
+| management documents      |                 20                |
 
 
 
@@ -60,8 +60,8 @@ Report here the results of the three estimation approaches. The  estimates may d
 
 |                                       | Estimated effort                        |   Estimated duration |          
 | ------------------------------------- | --------------------------------------- | -------------------- |
-| estimate by size                      |                                         |                      |
-| estimate by product decomposition     |                                         |                      |
+| estimate by size                      | 400 ph                                  | 2.5 calendar weeks   |
+| estimate by product decomposition     | 320 ph                                  | 2.0 calendar wekks   |
 | estimate by activity decomposition    |                                         |                      |
 
 
