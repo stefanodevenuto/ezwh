@@ -36,19 +36,29 @@ Consider the EZWH  project as described in YOUR requirement document, assume tha
 | Activity name             | Sub-activity name          |  Estimated effort (person hours) |           
 | ------------------------- | -------------------------- | -------------------------------- |
 | Requirements planning     |                            |                                  |
-|                           | Review existing systems  |                                  |
-|                           | Perform work analysis    |                                  |
-|                           | Model process            |                                  |
-|                           | Identify user requirements  |                                  |
-|                           | Identify performance requirements |                                  |
-| Design                    |                       |                                  |
-|                           |                       |                                  |
-| Implementation            |                       |                                  |
-| Integration               |                       |                                  |
-|                           |                       |                                  |
-|                           |                       |                                  |
-|                           |                       |                                  |
-|                           |                       |                                  |
+|                           | Review existing systems  |                                   |
+|                           | Perform work analysis    |                                   |
+|                           | Model process            |                                   |
+|                           | Identify user requirements        |                          |
+|                           | Identify performance requirements |                          |
+|                           | Identify interface requirements   |                          |
+|                           | Prepare software requirements Specification |                |
+| Design                    |                           |                                  |
+|                           | Formalize the architecture |                                 |
+|                           | Define software modules & interactions |                     |
+|                           | Design patterns               |                              |
+|                           | Check that they satisfy FR & NFR |                           |
+|                           | Build prototype           |                                  |
+| Implementation            |                           |                                  |
+|                           | Coding                    |                                  |
+|                           | Unit testing              |                                  |
+|                           | API testing               |                                  |
+| Integration               |                           |                                  |
+|                           | Testing complete system   |                                  |
+|                           | Software release          |                                  |
+|                           |                           |                                  |
+|                           |                           |                                  |
+|                           |                           |                                  |
 
 ###
 ###
