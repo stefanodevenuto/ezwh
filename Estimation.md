@@ -33,32 +33,30 @@ Consider the EZWH  project as described in YOUR requirement document, assume tha
 
 # Estimate by activity decomposition
 ### 
-| Activity name             | Sub-activity name          |  Estimated effort (person hours) |           
-| ------------------------- | -------------------------- | -------------------------------- |
-| Requirements planning     |                            |                                  |
-|                           | Review existing systems  |                                   |
-|                           | Perform work analysis    |                                   |
-|                           | Model process            |                                   |
-|                           | Identify user requirements        |                          |
-|                           | Identify performance requirements |                          |
-|                           | Identify interface requirements   |                          |
-|                           | Prepare software requirements Specification |                |
+| Activity name             | Sub-activity name          | Estimated effort (person hours) |           
+| ------------------------- | -------------------------- | ------------------------------- |
+| Requirements planning     |                            |                                 |
+|                           | Review existing systems    | 5                               |
+|                           | Perform work analysis      | 5                               |
+|                           | Model process              | 10                              |
+|                           | Identify user requirements        | 10                       |
+|                           | Identify performance requirements | 5                        |
+|                           | Identify interface requirements   | 5                        |
+|                           | Prepare software requirements Specification | 10             |
 | Design                    |                           |                                  |
-|                           | Formalize the architecture |                                 |
-|                           | Define software modules & interactions |                     |
-|                           | Design patterns               |                              |
-|                           | Check that they satisfy FR & NFR |                           |
-|                           | Build prototype           |                                  |
+|                           | Formalize the architecture | 10                              |
+|                           | Define software modules & interactions | 10                  |
+|                           | Design patterns               | 10                           |
+|                           | Check that they satisfy FR & NFR | 10                        |
+|                           | Build prototype           | 10                               |
 | Implementation            |                           |                                  |
-|                           | Coding                    |                                  |
-|                           | Unit testing              |                                  |
-|                           | API testing               |                                  |
+|                           | Coding                    | 120                              |
+|                           | Unit testing              | 30                               |
+|                           | API testing               | 20                               |
 | Integration               |                           |                                  |
-|                           | Testing complete system   |                                  |
-|                           | Software release          |                                  |
-|                           |                           |                                  |
-|                           |                           |                                  |
-|                           |                           |                                  |
+|                           | Integrate all components  | 10                               |
+|                           | Testing complete system   | 10                               |
+|                           | Software release          | 15                               |
 
 ###
 ###
@@ -72,7 +70,7 @@ Report here the results of the three estimation approaches. The  estimates may d
 | ------------------------------------- | --------------------------------------- | -------------------- |
 | estimate by size                      | 400 ph                                  | 2.5 calendar weeks   |
 | estimate by product decomposition     | 320 ph                                  | 2.0 calendar wekks   |
-| estimate by activity decomposition    |                                         |                      |
+| estimate by activity decomposition    | 305 ph                                  |                      |
 
 
 
