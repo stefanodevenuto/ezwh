@@ -1,24 +1,25 @@
 # Requirements Document 
 
 Authors: 
-- Fabio Orizio Mirto
+- Fabio Orazio Mirto
 - Roberto Sirigu
 - Peter Alhachem
 - Stefano De Venuto
 
 Date: 13 april 2022
 
-Version: 0.1
+Version: 1.0
 
 | Version number | Change                                                       |
 |----------------|:-------------------------------------------------------------|
-| 1              | Added Stakeholders and some interfaces |
-| 2              | Completed interfaces and added context diagram |
-| 3              | Fixed Context Diagram and added Stories and Functional Requirements |
-| 4              | Added Non Functional Requirements |
-| 5              | Added Use Case Diagram and Use Cases |
-| 6              | Fixed some Use Cases and added Glossary |
-| 7              | Added Deployment Diagram |
+| 0.1              | Added Stakeholders and some interfaces |
+| 0.2              | Completed interfaces and added context diagram |
+| 0.3              | Fixed Context Diagram and added Stories and Functional Requirements |
+| 0.4              | Added Non Functional Requirements |
+| 0.5              | Added Use Case Diagram and Use Cases |
+| 0.6              | Fixed some Use Cases and added Glossary |
+| 0.7              | Added Deployment Diagram |
+| 1                | Minor fix|
 
 # Contents
 
