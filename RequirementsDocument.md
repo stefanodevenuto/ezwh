@@ -226,7 +226,7 @@ Fabio, 35, is the sytem administrator of Turbance, a company specialized in elec
 | NFR4 | Performance  | The Suppliers' list must be retrieved in less than 1 seconds | FR1.2 |
 | NFR2 | Performance  | All functions should complete in leass than 0.5 second | All FR |
 | NFR5 | Localisation | Decimal numbers use . (dot) as decimal separator | All FR |
-| NFR6 | Domain       | Currency is Euro |
+| NFR6 | Domain       | Currency is Euro | All FR |
 
 
 # Use case diagram and use cases
@@ -249,6 +249,7 @@ actor "Organizational Unit Manager" as OrganizationalUnitManager #Green;line:gre
 actor "Payment service" as PaymentService #Red;line:red;text:red
 actor "Cloud Service" as CloudService  #Red;line:red;text:red
 actor "Transportation Company" as TransportationCompany  #Red;line:red;text:red
+actor "Mail Service" as MailService  #Red;line:red;text:red
 
 'Use cases
 
@@ -272,19 +273,19 @@ rectangle EZWH {
    
   'Actions
   ExportDataAndAnalytics .right.>AuthenticateAndAuthorize: <<includes>> 
-  AuthenticateAndAuthorize <.down. ManageWarehouse #Green;line.bold;line.bold;text:green : <<includes>> 
-  AuthenticateAndAuthorize <.down. ManageOrders #Green;line.bold;text:green : <<includes>>
-  AuthenticateAndAuthorize <.up. ManageMainCatalogueRequest #Green;line.bold;text:green : <<include>>
-  AuthenticateAndAuthorize <.up. HandlingOrders #Green;line.bold;text:green : <<includes>>
-  AuthenticateAndAuthorize <.down. ManageQualityTests #Green;line.bold;text:green : <<includes>>
-  AuthenticateAndAuthorize <.up. ManageSupplierCatalogue #Green;line.bold;text:green : <<includes>>
+  AuthenticateAndAuthorize <.down. ManageWarehouse #Green;text:green : <<includes>> 
+  AuthenticateAndAuthorize <.down. ManageOrders #Green;text:green : <<includes>>
+  AuthenticateAndAuthorize <.up. ManageMainCatalogueRequest #Green;text:green : <<include>>
+  AuthenticateAndAuthorize <.up. HandlingOrders #Green;text:green : <<includes>>
+  AuthenticateAndAuthorize <.down. ManageQualityTests #Green;text:green : <<includes>>
+  AuthenticateAndAuthorize <.up. ManageSupplierCatalogue #Green;text:green : <<includes>>
 
-  ExportDataAndAnalytics <.up. HandlingOrders #Blue;line.bold;text:blue : <<includes>>
-  ExportDataAndAnalytics <.down. ManageOrders #Blue;line.bold;text:blue : <<includes>>
-  ExportDataAndAnalytics <.down. ManageWarehouse #Blue;line.bold;text:blue : <<includes>>
-  ExportDataAndAnalytics <.up. ManageMainCatalogueRequest #Blue;line.bold;text:blue : <<include>>
-  ExportDataAndAnalytics <.down. ManageQualityTests #Blue;line.bold;text:blue : <<includes>>
-  ExportDataAndAnalytics <.up. ManageSupplierCatalogue #Blue;line.bold;text:blue : <<includes>>
+  ExportDataAndAnalytics <.up. HandlingOrders #Blue;text:blue : <<includes>>
+  ExportDataAndAnalytics <.down. ManageOrders #Blue;text:blue : <<includes>>
+  ExportDataAndAnalytics <.down. ManageWarehouse #Blue;text:blue : <<includes>>
+  ExportDataAndAnalytics <.up. ManageMainCatalogueRequest #Blue;text:blue : <<include>>
+  ExportDataAndAnalytics <.down. ManageQualityTests #Blue;text:blue : <<includes>>
+  ExportDataAndAnalytics <.up. ManageSupplierCatalogue #Blue;text:blue : <<includes>>
   
   ManageOrders .left.> ManageInternalOrders : <<includes>>
   ManageExternalOrders  <.up. ManageOrders : <<includes>>
@@ -300,7 +301,7 @@ rectangle EZWH {
 
 Administrator -right-> ManageUsersAndRights #line.bold
 Administrator <-right- ManageMainCatalogueRequest #black;line.bold
-TransportationCompany <-left- HandlingOrders  #black;line.bold
+TransportationCompany <-right- HandlingOrders  #black;line.bold
 ManageOrders -left-> TransportationCompany #Black;line.bold
 ManageExternalOrders -left-> PaymentService #black;line.bold
 
@@ -310,6 +311,7 @@ SupplierManager -down-> ManageSupplierCatalogue  #line.bold
 
 CloudService <-right- ExportDataAndAnalytics #black;line.bold
 CloudService <-right- AuthenticateAndAuthorize #black;line.bold
+MailService <-right- AuthenticateAndAuthorize #black;line.bold
 ManageOrders <-left- WarehouseManager  #line.bold
 ManageWarehouse <-left- WarehouseManager  #line.bold
 
