@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1669px" preserveAspectRatio="none" style="width:1376px;height:1669px;background:#FFFFFF;" version="1.1" viewBox="0 0 1376 1669" width="1376px" zoomAndPan="magnify"><defs/><g><!--MD5=[a2f7d232d0b1e62b73a0a4f56432f17d]
+class EZWH--><rect codeLine="6" fill="#FEFECE" height="41.0938" id="EZWH" style="stroke:#A80036;stroke-width:1.5;" width="41" x="445.5" y="656"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="35" x="448.5" y="673.457">EZWH</text><line style="stroke:#A80036;stroke-width:1.5;" x1="446.5" x2="485.5" y1="681.0938" y2="681.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="446.5" x2="485.5" y1="689.0938" y2="689.0938"/><!--MD5=[3fd616f346a44cd59a91eb10b19e157c]
+class User--><rect codeLine="8" fill="#FEFECE" height="96.4375" id="User" style="stroke:#A80036;stroke-width:1.5;" width="68" x="339" y="758"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="27" x="359.5" y="775.457">User</text><line style="stroke:#A80036;stroke-width:1.5;" x1="340" x2="406" y1="783.0938" y2="783.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="32" x="345" y="798.5127">+name</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="48" x="345" y="812.3486">+surname</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="30" x="345" y="826.1846">+email</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="56" x="345" y="840.0205">+password</text><line style="stroke:#A80036;stroke-width:1.5;" x1="340" x2="406" y1="846.4375" y2="846.4375"/><!--MD5=[8ee5acf47e85d3930e2f5379c2a6de6d]
+class OrganizationalUnit--><rect codeLine="15" fill="#FEFECE" height="41.0938" id="OrganizationalUnit" style="stroke:#A80036;stroke-width:1.5;" width="107" x="318.5" y="1370"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="101" x="321.5" y="1387.457">OrganizationalUnit</text><line style="stroke:#A80036;stroke-width:1.5;" x1="319.5" x2="424.5" y1="1395.0938" y2="1395.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="319.5" x2="424.5" y1="1403.0938" y2="1403.0938"/><!--MD5=[38edcf8f75b7108e362d3fab23da6974]
+class OrganizationalUnitManager--><rect codeLine="16" fill="#FEFECE" height="41.0938" id="OrganizationalUnitManager" style="stroke:#A80036;stroke-width:1.5;" width="155" x="99.5" y="1489"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="149" x="102.5" y="1506.457">OrganizationalUnitManager</text><line style="stroke:#A80036;stroke-width:1.5;" x1="100.5" x2="253.5" y1="1514.0938" y2="1514.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="100.5" x2="253.5" y1="1522.0938" y2="1522.0938"/><!--MD5=[a32122c2e09bdca3f870ac07b0aaaf61]
+class QualityOffice--><rect codeLine="17" fill="#FEFECE" height="41.0938" id="QualityOffice" style="stroke:#A80036;stroke-width:1.5;" width="74" x="367" y="1489"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="68" x="370" y="1506.457">QualityOffice</text><line style="stroke:#A80036;stroke-width:1.5;" x1="368" x2="440" y1="1514.0938" y2="1514.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="368" x2="440" y1="1522.0938" y2="1522.0938"/><!--MD5=[5c9db729c8121c52bfec987c65ccf104]
+class QualityOfficeManager--><rect codeLine="18" fill="#FEFECE" height="41.0938" id="QualityOfficeManager" style="stroke:#A80036;stroke-width:1.5;" width="122" x="486" y="1615"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="116" x="489" y="1632.457">QualityOfficeManager</text><line style="stroke:#A80036;stroke-width:1.5;" x1="487" x2="607" y1="1640.0938" y2="1640.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="487" x2="607" y1="1648.0938" y2="1648.0938"/><!--MD5=[5e1deb958606d83ef5f4988eb2b8f966]
+class WarehouseManager--><rect codeLine="19" fill="#FEFECE" height="54.9297" id="WarehouseManager" style="stroke:#A80036;stroke-width:1.5;" width="118" x="170" y="922"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="112" x="173" y="939.457">WarehouseManager</text><line style="stroke:#A80036;stroke-width:1.5;" x1="171" x2="287" y1="947.0938" y2="947.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="15" x="176" y="962.5127">+ID</text><line style="stroke:#A80036;stroke-width:1.5;" x1="171" x2="287" y1="968.9297" y2="968.9297"/><!--MD5=[dbbb619f82cf169864fc1f8193a722de]
+class SupplierManager--><rect codeLine="22" fill="#FEFECE" height="41.0938" id="SupplierManager" style="stroke:#A80036;stroke-width:1.5;" width="100" x="323" y="929"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="94" x="326" y="946.457">SupplierManager</text><line style="stroke:#A80036;stroke-width:1.5;" x1="324" x2="422" y1="954.0938" y2="954.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="324" x2="422" y1="962.0938" y2="962.0938"/><!--MD5=[6f6af049516bc56aac6e320b3234ce97]
+class Supplier--><rect codeLine="24" fill="#FEFECE" height="82.6016" id="Supplier" style="stroke:#A80036;stroke-width:1.5;" width="58" x="309" y="427"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="46" x="315" y="444.457">Supplier</text><line style="stroke:#A80036;stroke-width:1.5;" x1="310" x2="366" y1="452.0938" y2="452.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="32" x="315" y="467.5127">+name</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="46" x="315" y="481.3486">+address</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="33" x="315" y="495.1846">+P.IVA</text><line style="stroke:#A80036;stroke-width:1.5;" x1="310" x2="366" y1="501.6016" y2="501.6016"/><!--MD5=[c5149b4909ffd2688ff51a939867f774]
+class Warehouse--><rect codeLine="29" fill="#FEFECE" height="54.9297" id="Warehouse" style="stroke:#A80036;stroke-width:1.5;" width="70" x="381" y="1069"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="64" x="384" y="1086.457">Warehouse</text><line style="stroke:#A80036;stroke-width:1.5;" x1="382" x2="450" y1="1094.0938" y2="1094.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="46" x="387" y="1109.5127">+address</text><line style="stroke:#A80036;stroke-width:1.5;" x1="382" x2="450" y1="1115.9297" y2="1115.9297"/><!--MD5=[02e4b9b7573f1156f41e60aa5b4e25a4]
+class Company--><rect codeLine="32" fill="#FEFECE" height="82.6016" id="Company" style="stroke:#A80036;stroke-width:1.5;" width="59" x="342.5" y="1209"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="53" x="345.5" y="1226.457">Company</text><line style="stroke:#A80036;stroke-width:1.5;" x1="343.5" x2="400.5" y1="1234.0938" y2="1234.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="32" x="348.5" y="1249.5127">+name</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="33" x="348.5" y="1263.3486">+P.IVA</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="46" x="348.5" y="1277.1846">+address</text><line style="stroke:#A80036;stroke-width:1.5;" x1="343.5" x2="400.5" y1="1283.6016" y2="1283.6016"/><!--MD5=[cf4d6237fcae255cd2e1656cf84a30e2]
+class Order--><rect codeLine="38" fill="#FEFECE" height="96.4375" id="Order" style="stroke:#A80036;stroke-width:1.5;" width="161" x="168.5" y="7"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="31" x="233.5" y="24.457">Order</text><line style="stroke:#A80036;stroke-width:1.5;" x1="169.5" x2="328.5" y1="32.0938" y2="32.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="43" x="174.5" y="47.5127">+OrderID</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="149" x="174.5" y="61.3486">+transportation company name</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="71" x="174.5" y="75.1846">+tracking code</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="36" x="174.5" y="89.0205">+status</text><line style="stroke:#A80036;stroke-width:1.5;" x1="169.5" x2="328.5" y1="95.4375" y2="95.4375"/><!--MD5=[86c76def5ece80b7d8b2a7c0afcac5fe]
+class InternalOrder--><rect codeLine="45" fill="#FEFECE" height="54.9297" id="InternalOrder" style="stroke:#A80036;stroke-width:1.5;" width="174" x="7" y="1608"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="72" x="58" y="1625.457">InternalOrder</text><line style="stroke:#A80036;stroke-width:1.5;" x1="8" x2="180" y1="1633.0938" y2="1633.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="162" x="13" y="1648.5127">+is_transported_by_a_company?</text><line style="stroke:#A80036;stroke-width:1.5;" x1="8" x2="180" y1="1654.9297" y2="1654.9297"/><!--MD5=[5722942225b5fcac6b2e1e225249c59f]
+class ExternalOrder--><rect codeLine="49" fill="#FEFECE" height="41.0938" id="ExternalOrder" style="stroke:#A80036;stroke-width:1.5;" width="81" x="287.5" y="188"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="75" x="290.5" y="205.457">ExternalOrder</text><line style="stroke:#A80036;stroke-width:1.5;" x1="288.5" x2="367.5" y1="213.0938" y2="213.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="288.5" x2="367.5" y1="221.0938" y2="221.0938"/><!--MD5=[44a1b4afaef76c16e6c9ec4990ad0c8d]
+class Item--><rect codeLine="51" fill="#FEFECE" height="54.9297" id="Item" style="stroke:#A80036;stroke-width:1.5;" width="58" x="790" y="1223"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="24" x="807" y="1240.457">Item</text><line style="stroke:#A80036;stroke-width:1.5;" x1="791" x2="847" y1="1248.0938" y2="1248.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="46" x="796" y="1263.5127">+barcode</text><line style="stroke:#A80036;stroke-width:1.5;" x1="791" x2="847" y1="1269.9297" y2="1269.9297"/><path d="M872,1083.5 L872,1109.8516 L1254,1109.8516 L1254,1093.5 L1244,1083.5 L872,1083.5 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><path d="M1244,1083.5 L1244,1093.5 L1254,1093.5 L1244,1083.5 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="361" x="878" y="1101.9951">The barcode is implemented by the Company, not the Supplier</text><!--MD5=[7950a247446dc225a41ad75664fae997]
+class ItemDescriptor--><rect codeLine="57" fill="#FEFECE" height="82.6016" id="ItemDescriptor" style="stroke:#A80036;stroke-width:1.5;" width="87" x="534.5" y="314"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="81" x="537.5" y="331.457">ItemDescriptor</text><line style="stroke:#A80036;stroke-width:1.5;" x1="535.5" x2="620.5" y1="339.0938" y2="339.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="32" x="540.5" y="354.5127">+name</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="39" x="540.5" y="368.3486">+weight</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="60" x="540.5" y="382.1846">+dimensions</text><line style="stroke:#A80036;stroke-width:1.5;" x1="535.5" x2="620.5" y1="388.6016" y2="388.6016"/><!--MD5=[1b638eb11dfc7611e3e7b686b33216f9]
+class WarehouseCatalogue--><rect codeLine="62" fill="#FEFECE" height="41.0938" id="WarehouseCatalogue" style="stroke:#A80036;stroke-width:1.5;" width="127" x="406.5" y="188"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="121" x="409.5" y="205.457">WarehouseCatalogue</text><line style="stroke:#A80036;stroke-width:1.5;" x1="407.5" x2="532.5" y1="213.0938" y2="213.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="407.5" x2="532.5" y1="221.0938" y2="221.0938"/><!--MD5=[58596d4ca3d2b05409e5ebdf29f2858d]
+class it_costs--><rect codeLine="64" fill="#FEFECE" height="54.9297" id="it_costs" style="stroke:#A80036;stroke-width:1.5;" width="49" x="602.5" y="540"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="43" x="605.5" y="557.457">it_costs</text><line style="stroke:#A80036;stroke-width:1.5;" x1="603.5" x2="650.5" y1="565.0938" y2="565.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="30" x="608.5" y="580.5127">+price</text><line style="stroke:#A80036;stroke-width:1.5;" x1="603.5" x2="650.5" y1="586.9297" y2="586.9297"/><!--MD5=[a6d072ab1e03fc66da0442b718ebdef5]
+class MainCatalogue--><rect codeLine="68" fill="#FEFECE" height="41.0938" id="MainCatalogue" style="stroke:#A80036;stroke-width:1.5;" width="89" x="421.5" y="547"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="83" x="424.5" y="564.457">MainCatalogue</text><line style="stroke:#A80036;stroke-width:1.5;" x1="422.5" x2="509.5" y1="572.0938" y2="572.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="422.5" x2="509.5" y1="580.0938" y2="580.0938"/><!--MD5=[2cee8a24fda3076608bcf84f06d2db85]
+class SupplierCatalogue--><rect codeLine="69" fill="#FEFECE" height="41.0938" id="SupplierCatalogue" style="stroke:#A80036;stroke-width:1.5;" width="109" x="299.5" y="656"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="103" x="302.5" y="673.457">SupplierCatalogue</text><line style="stroke:#A80036;stroke-width:1.5;" x1="300.5" x2="407.5" y1="681.0938" y2="681.0938"/><line style="stroke:#A80036;stroke-width:1.5;" x1="300.5" x2="407.5" y1="689.0938" y2="689.0938"/><!--MD5=[df38be88ccee13e832d6fafd6288a4ca]
+class Test--><rect codeLine="70" fill="#FEFECE" height="68.7656" id="Test" style="stroke:#A80036;stroke-width:1.5;" width="71" x="620.5" y="915"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="24" x="644" y="932.457">Test</text><line style="stroke:#A80036;stroke-width:1.5;" x1="621.5" x2="690.5" y1="940.0938" y2="940.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="32" x="626.5" y="955.5127">+name</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="59" x="626.5" y="969.3486">+description</text><line style="stroke:#A80036;stroke-width:1.5;" x1="621.5" x2="690.5" y1="975.7656" y2="975.7656"/><!--MD5=[47ccbbcd9e46084c93562a335102da55]
+class Shelf--><rect codeLine="75" fill="#FEFECE" height="68.7656" id="Shelf" style="stroke:#A80036;stroke-width:1.5;" width="80" x="1289" y="1062"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="28" x="1315" y="1079.457">Shelf</text><line style="stroke:#A80036;stroke-width:1.5;" x1="1290" x2="1368" y1="1087.0938" y2="1087.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="68" x="1295" y="1102.5127">+ShelfNumber</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="57" x="1295" y="1116.3486">+freeSpace</text><line style="stroke:#A80036;stroke-width:1.5;" x1="1290" x2="1368" y1="1122.7656" y2="1122.7656"/><!--MD5=[a6842a721ad0a9f623a523d1d7b13c1e]
+class Sector--><rect codeLine="80" fill="#FEFECE" height="68.7656" id="Sector" style="stroke:#A80036;stroke-width:1.5;" width="69" x="1294.5" y="915"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="35" x="1311.5" y="932.457">Sector</text><line style="stroke:#A80036;stroke-width:1.5;" x1="1295.5" x2="1362.5" y1="940.0938" y2="940.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="47" x="1300.5" y="955.5127">+SectorID</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="57" x="1300.5" y="969.3486">+freeSpace</text><line style="stroke:#A80036;stroke-width:1.5;" x1="1295.5" x2="1362.5" y1="975.7656" y2="975.7656"/><!--MD5=[99e860e32de35396decc8068c2a4484c]
+class manages--><rect codeLine="85" fill="#FEFECE" height="54.9297" id="manages" style="stroke:#A80036;stroke-width:1.5;" width="59" x="612.5" y="181"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="53" x="615.5" y="198.457">manages</text><line style="stroke:#A80036;stroke-width:1.5;" x1="613.5" x2="670.5" y1="206.0938" y2="206.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="44" x="618.5" y="221.5127">+quantity</text><line style="stroke:#A80036;stroke-width:1.5;" x1="613.5" x2="670.5" y1="227.9297" y2="227.9297"/><!--MD5=[8c9cf0efc99f4b875b5d28d2eebfcabf]
+class operated--><rect codeLine="89" fill="#FEFECE" height="68.7656" id="operated" style="stroke:#A80036;stroke-width:1.5;" width="55" x="710.5" y="1062"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="49" x="713.5" y="1079.457">operated</text><line style="stroke:#A80036;stroke-width:1.5;" x1="711.5" x2="764.5" y1="1087.0938" y2="1087.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="33" x="716.5" y="1102.5127">+result</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="27" x="716.5" y="1116.3486">+date</text><line style="stroke:#A80036;stroke-width:1.5;" x1="711.5" x2="764.5" y1="1122.7656" y2="1122.7656"/><ellipse cx="565" cy="567.5" fill="#000000" rx="2" ry="2" style="stroke:none;stroke-width:1.0;"/><ellipse cx="575" cy="208.5" fill="#000000" rx="2" ry="2" style="stroke:none;stroke-width:1.0;"/><ellipse cx="673" cy="1096.5" fill="#000000" rx="2" ry="2" style="stroke:none;stroke-width:1.0;"/><!--MD5=[8bc4e126e30f8f0f478543f5d5693823]
+reverse link User to OrganizationalUnitManager--><path codeLine="95" d="M333.7,810.74 C261.94,819.95 117,850.68 117,948.5 C117,948.5 117,948.5 117,1391.5 C117,1429.17 141.93,1466.88 159.65,1488.94 " fill="none" id="User-backto-OrganizationalUnitManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="338.74,810.11,329.3164,807.2472,333.778,810.7249,330.3002,815.1864,338.74,810.11" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[2b3c0a6b9d306c45caef3d1a86e3ccee]
+reverse link User to QualityOfficeManager--><path codeLine="96" d="M412.24,819.33 C463.56,838.19 547,879.47 547,948.5 C547,948.5 547,948.5 547,1510.5 C547,1547.31 547,1590.27 547,1614.74 " fill="none" id="User-backto-QualityOfficeManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="407.38,817.57,414.5012,824.3736,412.0864,819.258,417.202,816.8433,407.38,817.57" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[d5bc3d6864713e0f86da0a67858aaa2a]
+reverse link User to WarehouseManager--><path codeLine="97" d="M335.26,844.08 C310.43,868.49 278.5,899.86 256.15,921.82 " fill="none" id="User-backto-WarehouseManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="338.87,840.53,329.6424,843.9725,335.2989,844.0296,335.2418,849.6862,338.87,840.53" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[4e9ed7fee83e629c915257c93e2dd710]
+reverse link User to SupplierManager--><path codeLine="98" d="M373,859.23 C373,883.46 373,910.8 373,928.76 " fill="none" id="User-backto-SupplierManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="373,854.12,369,863.12,373,859.12,377,863.12,373,854.12" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[06831fc536bebeba1d3bf0fca9126ea3]
+link EZWH to User--><path codeLine="100" d="M451.67,697.14 C439.8,713.42 422.44,737.22 407.05,758.32 " fill="none" id="EZWH-User" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[747e8b0796154c63f9f5d5e06b875830]
+link EZWH to Warehouse--><path codeLine="101" d="M465.19,697.32 C463.02,746.24 456.06,876.52 440,984 C435.64,1013.18 428.23,1046.16 422.79,1068.64 " fill="none" id="EZWH-Warehouse" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[e121b16b0ce648ce0395b6a63c18639f]
+reverse link OrganizationalUnit to QualityOffice--><path codeLine="103" d="M378.73,1416.1 C384.65,1437.74 393.15,1468.83 398.63,1488.85 " fill="none" id="OrganizationalUnit-backto-QualityOffice" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="377.36,1411.08,375.8983,1420.8198,378.6901,1415.8998,383.6101,1418.6916,377.36,1411.08" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[2e9b4cd244ba9e31d4d2f5e1c8307460]
+link OrganizationalUnit to OrganizationalUnitManager--><path codeLine="104" d="M339.36,1411.08 C303.37,1432.68 245.78,1467.23 209.75,1488.85 " fill="none" id="OrganizationalUnit-OrganizationalUnitManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="296.2874,1447.6032,287.0193,1449.737,290.0435,1454.7771,296.2874,1447.6032" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="301" y="1455.4951">manages</text><!--MD5=[de74fdc4850a0933c91e688f1cde25b4]
+link QualityOffice to QualityOfficeManager--><path codeLine="105" d="M415.29,1530.16 C424.24,1544.58 437.74,1564.01 453,1578 C468.86,1592.54 489.03,1605.25 506.62,1614.92 " fill="none" id="QualityOffice-QualityOfficeManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="454.3351,1565.7745,458.9658,1574.0816,462.9642,1569.7733,454.3351,1565.7745" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="467" y="1574.4951">manages</text><!--MD5=[73a4c2ec6064f70de93f37d06b0d1be4]
+reverse link Company to OrganizationalUnit--><path codeLine="106" d="M372,1305.19 C372,1327.91 372,1352.97 372,1369.81 " fill="none" id="Company-backto-OrganizationalUnit" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="372,1292.16,368,1298.16,372,1304.16,376,1298.16,372,1292.16" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="366.2969" y="1359.2723">*</text><!--MD5=[69ac36cd7587600b14ba5c5227757651]
+link Warehouse to Company--><path codeLine="107" d="M390.44,1124.06 C381.9,1134.68 373.42,1147.58 369,1161 C364.04,1176.04 363.56,1193.3 364.75,1208.57 " fill="none" id="Warehouse-Company" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="375.4542,1165.3919,370.0116,1173.1912,375.6354,1174.9008,375.4542,1165.3919" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="32" x="383" y="1175.4951">has a</text><!--MD5=[641af49703b38e745c9a3976df66996b]
+link WarehouseManager to Warehouse--><path codeLine="108" d="M263.3,977.1 C296.93,1003.18 347.93,1042.72 381.6,1068.83 " fill="none" id="WarehouseManager-Warehouse" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="342.9513,1026.2396,337.6042,1018.3746,334.0024,1023.0196,342.9513,1026.2396" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="348" y="1028.4951">manages</text><!--MD5=[2b4f6aabfcfa23046b7ec51db7217868]
+link Item to ItemDescriptor--><path codeLine="110" d="M819,1222.87 C819,1192.52 819,1141.44 819,1097.5 C819,566.5 819,566.5 819,566.5 C819,463 691.09,398.85 621.64,371.64 " fill="none" id="Item-ItemDescriptor" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[d93895bd9f61df81f68645f6adda3d23]
+link MainCatalogue to EZWH--><path codeLine="112" d="M466,588.13 C466,607.43 466,636.74 466,656 " fill="none" id="MainCatalogue-EZWH" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[19c98bbda288ed8642e32db9b3e09fc2]
+link ItemDescriptor to MainCatalogue--><path codeLine="113" d="M534.43,374.92 C512.68,386.52 488.24,403.74 475,427 C453.39,464.96 457.72,518.51 462.19,546.95 " fill="none" id="ItemDescriptor-MainCatalogue" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="478.0641,473.2858,484.2759,466.0841,478.8564,463.8083,478.0641,473.2858" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70" x="489" y="473.9951">contained in</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="521.5117" y="374.4424">*</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="7" x="453.0427" y="536.0964">1</text><!--MD5=[1c387b9c9934b1681f6b2ec5a8527691]
+link ItemDescriptor to apoint44--><path d="M575.48,397.24 C571.93,454.49 565.83,553.16 565.08,565.27 " fill="none" id="ItemDescriptor-apoint44" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="577.6911,473.6662,581.1832,464.82,575.3166,464.4569,577.6911,473.6662" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70" x="587" y="473.9951">contained in</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="569.7427" y="418.0958">*</text><!--MD5=[e25e968c46053443ad1e478f7686e9e2]
+link apoint44 to SupplierCatalogue--><path d="M563.9,569.41 C559.55,572.97 543.02,586.25 528,595 C487.16,618.79 438.09,640.95 402.49,655.98 " fill="none" id="apoint44-SupplierCatalogue" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="410.9996" y="645.1352">*</text><!--MD5=[18190d86bbbee458b0547ee366521b00]
+link apoint44 to it_costs--><path d="M567.42,567.5 C579.06,567.5 590.69,567.5 602.33,567.5 " fill="none" id="apoint44-it_costs" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><!--MD5=[835a582b619169f5d6738ea167cbc1f7]
+link Supplier to SupplierCatalogue--><path codeLine="118" d="M341.16,510.2 C344.58,554.17 349.88,622.4 352.47,655.77 " fill="none" id="Supplier-SupplierCatalogue" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="32" x="349" y="572.9951">has a</text><!--MD5=[0a568638040b78de03552d4e79ffc6ba]
+link WarehouseCatalogue to ItemDescriptor--><path codeLine="120" d="M469.54,229.26 C470.05,245.14 472.8,267.46 483,284 C495.29,303.93 515.47,320.09 534.08,331.89 " fill="none" id="WarehouseCatalogue-ItemDescriptor" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="485.3383,270.9432,487.6655,280.1646,492.6413,277.0355,485.3383,270.9432" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70" x="497" y="280.4951">contained in</text><!--MD5=[359110e1595d24311d2678cef8c006a8]
+link Warehouse to Item--><path codeLine="121" d="M451.06,1110.72 C529.38,1140.26 717.36,1211.17 789.83,1238.5 " fill="none" id="Warehouse-Item" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="629.3217,1168.4112,636.7476,1174.3532,638.822,1168.8535,629.3217,1168.4112" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="50" x="643" y="1175.4951">stored in</text><!--MD5=[107d383624bf8862b8e44952a3fdac58]
+link N1 to Item--><path codeLine="123" d="M1043.44,1109.68 C1000.7,1136.31 898.73,1199.83 848.29,1231.25 " fill="none" id="N1-Item" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><!--MD5=[5640fedae7542c26882af037c0ab2c0b]
+reverse link Sector to Shelf--><path codeLine="125" d="M1329,997.36 C1329,1018.36 1329,1042.64 1329,1061.8 " fill="none" id="Sector-backto-Shelf" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1329,984.13,1325,990.13,1329,996.13,1333,990.13,1329,984.13" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="1323.5234" y="1051.2113">*</text><!--MD5=[c5842a04987174e80d1de3924d242287]
+link Shelf to Item--><path codeLine="126" d="M1288.92,1122.89 C1283.35,1125.86 1277.62,1128.67 1272,1131 C1118.66,1194.68 921.64,1232.18 848.25,1244.74 " fill="none" id="Shelf-Item" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="1197.8192,1168.8432,1188.318,1168.4212,1189.8845,1174.0865,1197.8192,1168.8432" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="24" x="1202" y="1175.4951">is in</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="7" x="1273.8849" y="1123.8298">1</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="855.9891" y="1238.9325">*</text><!--MD5=[37ebe4b0b5896842c7a32b955ab13cca]
+link Order to apoint56--><path d="M329.54,78.56 C393.35,98.88 482.8,132.97 551,181 C561.96,188.72 571.51,202.28 574.23,206.33 " fill="none" id="Order-apoint56" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="507.4321,144.4901,500.7747,137.6983,498.054,142.9086,507.4321,144.4901" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="21" x="512" y="147.4951">has</text><!--MD5=[796c509b0374b0cf42d3c61c31b03147]
+link apoint56 to ItemDescriptor--><path d="M575.03,210.75 C575.21,219.69 576.35,274.56 577.16,313.85 " fill="none" id="apoint56-ItemDescriptor" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[f3a7d75630860cf9ab3bf8a308b0f4bd]
+link apoint56 to manages--><path d="M577.09,208.5 C588.84,208.5 600.59,208.5 612.34,208.5 " fill="none" id="apoint56-manages" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><!--MD5=[cc7b8b7eb163203bfe33bd82a6785c76]
+link Order to WarehouseManager--><path codeLine="131" d="M239.53,103.21 C234.36,133 229,172.35 229,207.5 C229,207.5 229,207.5 229,807 C229,847.04 229,893.46 229,921.9 " fill="none" id="Order-WarehouseManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="234.0643,562.6762,231.0093,571.6827,236.8867,571.7583,234.0643,562.6762" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="38" x="243" y="572.9951">issues</text><!--MD5=[b5a1ad96927c0ce540f9d90b2dc6633c]
+link ExternalOrder to Supplier--><path codeLine="132" d="M328.77,229.32 C330.4,271.44 334.25,370.62 336.42,426.81 " fill="none" id="ExternalOrder-Supplier" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="335.8065,270.1795,333.2198,279.3316,339.0933,279.1041,335.8065,270.1795" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="19" x="345" y="280.4951">fills</text><!--MD5=[f1ec0061f2219fe1f17321de6f80488e]
+reverse link Order to InternalOrder--><path codeLine="134" d="M163.81,82.34 C108.25,105.4 46,145.16 46,207.5 C46,207.5 46,207.5 46,1510.5 C46,1545.82 63.15,1583.21 76.94,1607.59 " fill="none" id="Order-backto-InternalOrder" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="168.48,80.43,158.636,80.1213,163.8495,82.3165,161.6544,87.53,168.48,80.43" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[10717129d6028a1f4db777f3b2860053]
+reverse link Order to ExternalOrder--><path codeLine="135" d="M276.03,107.83 C290.39,135.37 307.19,167.59 317.72,187.78 " fill="none" id="Order-backto-ExternalOrder" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="273.56,103.11,274.1703,112.9399,275.8699,107.5444,281.2654,109.2441,273.56,103.11" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[fa9fa046e52228cfd6ca6c2768176c23]
+link OrganizationalUnitManager to InternalOrder--><path codeLine="137" d="M163.85,1530.15 C149.86,1551.05 127.64,1584.24 112.03,1607.56 " fill="none" id="OrganizationalUnitManager-InternalOrder" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="145.2186,1573.3307,152.6924,1567.4492,147.808,1564.1795,145.2186,1573.3307" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="38" x="157" y="1574.4951">issues</text><!--MD5=[07408adc1ae14bd8c923a5cd399adea8]
+link Test to QualityOfficeManager--><path codeLine="140" d="M641.96,984.13 C631.13,1013.1 618,1056.33 618,1095.5 C618,1095.5 618,1095.5 618,1510.5 C618,1551.93 587.79,1592.07 566.78,1614.98 " fill="none" id="Test-QualityOfficeManager" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="623.5917,1326.2109,619.603,1334.8447,625.4396,1335.5402,623.5917,1326.2109" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="43" x="632" y="1336.4951">perform</text><!--MD5=[f0d8408dfaadb23fd166db2f1ca98cd5]
+link Test to apoint68--><path d="M659.94,984.13 C664.57,1023.62 671.76,1084.95 672.86,1094.29 " fill="none" id="Test-apoint68" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#000000" points="670.5824,1028.1417,672.4477,1018.8159,666.6099,1019.5006,670.5824,1028.1417" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75" x="679" y="1028.4951">performed on</text><!--MD5=[0a65f05cb3858528969c64fb551d2693]
+link apoint68 to Item--><path d="M673.52,1098.61 C675.6,1102.99 683.66,1119.39 693,1131 C722.35,1167.51 762.72,1203.53 789.78,1226.09 " fill="none" id="apoint68-Item" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[a6e9fe77566c5f351c0dc0cb664ea710]
+link apoint68 to operated--><path d="M675.03,1096.5 C686.84,1096.5 698.64,1096.5 710.45,1096.5 " fill="none" id="apoint68-operated" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><!--MD5=[67aa2f530ea3329d86570275ec1339ae]
+@startuml ClassDiagram
+skinparam Style strictuml
+' Remove strange Icons in Attributes
+skinparam classAttributeIconSize 0
+
+' Classes
+Class EZWH
+
+class User {
+    + name
+    + surname
+    + email
+    + password
+}
+
+class OrganizationalUnit
+class OrganizationalUnitManager
+class QualityOffice
+class QualityOfficeManager
+class WarehouseManager {
+    + ID
+}
+class SupplierManager
+
+Class Supplier {
+    + name
+    + address
+    + P.IVA
+}
+Class Warehouse {
+    + address
+}
+Class Company {
+    + name
+    + P.IVA
+    + address
+}
+
+Class Order {
+    + OrderID
+    + transportation company name
+    + tracking code
+    + status
+}
+
+Class InternalOrder {
+    + is_transported_by_a_company?
+}
+
+Class ExternalOrder
+
+Class Item {
+    + barcode
+}
+
+note "The barcode is implemented by the Company, not the Supplier" AS N1
+
+Class ItemDescriptor {
+    + name
+    + weight
+    + dimensions
+}
+Class WarehouseCatalogue
+
+class it_costs {
+    + price
+}
+
+Class MainCatalogue
+Class SupplierCatalogue 
+Class Test {
+    + name
+    + description
+}
+
+Class Shelf {
+    + ShelfNumber
+    + freeSpace
+}
+
+Class Sector {
+    + SectorID
+    + freeSpace
+}
+
+class manages {
+    + quantity
+}
+
+class operated {
+    + result
+    + date
+}
+
+' Associations
+User <- - OrganizationalUnitManager
+User <- - QualityOfficeManager
+User <- - WarehouseManager
+User <- - SupplierManager
+
+EZWH - - User
+EZWH - - Warehouse
+
+OrganizationalUnit <- - QualityOffice
+OrganizationalUnit - - OrganizationalUnitManager : manages <
+QualityOffice - - QualityOfficeManager : manages <
+Company *- - "*" OrganizationalUnit
+Warehouse - - Company: has a <
+WarehouseManager - - Warehouse : manages >
+
+Item - - ItemDescriptor
+
+MainCatalogue - - EZWH
+ItemDescriptor "*" - - "1" MainCatalogue: contained in >
+ 
+ItemDescriptor "*" - - "*" SupplierCatalogue : contained in >
+(ItemDescriptor, SupplierCatalogue) .. it_costs
+
+Supplier - - SupplierCatalogue : has a 
+
+WarehouseCatalogue - - ItemDescriptor : contained in <
+Warehouse - - Item : stored in <
+
+N1 .. Item
+
+Sector  *- - "*" Shelf
+Shelf "1" - - "*" Item: is in <
+
+Order - - ItemDescriptor: has >
+(Order, ItemDescriptor) .. manages
+
+Order - - WarehouseManager : issues <
+ExternalOrder - - Supplier : fills <
+
+Order <- - InternalOrder
+Order <- - ExternalOrder
+
+OrganizationalUnitManager - - InternalOrder : issues >
+
+Test - - Item : performed on >
+Test - - QualityOfficeManager : perform <
+(Test, Item) .. operated
+
+@enduml
+
+@startuml ClassDiagram
+skinparam Style strictuml
+skinparam classAttributeIconSize 0
+
+Class EZWH
+
+class User {
+    + name
+    + surname
+    + email
+    + password
+}
+
+class OrganizationalUnit
+class OrganizationalUnitManager
+class QualityOffice
+class QualityOfficeManager
+class WarehouseManager {
+    + ID
+}
+class SupplierManager
+
+Class Supplier {
+    + name
+    + address
+    + P.IVA
+}
+Class Warehouse {
+    + address
+}
+Class Company {
+    + name
+    + P.IVA
+    + address
+}
+
+Class Order {
+    + OrderID
+    + transportation company name
+    + tracking code
+    + status
+}
+
+Class InternalOrder {
+    + is_transported_by_a_company?
+}
+
+Class ExternalOrder
+
+Class Item {
+    + barcode
+}
+
+note "The barcode is implemented by the Company, not the Supplier" AS N1
+
+Class ItemDescriptor {
+    + name
+    + weight
+    + dimensions
+}
+Class WarehouseCatalogue
+
+class it_costs {
+    + price
+}
+
+Class MainCatalogue
+Class SupplierCatalogue 
+Class Test {
+    + name
+    + description
+}
+
+Class Shelf {
+    + ShelfNumber
+    + freeSpace
+}
+
+Class Sector {
+    + SectorID
+    + freeSpace
+}
+
+class manages {
+    + quantity
+}
+
+class operated {
+    + result
+    + date
+}
+
+User <- - OrganizationalUnitManager
+User <- - QualityOfficeManager
+User <- - WarehouseManager
+User <- - SupplierManager
+
+EZWH - - User
+EZWH - - Warehouse
+
+OrganizationalUnit <- - QualityOffice
+OrganizationalUnit - - OrganizationalUnitManager : manages <
+QualityOffice - - QualityOfficeManager : manages <
+Company *- - "*" OrganizationalUnit
+Warehouse - - Company: has a <
+WarehouseManager - - Warehouse : manages >
+
+Item - - ItemDescriptor
+
+MainCatalogue - - EZWH
+ItemDescriptor "*" - - "1" MainCatalogue: contained in >
+ 
+ItemDescriptor "*" - - "*" SupplierCatalogue : contained in >
+(ItemDescriptor, SupplierCatalogue) .. it_costs
+
+Supplier - - SupplierCatalogue : has a 
+
+WarehouseCatalogue - - ItemDescriptor : contained in <
+Warehouse - - Item : stored in <
+
+N1 .. Item
+
+Sector  *- - "*" Shelf
+Shelf "1" - - "*" Item: is in <
+
+Order - - ItemDescriptor: has >
+(Order, ItemDescriptor) .. manages
+
+Order - - WarehouseManager : issues <
+ExternalOrder - - Supplier : fills <
+
+Order <- - InternalOrder
+Order <- - ExternalOrder
+
+OrganizationalUnitManager - - InternalOrder : issues >
+
+Test - - Item : performed on >
+Test - - QualityOfficeManager : perform <
+(Test, Item) .. operated
+
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: Cp1252
+Language: it
+Country: IT
+--></g></svg>
