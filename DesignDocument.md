@@ -676,7 +676,9 @@ actor Manager
     deactivate DBHandler
     
     RestockOrderManager --> FacadeController : 201 Created
+    deactivate RestockOrderManager
     FacadeController --> Manager : 201 Created
+    deactivate FacadeController
 
 @enduml
 
@@ -1065,7 +1067,6 @@ database "DBHandler" as DBHandler
 UserManager -> DBHandler : login()
 activate DBHandler
 
-DBHandler --> UserManager : 200 OK
 deactivate DBHandler
 
 UserManager --> FacadeController : 200 OK
