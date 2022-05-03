@@ -1,21 +1,16 @@
 'use strict';
 
-const express = require('express');
+var express = require('express');
+var initRestRoutes = require('./api/routes')
 
-const app = new express();
-const port = 3002;
+var app = new express();
+var port = 3002;
 
-var skuManager = require('./managers/skuManager');
+initRestRoutes(app);
 
-app.use(express.json());
 
-app.get('/', (req,res) => res.status(404).send('Page not found!') );
-app.get('/api/', (req,res) => res.status(404).send('Page not found!') );
-app.use('/api/skus/', skuManager);
-
-// activate the server
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+app.listen(port, function () {
+    console.log("Server listening at http://localhost:".concat(port));
 });
 
 module.exports = app;

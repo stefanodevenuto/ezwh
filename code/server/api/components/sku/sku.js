@@ -1,6 +1,6 @@
-class SKU {
-    constructor(description, weight, volume, notes, position, availableQuantity, price, testDescriptors) {
-        this.id = null;
+class Sku {
+    constructor(id = null, description, weight, volume, notes, position, availableQuantity, price, testDescriptors = []) {
+        this.id = id;
         this.description = description;
         this.weight = weight;
         this.volume = volume;
@@ -12,4 +12,4 @@ class SKU {
     }
 }
 
-module.exports = SKU;
+module.exports = Sku;
