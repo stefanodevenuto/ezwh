@@ -5,10 +5,20 @@ var SkuRoutes = require('./sku/routes');
 function registerApiRoutes(router, prefix = '') {
 	//router.use(`${prefix}/auth`, new AuthRoutes().router);
 
-	let skuRouter = new SkuRoutes().router;
+	// Create all Routes
+	const skuRoute = new SkuRoutes();
 	
-	router.use(`${prefix}/sku`, skuRouter);
-	router.use(`${prefix}/skus`, skuRouter);
+	// Init all Maps
+	const skuReady = skuRoute.initMap();
+
+	// Wait all the Maps to setup
+	Promise.all([skuReady]).catch(err => {
+		throw err;
+	});
+
+	router.use(`${prefix}/sku`, skuRoute.router);
+	router.use(`${prefix}/skus`, skuRoute.router);
+	
 }
 
 module.exports = registerApiRoutes;

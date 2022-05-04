@@ -1,8 +1,7 @@
 
-//import { registerErrorHandler, registerMiddleware } from './middleware';
-
-var express = require('express');
-var registerApiRoutes = require('./components/index')
+const express = require('express');
+const registerApiRoutes = require('./components/index')
+const { registerErrorHandler } = require("./helper")
 
 function initRestRoutes(router) {
 	const prefix = '/api';
@@ -10,7 +9,9 @@ function initRestRoutes(router) {
 	router.get(prefix, (req, res) => res.send('It works!'));
 
 	router.use(express.json());
+
 	registerApiRoutes(router, prefix);
+	registerErrorHandler(router);
 }
 
 module.exports = initRestRoutes;
