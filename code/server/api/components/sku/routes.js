@@ -7,7 +7,7 @@ class SkuRoutes {
 	constructor() {
 		this.errorHandler = new ErrorHandler();
 		this.name = 'sku';
-		this.controller = new SkuController(true);
+		this.controller = new SkuController();
 		this.router = express.Router();
 		this.initRoutes();
 	}
