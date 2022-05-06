@@ -1,22 +1,16 @@
 'use strict';
-const express = require('express');
-// init express
-const app = new express();
-const port = 3001;
+require('dotenv').config();
 
-app.use(express.json());
+var express = require('express');
+var initRestRoutes = require('./api/routes')
 
-//GET /api/test
-app.get('/api/hello', (req,res)=>{
-  let message = {
-    message: 'Hello World!'
-  }
-  return res.status(200).json(message);
-});
+var app = new express();
+var port = process.env.PORT || 3002;
 
-// activate the server
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+initRestRoutes(app);
+
+app.listen(port, function () {
+    console.log(`Server listening at http://localhost:${port}: ENABLE_MAP=${process.env.ENABLE_MAP}, EACH_MAP_CAPACITY=${process.env.EACH_MAP_CAPACITY}`);
 });
 
 module.exports = app;
