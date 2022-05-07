@@ -1,4 +1,3 @@
-const sqlite3 = require("sqlite3");
 const AppDAO = require("../../../db/AppDAO");
 
 class SkuDAO extends AppDAO{
