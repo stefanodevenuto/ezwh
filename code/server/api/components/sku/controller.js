@@ -34,7 +34,7 @@ class SkuController {
 				record.position, record.availableQuantity, record.price));
 
 			if (this.enableCache && rows.length < this.skuMap.max) {
-				allSku.map((sku) => this.skuMap.set(sku.id, sku));
+				skus.map((sku) => this.skuMap.set(sku.id, sku));
 				this.allInCache = true;
 			}
 
@@ -94,17 +94,20 @@ class SkuController {
 			const skuId = req.params.id;
 			const rawSku = req.body;
 
+			await this.dao.modifySku(skuId, rawSku);
+
 			if (this.enableCache) {
 				let sku = this.skuMap.get(Number(skuId));
-				sku.description = rawSku.newDescription;
-				sku.weight = rawSku.newWeight;
-				sku.volume = rawSku.newVolume;
-				sku.notes = rawSku.newNotes;
-				sku.price = rawSku.newPrice;
-				sku.availableQuantity = rawSku.newAvailableQuantity;
-			}
 
-			await this.dao.modifySku(skuId, rawSku);
+				if(sku !== undefined) {
+					sku.description = rawSku.newDescription;
+					sku.weight = rawSku.newWeight;
+					sku.volume = rawSku.newVolume;
+					sku.notes = rawSku.newNotes;
+					sku.price = rawSku.newPrice;
+					sku.availableQuantity = rawSku.newAvailableQuantity;
+				}
+			}
 
 			return res.status(200).send();
 		} catch (err) {
