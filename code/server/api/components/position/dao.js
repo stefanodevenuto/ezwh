@@ -17,7 +17,7 @@ class PositionDAO extends AppDAO{
     }
 
     async createPosition(position) {
-        const query = 'INSERT INTO position VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO position(positionID, aisleID, row, col, maxWeight, maxVolume, occupiedWeight, occupiedVolume) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
         let lastId = await this.run(query, [position.positionID, position.aisleID, position.row,
             position.col, position.maxWeight, position.maxVolume, 0, 0]);
         
@@ -32,7 +32,7 @@ class PositionDAO extends AppDAO{
     }
 
     async modifyPositionID(oldPositionId, newPositionId, newAisleId, newRow, newCol) {
-        const query = 'UPDATE position SET positionID = ?, aisle = ?, row = ?, col = ? WHERE positionID = ?'
+        const query = 'UPDATE position SET positionID = ?, aisleID = ?, row = ?, col = ? WHERE positionID = ?'
         return await this.run(query, [newPositionId, newAisleId, newRow, newCol, oldPositionId]);
     }
 
@@ -40,6 +40,12 @@ class PositionDAO extends AppDAO{
         const query = 'DELETE FROM position WHERE positionID = ?'
         return await this.run(query, [positionID]);
     }
+
+    /* Utilities */
+    /*async modifyOccupiedFieldsPosition(skuId, totalWeight, totalVolume) {
+        const query = "UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE skuId = ?";
+        return await this.run(query, [totalWeight, totalVolume, skuId]);
+    }*/
 }
 
 module.exports = PositionDAO;

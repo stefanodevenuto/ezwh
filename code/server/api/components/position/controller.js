@@ -9,34 +9,47 @@ class PositionController {
         this.positionMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
         this.enableCache = (process.env.ENABLE_MAP === "true") || false;
         this.allInCache = false;
+        this.observers = [];
     }
 
-    async initMap() {
-        const allPositions = await this.dao.getAllPositions()
-            .catch(() => { throw PositionErrorFactory.initializeMapFailed() });
+    // ################################ Observer-Observable Pattern
+    addObserver(observer) {
+        this.observers.push(observer);
+    }
 
-        if (this.enableCache && allPositions.length < this.positionMap.max) {
-            allPositions.map((position) => this.positionMap.set(position.positionID, position));
-            this.allInCache = true;
+    notify(data) {
+        if (this.observers.length > 0) {
+            this.observers.forEach(observer => observer.update(data));
         }
     }
 
+    update(data) {
+		const { action, value: sku } = data;
+        switch(action) {
+            case "UPDATE_QUANTITY": {
+                let position = this.positionMap.get(sku.positionId);
+                if (position !== undefined) {
+                    position.occupiedWeight = sku.availableQuantity * sku.weight;
+                    position.occupiedVolume = sku.availableQuantity * sku.volume;
+                }
+            }
+            break;
+
+            case "UPDATE_SKU_ID": {
+                let position = this.positionMap.get(newPosition);
+                if (position !== undefined)
+				    position.skuId = sku.id;
+            }
+            break;
+        }
+	}
+
+    // ################################ API
     async getAllPositions(req, res, next) {
         try {
-            if (this.enableCache && this.allInCache) {
-                const allPositions = Array.from(this.positionMap.values());
-                return res.status(200).json(allPositions);
-            }
-
             const rows = await this.dao.getAllPositions();
             const positions = rows.map(record => new Position(record.positionID, record.aisleID, record.row,
-                record.col, record.maxWeight, record.maxVolume, record.occupiedWeight, record.occupiedVolume));
-
-            if (this.enableCache && rows.length < this.positionMap.max) {
-                positions.map((position) => this.positionMap.set(position.positionID, position));
-                this.allInCache = true;
-            }
-
+                record.col, record.maxWeight, record.maxVolume, record.occupiedWeight, record.occupiedVolume, record.skuId));
             return res.status(200).json(positions);
         } catch (err) {
             return next(err);
@@ -53,14 +66,14 @@ class PositionController {
                 if (position !== undefined)
                     return res.status(200).json(position);
             }
-
+    
             const row = await this.dao.getPositionByID(positionID);
             if (row === undefined)
                 throw PositionErrorFactory.newPositionNotFound();
-
+    
             const position = new Position(row.positionID, row.aisleID, row.row,
                 row.col, row.maxWeight, row.maxVolume, row.occupiedWeight, row.occupiedVolume)
-
+    
             if (this.enableCache)
                 this.positionMap.set(position.positionID, position)
 
@@ -69,7 +82,7 @@ class PositionController {
             return next(err);
         }
     }
-    
+
     async createPosition(req, res, next) {
         try {
             const rawPosition = req.body;
@@ -99,7 +112,7 @@ class PositionController {
 
             const newPositionId = `${rawPosition.newAisleID}${rawPosition.newRow}${rawPosition.newCol}`;
             const { changes } = await this.dao.modifyPosition(positionID, newPositionId, rawPosition);
-            
+
             if (changes === 0)
                 throw PositionErrorFactory.newPositionNotFound();
 
@@ -141,7 +154,7 @@ class PositionController {
             const newCol = splitted[2];
 
             const { changes } = await this.dao.modifyPositionID(oldPositionId, newPositionId, newAisleID, newRow, newCol);
-            
+
             if (changes === 0)
                 throw PositionErrorFactory.newPositionNotFound();
 
@@ -177,7 +190,9 @@ class PositionController {
                 throw PositionErrorFactory.newPositionNotFound();
 
             if (this.enableCache) {
+                let position = this.positionMap.get(positionID);
                 this.positionMap.delete(positionID);
+                this.notify({action: "DELETE", value: position});
             }
 
             return res.status(204).send();

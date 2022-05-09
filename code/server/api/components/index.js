@@ -5,23 +5,15 @@ var SkuRoutes = require('./sku/routes');
 var PositionRoutes = require('./position/routes');
 
 function registerApiRoutes(router, prefix = '') {
-	//router.use(`${prefix}/auth`, new AuthRoutes().router);
 
 	// Create all Routes
-	const skuRoute = new SkuRoutes();
 	const positionRoute = new PositionRoutes();
+	const skuRoute = new SkuRoutes();
 	
-	// Init all Maps
+	// Set the Observable-Observe pattern
 	if (process.env.ENABLE_MAP === "true") {
-		const skuReady = skuRoute.initMap();
-		const positionReady = positionRoute.initMap();
-		// const used = process.memoryUsage().heapUsed / 1024 / 1024;
-		// console.log(`Memory used: ${used}MB`)
-
-		// Wait all the Maps to setup
-		Promise.all([skuReady, positionReady]).catch(err => {
-			throw err;
-		});
+		positionRoute.controller.addObserver(skuRoute.controller);
+		skuRoute.controller.addObserver(positionRoute.controller);
 	}
 	
 	// Set all Routes
