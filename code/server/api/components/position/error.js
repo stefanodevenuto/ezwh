@@ -1,7 +1,9 @@
-const INITIALIZATION_ERROR_MESSAGE  = "Internal error: try again later!";
-const POSITION_NOT_FOUND_MESSAGE    = "No Position associated to id";
-const POSITION_NOT_SYMMETRIC        = "PositionId is not composed by provided AisleID,row and col";
-const POSITION_ID_NOT_UNIQUE        = "PositionId already registered";
+const INITIALIZATION_ERROR_MESSAGE      = "Internal error: try again later!";
+const POSITION_NOT_FOUND_MESSAGE        = "No Position associated to id";
+const POSITION_NOT_SYMMETRIC            = "PositionId is not composed by provided AisleID,row and col";
+const POSITION_ID_NOT_UNIQUE            = "PositionId already registered";
+const POSITION_GREATER_THAN_MAX_WEIGHT  = "Input Weight greater than Max Weight";
+const POSITION_GREATER_THAN_MAX_VOLUME  = "Input Volume greater than Max Volume";
 
 class PositionErrorFactory {
     static initializeMapFailed() {
@@ -27,6 +29,20 @@ class PositionErrorFactory {
 
     static newPositionIDNotUnique() {
         let error = new Error(POSITION_ID_NOT_UNIQUE);
+		error.code = 422;
+
+		return error;
+    }
+
+    static newGreaterThanMaxWeightPosition() {
+        let error = new Error(POSITION_GREATER_THAN_MAX_WEIGHT);
+		error.code = 422;
+
+		return error;
+    }
+
+    static newGreaterThanMaxVolumePosition() {
+        let error = new Error(POSITION_GREATER_THAN_MAX_VOLUME);
 		error.code = 422;
 
 		return error;

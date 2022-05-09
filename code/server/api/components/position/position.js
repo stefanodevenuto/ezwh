@@ -1,5 +1,5 @@
 class Position {
-    constructor(positionID = `${aisle}${row}${col}`, aisleID, row, col, maxWeight, maxVolume, occupiedWeight = null, occupiedVolume = null) {
+    constructor(positionID = `${aisleID}${row}${col}`, aisleID, row, col, maxWeight, maxVolume, occupiedWeight = 0, occupiedVolume = 0) {
         this.positionID = positionID;
         this.aisleID = aisleID;
         this.row = row;
