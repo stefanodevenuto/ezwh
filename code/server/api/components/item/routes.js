@@ -19,20 +19,20 @@ class ItemRoutes {      // ok
 	initRoutes() {
 
         this.router.get(	//ok
-			'/',
+			'/items',
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getAllItems(req, res, next)
 		);
 		
         this.router.get(	//ok
-			'/:id',
+			'/items/:id',
 			param('id').isNumeric().withMessage("ERROR: ItemId is not a number"),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getItemByID(req, res, next)
 		);
 
 		this.router.post(
-			'/',
+			'/items',
 			body('description').isString(),
 			body('price').isDecimal(),
 			body('SKUId').isNumeric(),
@@ -42,7 +42,7 @@ class ItemRoutes {      // ok
 		);
 
 		this.router.put(
-			'/:id',
+			'/items/:id',
 			param('id').isNumeric().withMessage("ERROR: id is not a number"),
 			body('newDescription').isString(),
 			body('newPrice').isDecimal(),
@@ -51,7 +51,7 @@ class ItemRoutes {      // ok
 		);
 
 		this.router.delete(
-			'/:id',
+			'/items/:id',
 			param('id').isNumeric().withMessage("ERROR: id is not a number"),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteItem(req, res, next)
