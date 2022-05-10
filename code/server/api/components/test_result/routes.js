@@ -6,7 +6,7 @@ const { ErrorHandler } = require("../../helper");
 class TestResultRoutes {
 	constructor() {
 		this.errorHandler = new ErrorHandler();
-		this.name = 'sku';
+		this.name = 'testResult';
 		this.controller = new TestResultController();
 		this.router = express.Router();
 		this.initRoutes();
@@ -30,46 +30,35 @@ class TestResultRoutes {
 			(req, res, next) => this.controller.getTestResultByID(req, res, next)
 		);
 
-        /*
+        
 		this.router.post(
-			'/',
-			body('description').isString(),
-			body('weight').isNumeric(),
-			body('volume').isNumeric(),
-			body('notes').isString(),
-			body('price').isDecimal(),
-			body('availableQuantity').isNumeric(),
+			'/testResults',
+			body('rfid').isString().isLength({min: 32, max: 32}),
+			body('idTestDescriptor').isNumeric(),
+			body('Date').isDate(),
+			body('Result').isBoolean(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.createSku(req, res, next)
+			(req, res, next) => this.controller.createTestResult(req, res, next)
 		);
 
 		this.router.put(
-			'/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
-			body('newDescription').isString(),
-			body('newWeight').isNumeric(),
-			body('newVolume').isNumeric(),
-			body('newNotes').isString(),
-			body('newPrice').isDecimal(),
-			body('newAvailableQuantity').isNumeric(),
+			'/:rfid/testResult/:id',
+			param('rfid').isString().isLength({min: 32, max: 32}),
+			param('id').isString(),
+			body('newIdTestDescriptor').isNumeric(),
+			body('newDate').isDate(),
+			body('newResult').isBoolean(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifySku(req, res, next)
-		);
-
-		this.router.put(
-			'/:id/position',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
-			body('position').isString(),
-			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.addModifySkuPosition(req, res, next)
+			(req, res, next) => this.controller.modifyTestResult(req, res, next)
 		);
 
 		this.router.delete(
-			'/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			'/:rfid/testResult/:id',
+			param('rfid').isString().isLength({min: 32, max: 32}),
+			param('id').isString(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.deleteSku(req, res, next)
-		);*/
+			(req, res, next) => this.controller.deleteTestResult(req, res, next)
+		);
 	}
 }
 

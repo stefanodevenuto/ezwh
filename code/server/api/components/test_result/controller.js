@@ -38,10 +38,10 @@ class TestResultController {
 		try {
             const rfid = req.params.rfid;
             // Check if the sku item exists (ADD ERROR IN SKU ITEM CONTROLLER)
-            //await this.skuItemController.getSkuItemByRFID();
+            //await this.skuItemController.getSkuItemByRFID(rfid);
 
 			const rows = await this.dao.getAllTestResults(rfid);
-			const testResults = rows.map(record => new TestResult(record.id, record.date, record.result, 
+			const testResults = rows.map(record => new TestResult(record.id, record.date, record.result == 1, 
                 record.testDescriptorId, record.RFID));
 			return res.status(200).json(testResults);
 		} catch (err) {
@@ -51,28 +51,28 @@ class TestResultController {
 
 	async getTestResultByID(req, res, next) {
 		try {
-			const skuId = Number(req.params.id);
+			const testResultId = req.params.id;
             const rfid = req.params.rfid;
 
 			if (this.enableCache) {
-				const testResult = this.testResultMap.get(rfid);
+				const testResult = this.testResultMap.get(`${rfid}${testResultId}`);
 
 				if (testResult !== undefined)
 					return res.status(200).json(testResult);
 			}
 
             // Check if the sku item exists (ADD ERROR IN SKU ITEM CONTROLLER)
-            //await this.skuItemController.getSkuItemByRFID();
+            //await this.skuItemController.getSkuItemByRFID(rfid);
 
-			const row = await this.dao.getTestResultByID(rfid, skuId);
+			const row = await this.dao.getTestResultByID(rfid, testResultId);
 			if (row === undefined)
 				throw TestResultErrorFactory.newTestResultNotFound();
 
-			let testResult = new TestResult(row.id, row.date, row.result, 
+			let testResult = new TestResult(row.id, row.date, row.result == 1, 
                 row.testDescriptorId, row.RFID);
 
 			if (this.enableCache)
-				this.testResultMap.set(testResult.id, testResult)
+				this.testResultMap.set(`${testResult.RFID}${testResult.id}`, testResult)
 
 			return res.status(200).json(testResult);
 		} catch (err) {
@@ -80,129 +80,82 @@ class TestResultController {
 		}
 	}
 
-    /*
-	async createSku(req, res, next) {
+	async createTestResult(req, res, next) {
 		try {
-			const rawSku = req.body;
-			const { id } = await this.dao.createSku(rawSku);
+			const rawTestResult = req.body;
+
+			const id = await this.dao.createTestResult(rawTestResult);
 
 			if (this.enableCache) {
-				const sku = new Sku(id, rawSku.description, rawSku.weight, rawSku.volume,
-					rawSku.notes, null, rawSku.availableQuantity, rawSku.price);
+				const testResult = new TestResult(id, rawTestResult.date, rawTestResult.result == 1, 
+						rawTestResult.testDescriptorId, rawTestResult.RFID);
 
-				this.skuMap.set(Number(id), sku);
+				this.testResultMap.set(`${testResult.RFID}${testResult.id}`, testResult);
 			}
 
 			return res.status(201).send();
 		} catch (err) {
+			if (err.code === "SQLITE_CONSTRAINT") {
+                if (err.message.includes("FOREIGN KEY"))
+					err = TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound()
+			}
+
 			return next(err);
 		}
 	}
 
-	async modifySku(req, res, next) {
+	
+	async modifyTestResult(req, res, next) {
 		try {
-			const skuId = req.params.id;
-			const rawSku = req.body;
+			const id = req.params.id;
+			const rfid = req.params.rfid;
+			const rawTestResult = req.body;
 
-			const totalWeight = rawSku.newAvailableQuantity * rawSku.newWeight;
-			const totalVolume = rawSku.newAvailableQuantity * rawSku.newVolume;
+			const { changes } = await this.dao.modifyTestResult(id, rfid, rawTestResult);
 
-			const { changes } = await this.dao.modifySku(skuId, rawSku, totalWeight, totalVolume);
-
-			// ERROR: no SKU associated to id
+			// ERROR: no TestResult associated to id
 			if (changes === 0)
-				throw SkuErrorFactory.newSkuNotFound();
+				throw TestResultErrorFactory.newTestResultNotFound();
 
 			if (this.enableCache) {
-				let sku = this.skuMap.get(Number(skuId));
+				let testResult = this.testResultMap.get(`${rfid}${id}`);
 
-				if (sku !== undefined) {
-					sku.description = rawSku.newDescription;
-					sku.weight = rawSku.newWeight;
-					sku.volume = rawSku.newVolume;
-					sku.notes = rawSku.newNotes;
-					sku.price = rawSku.newPrice;
-					sku.availableQuantity = rawSku.newAvailableQuantity;
-
-					this.notify({action: "UPDATE_QUANTITY", value: sku});
+				if (testResult !== undefined) {
+					testResult.testDescriptorId = rawTestResult.newIdTestDescriptor;
+					testResult.date = rawTestResult.newDate;
+					testResult.result = rawTestResult.newResult;	
 				}
 			}
 
 			return res.status(200).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
-                if (err.message.includes("occupiedWeight"))
-                    err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
-                else if (err.message.includes("occupiedVolume"))
-                    err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
-            }
+                if (err.message.includes("FOREIGN KEY"))
+					err = TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound()
+			}
 
 			return next(err);
 		}
 	}
 
-	async addModifySkuPosition(req, res, next) {
+	async deleteTestResult(req, res, next) {
 		try {
-			const skuId = Number(req.params.id);
-			const newPosition = req.body.position;
+			const id = req.params.id;
+			const rfid = req.params.rfid;
 
-			let skuInDB = undefined;
-			if (this.enableCache) {
-				let sku = this.skuMap.get(skuId);
-
-				if (sku !== undefined)
-					skuInDB = sku; 
-			}
-
-			const totalChanges = await this.dao.addModifySkuPosition(skuId, newPosition, skuInDB);
-
-			if (totalChanges === 0)
-				throw SkuErrorFactory.newSkuNotFound();
-
-			//if (totalChanges === 1)
-			//	throw PositionErrorFactory.newPositionNotFound();
-
-			if (this.enableCache) {
-				let sku = this.skuMap.get(skuId);
-
-				if (sku !== undefined) {
-					sku.positionId = newPosition;
-				}
-			}
-
-			return res.status(200).send();
-		} catch (err) {
-			if (err.code === "SQLITE_CONSTRAINT") {
-				if (err.message.includes("sku.positionId"))
-					err = SkuErrorFactory.newPositionAlreadyOccupied();
-				else if(err.message.includes("FOREIGN"))
-					err = PositionErrorFactory.newPositionNotFound();
-				else if (err.message.includes("occupiedWeight"))
-                    err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
-                else if (err.message.includes("occupiedVolume"))
-                    err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
-			}
-			return next(err);
-		}
-	}
-
-	async deleteSku(req, res, next) {
-		try {
-			const skuId = req.params.id;
-
-			const { changes } = await this.dao.deleteSku(skuId);
+			const { changes } = await this.dao.deleteTestResult(rfid, id);
 			if (changes === 0)
-				throw SkuErrorFactory.newSkuNotFound();
+				throw TestResultErrorFactory.newTestResultNotFound();
 
 			if (this.enableCache) {
-				this.skuMap.delete(Number(skuId));
+				this.testResultMap.delete(`${rfid}${id}`);
 			}
 
 			return res.status(204).send();
 		} catch (err) {
 			return next(err);
 		}
-	}*/
+	}
 }
 
 module.exports = TestResultController;

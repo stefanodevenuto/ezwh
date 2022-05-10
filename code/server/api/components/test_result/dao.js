@@ -9,7 +9,7 @@ class TestResultDAO extends AppDAO {
         return await this.all(query, [RFID]);
     }
 
-    
+
     async getTestResultByID(rfid, id) {
         const query = 'SELECT * FROM testResult WHERE RFID = ? AND id = ?';
         let row = await this.get(query, [rfid, id]);
@@ -17,52 +17,28 @@ class TestResultDAO extends AppDAO {
         return row;
     }
 
-    /*
-    async createSku(sku) {
-        const query = 'INSERT INTO sku(description, weight, volume, notes, price, availableQuantity) VALUES (?, ?, ?, ?, ?, ?)'
-        let lastId = await this.run(query, [sku.description, sku.weight, sku.volume, sku.notes, sku.price, sku.availableQuantity]);
+    async createTestResult(testResult) {
+        const query_get_last_id = 'SELECT MAX(id) as id FROM testResult WHERE RFID = ?';
+        const query_insert = 'INSERT INTO testResult(id, testDescriptorId, date, result, RFID) VALUES (?, ?, ?, ?, ?)';
 
-        return lastId;
+        let { id } = await this.get(query_get_last_id, [testResult.rfid]);
+        const newId = id + 1;
+
+        await this.run(query_insert, [newId, testResult.idTestDescriptor,
+            testResult.Date, testResult.Result, testResult.rfid]);
+
+        return newId;
     }
 
-    async modifySku(skuId, sku, totalWeight, totalVolume) {
-        const query_get_position = 'SELECT positionId FROM sku WHERE id = ?';
-        const query_sku = 'UPDATE sku SET description = ?, weight = ?, volume = ?, notes = ?, price = ?, availableQuantity = ? WHERE id = ?';
-        const query_position = 'UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE positionId = ?';
-
-        const { positionId } = await this.get(query_get_position, [skuId]);
-
-        return await this.serialize([query_sku, query_position], [
-            [sku.newDescription, sku.newWeight, sku.newVolume, sku.newNotes, sku.newPrice, sku.newAvailableQuantity, skuId],
-            [totalWeight, totalVolume, positionId]
-        ]);
+    async modifyTestResult(id, rfid, testResult) {
+        const query = 'UPDATE testResult SET testDescriptorId = ?, date = ?, result = ? WHERE RFID = ? AND id = ?';
+        return await this.run(query, [testResult.newIdTestDescriptor, testResult.newDate, +testResult.newResult, rfid, id]);
     }
 
-    async addModifySkuPosition(skuId, newPosition, sku = undefined) {
-        const query_sku = 'UPDATE sku SET positionId = ? WHERE id = ?';
-        const query_update_position = "UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE positionId = ?";
-
-        // If the SKU is already in the Cache, no need to re-recover it
-        let row;
-        if (sku === undefined) {
-            row = await this.getSkuByID(skuId);
-            if (row === undefined)
-                return 0;
-        } else row = sku;
-
-        const totalWeight = row.availableQuantity * row.weight;
-        const totalVolume = row.availableQuantity * row.volume;
-
-        return await this.serialize([query_sku, query_update_position, query_update_position],
-            [[newPosition, skuId], [0, 0, row.positionId], [totalWeight, totalVolume, newPosition]],
-            true);
+    async deleteTestResult(rfid, id) {
+        const query = 'DELETE FROM testResult WHERE RFID = ? AND id = ?'
+        return await this.run(query, [rfid, id]);
     }
-
-    async deleteSku(skuId) {
-        const query = 'DELETE FROM sku WHERE id = ?'
-        return await this.run(query, [skuId]);
-    }
-    */
 }
 
 module.exports = TestResultDAO;
