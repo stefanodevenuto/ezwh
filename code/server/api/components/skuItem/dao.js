@@ -1,5 +1,5 @@
 const sqlite3 = require("sqlite3");
-const AppDAO = require("../../../db/AppDAO");
+const AppDAO = require("../../../db/AppDAO.js");
 
 class SKUItemDAO extends AppDAO{
 
@@ -18,7 +18,7 @@ class SKUItemDAO extends AppDAO{
     }
 
     async getSKUItemBySKUID(SKUId) {
-        const query = 'SELECT * FROM skuItem WHERE SKUId = ? AND Available = ?';
+        const query = 'SELECT * FROM skuItem WHERE skuId = ? AND available = ?';
         let row = await this.get(query, [SKUId, 1]);
 
         return row;
@@ -26,15 +26,13 @@ class SKUItemDAO extends AppDAO{
 
     async createSKUItem(SKUItem) {
         const query = 'INSERT INTO skuItem(RFID, SKUId, Available, DateOfStock, returnOrderId, restockOrderId, internalOrderId) VALUES (?, ?, ?, ?, ?, ?,?)'
-        let lastId = await this.run(query, [SKUItem.RFID, SKUItem.SKUId, 0, SKUItem.dateOfStock, undefined, undefined, undefined]);
+        let lastId = await this.run(query, [SKUItem.RFID, SKUItem.SKUId, undefined, SKUItem.dateOfStock, undefined, undefined, undefined]);
         
         return lastId;
     }
 
 
     async modifySKUItem(RFID, SKUItem) {
-        console.log("A" + SKUItem.newRFID, SKUItem.newSKUId, SKUItem.newAvailable,
-            SKUItem.newDateOfStock, RFID);
         const query = 'UPDATE skuItem SET RFID = ?, available = ?, dateOfStock = ? WHERE RFID = ?'
         await this.run(query, [SKUItem.newRFID, SKUItem.newAvailable,
             SKUItem.newDateOfStock, RFID]);
