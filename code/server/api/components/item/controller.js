@@ -8,8 +8,20 @@ class ItemController {
 		this.dao = new ItemDAO();
 		this.itemMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
 		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
-		this.allInCache = false;
+		//this.allInCache = false;
+		this.observers = [];
+
 	}
+
+	addObserver(observer) {	// to keep compatibility with index.js, but not implemented yet 
+        this.observers.push(observer);
+    }
+
+    //notify(data) {
+    //}
+
+    //update(data) {
+	//}
 
 	async getAllItems(req, res, next) {  // getAllItems
 		try {
