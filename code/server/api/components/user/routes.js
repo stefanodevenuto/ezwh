@@ -1,14 +1,14 @@
 const express = require('express');
 const dayjs = require('dayjs');
 const { param, body } = require("express-validator")
-const SKUItemController = require('./controller');
+const UserController = require('./controller');
 const { ErrorHandler } = require("../../helper");
 
-class SKUItemRoutes {
+class UserRoutes {
 	constructor() {
 		this.errorHandler = new ErrorHandler();
-		this.name = 'SKUItem';
-		this.controller = new SKUItemController();
+		this.name = 'User';
+		this.controller = new UserController();
 		this.router = express.Router();
 		this.initRoutes();
 	}
@@ -24,7 +24,15 @@ class SKUItemRoutes {
 			/* this.authSerivce.isAuthorized(),
 			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getAllSKUItems(req, res, next)
+			(req, res, next) => this.controller.getAllUsers(req, res, next)
+		);
+
+		this.router.get(
+			'/',
+			/* this.authSerivce.isAuthorized(),
+			this.authSerivce.hasPermission(this.name, 'read'),*/
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.getAllSuppliers(req, res, next)
 		);
 		
         this.router.get(
@@ -41,17 +49,23 @@ class SKUItemRoutes {
 			(req, res, next) => this.controller.getSKUItemBySKUID(req, res, next)
 		);
 
+		/*this.router.post(
+			'/',
+			body('username').isString(),
+			body('name').isString(),
+			body('surname').isString(),
+			body('password').isString().isLength({min:8}),
+			body('type').isString(),
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.createUser(req, res, next)
+		);*/
+
 		this.router.post(
 			'/',
-			body('RFID').isString(),
-			body('SKUId').isNumeric(),
-			//body('Available').isNumeric(),
-			body('DateOfStock').isString(),
-			//body('returnOrderId').isNumeric(),
-			//body('restockOrderId').isNumeric(),
-			//body('internalOrderId').isNumeric(),
+			body('username').isString(),
+			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.createSKUItem(req, res, next)
+			(req, res, next) => this.controller.loginManager(req, res, next)
 		);
 
 		this.router.put(
@@ -69,12 +83,12 @@ class SKUItemRoutes {
 		);
 
 		this.router.delete(
-			'/:rfid',
-			param('rfid').isNumeric().withMessage("ERROR: RFID is not a number"),
+			'/:username/:type',
+			//param('rfid').isNumeric().withMessage("ERROR: RFID is not a number"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.deleteSKUItem(req, res, next)
+			(req, res, next) => this.controller.deleteUser(req, res, next)
 		);
 	}
 }
 
-module.exports = SKUItemRoutes;
+module.exports = UserRoutes;

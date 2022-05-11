@@ -156,30 +156,12 @@ class SKUItemController {
 		}
 	}
 
-	async addModifySKUItemPosition(req, res, next) {
-		try {
-			const SKUItemId = req.params.id;
-			const newPosition = req.body.position;
-
-			if (this.enableCache) {
-				let SKUItem = this.SKUItemMap.get(Number(SKUItemId));
-				SKUItem.position = newPosition;
-			}
-
-			await this.dao.addModifySKUItemPosition(SKUItemId, newPosition);
-
-			return res.status(200).send();
-		} catch (err) {
-			return next(err);
-		}
-	}
-
 	async deleteSKUItem(req, res, next) {
 		try {
-			const SKUItemId = req.params.RFID;
+			const SKUItemId = req.params.rfid;
 
 			if (this.enableCache) {
-				this.SKUItemMap.delete(Number(SKUItemId));
+				this.SKUItemMap.delete((SKUItemId));
 			}
 			
 			await this.dao.deleteSKUItem(SKUItemId);
