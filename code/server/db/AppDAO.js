@@ -53,6 +53,7 @@ class AppDAO {
                 if (err) {
                     console.log('Error running sql: ' + sql)
                     console.log(err)
+                    console.log(this);
                     reject(err)
                 } else {
                     resolve(rows)
