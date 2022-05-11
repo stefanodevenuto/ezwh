@@ -52,8 +52,7 @@ class SkuDAO extends AppDAO {
         const totalVolume = row.availableQuantity * row.volume;
 
         return await this.serialize([query_sku, query_update_position, query_update_position],
-            [[newPosition, skuId], [0, 0, row.positionId], [totalWeight, totalVolume, newPosition]],
-            true);
+            [[newPosition, skuId], [0, 0, row.positionId], [totalWeight, totalVolume, newPosition]]);
     }
 
     async deleteSku(skuId) {

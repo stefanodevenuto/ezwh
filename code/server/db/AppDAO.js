@@ -62,7 +62,7 @@ class AppDAO {
         })
     }
 
-    async serialize(sqls, params = [[]], strictCheck = false) {
+    async serialize(sqls, params = [[]]) {
         let totalChanges = 0;
 
         await this.run("BEGIN TRANSACTION");
@@ -70,11 +70,6 @@ class AppDAO {
 
         for (let i = 0; i < sqls.length; i++) {
             let { changes } = await this.run(sqls[i], params[i]);
-            if (strictCheck && changes == 0) {
-                await this.run("ROLLBACK");
-                this.transaction.onGoing = false;
-            }
-
             totalChanges += changes;
         }
 

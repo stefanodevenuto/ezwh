@@ -27,9 +27,9 @@ class SkuController {
     }
 
 	update(data) {
-		const { action, value: position } = data;
+		const { action, value: positionId} = data;
 		if (action === "DELETE") {
-			let sku = this.skuMap.get(position.skuId);
+			let sku = this.skuMap.find( (skuValue) => skuValue.positionId === positionId);
 			if (sku !== undefined)
 				sku.positionId = null;
 		}
