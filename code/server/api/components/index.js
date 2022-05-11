@@ -13,7 +13,7 @@ function registerApiRoutes(router, prefix = '') {
 	// Set the Observable-Observe pattern
 	if (process.env.ENABLE_MAP === "true") {
 		itemRoute.controller.addObserver(itemRoute.controller);
-		skuRoute.controller.addObserver(positionRoute.controller);
+		skuRoute.controller.addObserver(skuRoute.controller);
 	}
 	
 	// Set all Routes
