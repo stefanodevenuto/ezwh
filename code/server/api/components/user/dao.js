@@ -39,16 +39,15 @@ class UserDao extends AppDAO{
 
     async checkManager(User) {
         const query = 'SELECT id, email, password FROM user WHERE email = ? AND password = ?'
-        if(await this.run(query, [User.email, CryptoJS.MD5(User.password)]) !== undefined)
-            return true;
-        return false;
+        let lastID = await this.run(query, [User.email, CryptoJS.MD5(User.password)]);
+
+        return lastID;
     }
 
 
-    async modifySKUItem(RFID, SKUItem) {
-        const query = 'UPDATE skuItem SET RFID = ?, available = ?, dateOfStock = ? WHERE RFID = ?'
-        await this.run(query, [SKUItem.newRFID, SKUItem.newAvailable,
-            SKUItem.newDateOfStock, RFID]);
+    async modifyRight(username, User) {
+        const query = 'UPDATE user SET type = ? WHERE email = ? AND type = ?'
+        await this.run(query, [User.newType, username, User.oldType]);
     }
 
 

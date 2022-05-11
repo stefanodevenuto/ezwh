@@ -58,43 +58,6 @@ class UserController {
 		}
 	}
 
-	async getSkuByID(req, res, next) {
-		try {
-			const skuId = Number(req.params.id);
-
-			if (this.enableCache) {
-				const sku = this.skuMap.get(Number(skuId));
-
-				if (sku !== undefined)
-					return res.status(200).json(sku);
-			}
-
-			const row = await this.dao.getSkuByID(skuId);
-			if (row === undefined)
-				throw SkuErrorFactory.newSkuNotFound();
-
-			let sku;
-			/*let position = null;
-			if (this.enableCache) {
-				if (row.positionId !== null)
-					position = await this.positionController.getPositionByIDInternal(row.positionId);
-
-				sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
-					position, row.availableQuantity, row.price);
-			} else {*/
-				sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
-					row.positionId, row.availableQuantity, row.price);
-			//}
-
-			if (this.enableCache)
-				this.skuMap.set(sku.id, sku)
-
-			return res.status(200).json(sku);
-		} catch (err) {
-			return next(err);
-		}
-	}
-
 	async createUser(req, res, next) {
 		try {
 			const rawUser = req.body;
@@ -105,6 +68,7 @@ class UserController {
 					rawUser.username, rawUser.password, rawUser.type);
 
 				this.userMap.set(Number(id), user);
+				console.log(this.userMap);
 			}
 
 			return res.status(201).send();
@@ -117,14 +81,14 @@ class UserController {
 		try {
 			const rawUser = req.body;
 			console.log(rawUser);
-			const status = await this.dao.checkManager(rawUser);
+			const id = await this.dao.checkManager(rawUser);
 
-			/*if (this.enableCache) {
-				const user = new User(id, rawUser.name, rawUser.surname,
-					rawUser.username, rawUser.password, rawUser.type);
-
-				this.userMap.set(Number(id), user);
-			}*/
+			if (this.enableCache) {
+				let users = this.userMap.get(id);
+				res.body = users;
+				console.log(id);
+			}
+			
 
 			return res.status(200).send();
 		} catch (err) {
@@ -134,92 +98,29 @@ class UserController {
 
 	
 
-	async modifySku(req, res, next) {
+	async modifyRight(req, res, next) {
 		try {
-			const skuId = req.params.id;
-			const rawSku = req.body;
+			const userUsername = req.params.username;
+			const rawUserType = req.body;
 
-			const totalWeight = rawSku.newAvailableQuantity * rawSku.newWeight;
-			const totalVolume = rawSku.newAvailableQuantity * rawSku.newVolume;
-
-			const { changes } = await this.dao.modifySku(skuId, rawSku, totalWeight, totalVolume);
-
-			// ERROR: no SKU associated to id
-			if (changes === 0)
-				throw SkuErrorFactory.newSkuNotFound();
+			const id = await this.dao.modifyRight(userUsername, rawUserType);
 
 			if (this.enableCache) {
-				let sku = this.skuMap.get(Number(skuId));
+				let user = this.userMap.get(Number(id));
 
-				if (sku !== undefined) {
-					sku.description = rawSku.newDescription;
-					sku.weight = rawSku.newWeight;
-					sku.volume = rawSku.newVolume;
-					sku.notes = rawSku.newNotes;
-					sku.price = rawSku.newPrice;
-					sku.availableQuantity = rawSku.newAvailableQuantity;
-
-					this.notify({action: "UPDATE_QUANTITY", value: sku});
+				if (user !== undefined) {
+					user.type = user.newType;
+			
+					this.notify({action: "UPDATE_TYPE", value: user});
 				}
 			}
 
 			return res.status(200).send();
 		} catch (err) {
-			if (err.code === "SQLITE_CONSTRAINT") {
-                if (err.message.includes("occupiedWeight"))
-                    err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
-                else if (err.message.includes("occupiedVolume"))
-                    err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
-            }
-
 			return next(err);
 		}
 	}
 
-	async addModifySkuPosition(req, res, next) {
-		try {
-			const skuId = Number(req.params.id);
-			const newPosition = req.body.position;
-
-			let skuInDB = undefined;
-			if (this.enableCache) {
-				let sku = this.skuMap.get(skuId);
-
-				if (sku !== undefined)
-					skuInDB = sku; 
-			}
-
-			const totalChanges = await this.dao.addModifySkuPosition(skuId, newPosition, skuInDB);
-
-			if (totalChanges === 0)
-				throw SkuErrorFactory.newSkuNotFound();
-
-			//if (totalChanges === 1)
-			//	throw PositionErrorFactory.newPositionNotFound();
-
-			if (this.enableCache) {
-				let sku = this.skuMap.get(skuId);
-
-				if (sku !== undefined) {
-					sku.positionId = newPosition;
-				}
-			}
-
-			return res.status(200).send();
-		} catch (err) {
-			if (err.code === "SQLITE_CONSTRAINT") {
-				if (err.message.includes("sku.positionId"))
-					err = SkuErrorFactory.newPositionAlreadyOccupied();
-				else if(err.message.includes("FOREIGN"))
-					err = PositionErrorFactory.newPositionNotFound();
-				else if (err.message.includes("occupiedWeight"))
-                    err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
-                else if (err.message.includes("occupiedVolume"))
-                    err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
-			}
-			return next(err);
-		}
-	}
 
 	async deleteUser(req, res, next) {
 		try {

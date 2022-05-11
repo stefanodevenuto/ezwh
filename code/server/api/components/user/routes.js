@@ -20,7 +20,7 @@ class UserRoutes {
 	initRoutes() {
 
         this.router.get(
-			'/',
+			'/users',
 			/* this.authSerivce.isAuthorized(),
 			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
@@ -28,7 +28,7 @@ class UserRoutes {
 		);
 
 		this.router.get(
-			'/',
+			'/suppliers',
 			/* this.authSerivce.isAuthorized(),
 			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
@@ -36,7 +36,7 @@ class UserRoutes {
 		);
 		
         this.router.get(
-			'/:rfid',
+			'/',
 			param('rfid').isString(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getSKUItemByRFID(req, res, next)
@@ -47,10 +47,10 @@ class UserRoutes {
 			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getSKUItemBySKUID(req, res, next)
-		);
+		);	
 
-		/*this.router.post(
-			'/',
+		this.router.post(
+			'/newUser',
 			body('username').isString(),
 			body('name').isString(),
 			body('surname').isString(),
@@ -58,10 +58,18 @@ class UserRoutes {
 			body('type').isString(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.createUser(req, res, next)
-		);*/
+		);
 
 		this.router.post(
-			'/',
+			'/managerSessions',
+			body('username').isString(),
+			body('password').isString().isLength({min:8}),
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.loginManager(req, res, next)
+		);
+
+		this.router.post(
+			'/customerSessions',
 			body('username').isString(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
@@ -69,17 +77,12 @@ class UserRoutes {
 		);
 
 		this.router.put(
-			'/:rfid',
-			//param('RFID').isString().withMessage("ERROR: RFID is not a string"),
-			body('newRFID').isString(),
-			body('newAvailable').isNumeric(),
-			//body('Available').isNumeric(),
-			body('newDateOfStock').isString(),
-			//body('returnOrderId').isNumeric(),
-			//body('restockOrderId').isNumeric(),
-			//body('internalOrderId').isNumeric(),
+			'/users/:username',
+			param('username').isString().withMessage("ERROR: username is not a string"),
+			body('oldType').isString(),
+			body('newType').isString(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifySKUItem(req, res, next)
+			(req, res, next) => this.controller.modifyRight(req, res, next)
 		);
 
 		this.router.delete(
