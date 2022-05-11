@@ -11,23 +11,8 @@ class ItemController {
 		this.allInCache = false;
 	}
 
-	async initMap() {	// check
-		const allItems = await this.dao.getAllItems()
-			.catch(() => { throw ItemErrorFactory.initializeMapFailed(); });
-
-		if (this.enableCache && allItems.length < this.itemMap.max) {
-			allItems.map((item) => this.itemMap.set(item.id, item));
-			this.allInCache = true;
-		}
-	}
-
 	async getAllItems(req, res, next) {  // getAllItems
 		try {
-			if (this.enableCache && this.allInCache) {
-				const allItems = Array.from(this.itemMap.values());
-				return res.status(200).json(allItems);
-			}
-			// if cache disabled or allInCache false:
 			const rows = await this.dao.getAllItems();
 			const items = rows.map(record => new Item(
 				record.id,
@@ -35,12 +20,6 @@ class ItemController {
 				record.price,
 				record.SKUId,
 				record.supplierId));
-
-			if (this.enableCache && rows.length < this.skuMap.max) {
-				allItems.map((item) => this.ItemMap.set(item.id, item));
-				this.allInCache = true;
-			}
-
 			return res.status(200).json(items);
 		} catch (err) {
 			return next(err);
@@ -89,7 +68,7 @@ class ItemController {
 					SKUId,
 					supplierId);
 
-				this.itemMap.set(Number(id), item);
+				this.itemMap.set(Number(id), item);	//check keys
 			}
 
 			return res.status(201).send();
@@ -103,6 +82,8 @@ class ItemController {
 			const itemId = req.param.id;
 			const rawItem = req.body;
 
+			await this.dao.modifyItem(itemId, rawItem);
+
 			if(this.enableCache) {
 				let item = this.itemMap.get(Number(itemId));
 				// i can change only description, price
@@ -110,8 +91,6 @@ class ItemController {
 				item.price = rawItem.newPrice;
 				this.itemMap.set(Number(itemId), item);		//check
 			}
-
-			await this.dao.modifyItem(itemId, rawItem);
 
 			return res.status(200).send();
 		} catch (err) {
@@ -122,11 +101,12 @@ class ItemController {
 	async deleteItem(req, res, next) {   // deleteItem
 		try {
 			const itemId = req.params.id;
-
-			if(this.enableCache)
-				this.itemMap.delete(Number(itemId));
 			
 			await this.dao.deleteItem(itemId);
+
+			if(this.enableCache)
+				this.itemMap.delete(Number(itemId));	//check keys
+			
 			return res.status(204).send();
 		} catch (err) {
 			return next(err);
