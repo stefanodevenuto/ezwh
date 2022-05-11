@@ -43,7 +43,7 @@ class SKUItemRoutes {
 
 		this.router.post(
 			'/',
-			body('RFID').isNumeric(),
+			body('RFID').isString(),
 			body('SKUId').isNumeric(),
 			//body('Available').isNumeric(),
 			body('DateOfStock').isString(),

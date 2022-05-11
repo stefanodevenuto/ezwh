@@ -10,6 +10,28 @@ class SKUItemController {
 		this.SKUItemMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
 		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
 		this.allInCache = false;
+		this.observers = [];
+
+	}
+
+	
+	addObserver(observer) {
+        this.observers.push(observer);
+    }
+
+	notify(data) {
+        if (this.observers.length > 0) {
+            this.observers.forEach(observer => observer.update(data));
+        }
+    }
+
+	update(data) {
+		const { action, value: position } = data;
+		if (action === "DELETE") {
+			let sku = this.skuMap.get(position.skuId);
+			if (sku !== undefined)
+				sku.positionId = null;
+		}
 	}
 
 	async initMap() {
@@ -119,14 +141,18 @@ class SKUItemController {
 			const SKUItemId = req.params.rfid;
 			const rawSKUItem = req.body;
 
+			
+
 			if (this.enableCache) {
-				let SKUItem = this.SKUItemMap.get(RFID);
-				SKUItem.SKUId = rawSKUItem.SKUId;
-				SKUItem.available = rawSKUItem.available;
-				SKUItem.dateOfStock = rawSKUItem.dateOfStock;
+				let SKUItem = this.SKUItemMap.get(SKUItemId);
+				
+				SKUItem.SKUId = rawSKUItem.newSKUId;
+				SKUItem.available = rawSKUItem.newAvailable;
+				SKUItem.dateOfStock = rawSKUItem.newDateOfStock;
 			}
 
 			await this.dao.modifySKUItem(SKUItemId, rawSKUItem);
+			
 
 			return res.status(200).send();
 		} catch (err) {

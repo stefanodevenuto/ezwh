@@ -2,7 +2,7 @@
 var express = require('express');
 
 var SkuRoutes = require('./sku/routes');
-var SkutemRoutes = require('./skuItem/routes');
+var SkuItemRoutes = require('./skuItem/routes');
 var PositionRoutes = require('./position/routes');
 var TestResultRoutes = require('./test_result/routes');
 
@@ -11,7 +11,7 @@ function registerApiRoutes(router, prefix = '') {
 	// Create all Routes
 	const positionRoute = new PositionRoutes();
 	const skuRoute = new SkuRoutes();
-	const skuItemRoute = new SkuRoutes();
+	const skuItemRoute = new SkuItemRoutes();
 	const testResultRoute = new TestResultRoutes();
 	
 	// Set the Observable-Observe pattern
@@ -26,7 +26,6 @@ function registerApiRoutes(router, prefix = '') {
 	router.use(`${prefix}/skus`, skuRoute.router);
 	router.use(`${prefix}/position`, positionRoute.router);
 	router.use(`${prefix}/positions`, positionRoute.router);
-	// INSERT HERE (BEFORE TESTRESULT) THE SKUITEM ROUTER
 	router.use(`${prefix}/skuitem`, skuItemRoute.router);
 	router.use(`${prefix}/skuitems`, skuItemRoute.router);
 	router.use(`${prefix}/skuitems`, testResultRoute.router);
