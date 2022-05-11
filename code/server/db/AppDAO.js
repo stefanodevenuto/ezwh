@@ -24,7 +24,7 @@ class AppDAO {
                         copyDb.run("ROLLBACK");
                         transaction.onGoing = false;
                     }
-                        
+
                     reject(err)
                 } else {
                     resolve({ id: this.lastID, changes: this.changes })
@@ -76,6 +76,30 @@ class AppDAO {
         await this.run("COMMIT");
 
         return totalChanges;
+    }
+
+    async startTransaction() {
+        if (this.transaction.onGoing === true)
+            return;
+
+        await this.run("BEGIN TRANSACTION");
+        this.transaction.onGoing = true;
+    }
+
+    async commitTransaction() {
+        if (this.transaction.onGoing === false)
+            return;
+
+        await this.run("COMMIT");
+        this.transaction.onGoing = false;
+    }
+
+    async rollbackTransaction() {
+        if (this.transaction.onGoing === false)
+            return;
+
+        await this.run("ROLLBACK");
+        this.transaction.onGoing = false;
     }
 }
 

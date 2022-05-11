@@ -27,11 +27,39 @@ class SkuController {
     }
 
 	update(data) {
-		const { action, value: positionId} = data;
-		if (action === "DELETE") {
+		const { action, value } = data;
+
+		if (action === "DELETE_POSITION") {
+			const positionId = value;
 			let sku = this.skuMap.find( (skuValue) => skuValue.positionId === positionId);
 			if (sku !== undefined)
 				sku.positionId = null;
+		}
+
+		if (action === "ADD_TESTDESCRIPTOR") {
+			const testDescriptor = value;
+			let sku = this.skuMap.get(testDescriptor.idSKU);
+			if (sku !== undefined)
+				sku.testDescriptorId = testDescriptor.id;
+		}
+
+		if (action === "UPDATE_TESTDESCRIPTOR") {
+			const {newValue, oldIdSKU} = value;
+
+			let oldSku = this.skuMap.get(oldIdSKU);
+			if (oldSku !== undefined)
+				oldSku.testDescriptorId = null;
+
+			let sku = this.skuMap.get(newValue.id);
+			if (sku !== undefined)
+				sku.testDescriptorId = newValue.testDescriptorId;
+		}
+
+		if (action === "DELETE_TESTDESCRIPTOR") {
+			const testDescriptorId = value;
+			let sku = this.skuMap.find( (skuValue) => skuValue.testDescriptorId === testDescriptorId);
+			if (sku !== undefined)
+				sku.testDescriptorId = null;
 		}
 	}
 
@@ -41,7 +69,7 @@ class SkuController {
 		try {
 			const rows = await this.dao.getAllSkus();
 			const skus = rows.map(record => new Sku(record.id, record.description, record.weight, record.volume, record.notes,
-				record.positionId, record.availableQuantity, record.price));
+				record.positionId, record.availableQuantity, record.price, record.testDescriptorId));
 			return res.status(200).json(skus);
 		} catch (err) {
 			return next(err);
@@ -73,7 +101,7 @@ class SkuController {
 					position, row.availableQuantity, row.price);
 			} else {*/
 				sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
-					row.positionId, row.availableQuantity, row.price);
+					row.positionId, row.availableQuantity, row.price, row.testDescriptorId);
 			//}
 
 			if (this.enableCache)
@@ -92,7 +120,7 @@ class SkuController {
 
 			if (this.enableCache) {
 				const sku = new Sku(id, rawSku.description, rawSku.weight, rawSku.volume,
-					rawSku.notes, null, rawSku.availableQuantity, rawSku.price);
+					rawSku.notes, null, rawSku.availableQuantity, rawSku.price, rawSku.testDescriptorId);
 
 				this.skuMap.set(Number(id), sku);
 			}

@@ -191,7 +191,7 @@ class PositionController {
 
             if (this.enableCache) {
                 this.positionMap.delete(positionID);
-                this.notify({action: "DELETE", value: positionID});
+                this.notify({action: "DELETE_POSITION", value: positionID});
             }
 
             return res.status(204).send();
