@@ -6,17 +6,28 @@ class AppDAO {
             if (err)
                 throw err;
         });
+        this.run("PRAGMA foreign_keys = ON");
+        this.transaction = { onGoing: false };
     }
 
     async run(sql, params = []) {
+        const copyDb = this.db;
+        let transaction = this.transaction;
+
         return new Promise((resolve, reject) => {
             this.db.run(sql, params, function (err) {
                 if (err) {
                     console.log('Error running sql ' + sql)
                     console.log(err)
+
+                    if (transaction.onGoing) {
+                        copyDb.run("ROLLBACK");
+                        transaction.onGoing = false;
+                    }
+                        
                     reject(err)
                 } else {
-                    resolve({ id: this.lastID })
+                    resolve({ id: this.lastID, changes: this.changes })
                 }
             })
         })
@@ -48,6 +59,27 @@ class AppDAO {
                 }
             })
         })
+    }
+
+    async serialize(sqls, params = [[]], strictCheck = false) {
+        let totalChanges = 0;
+
+        await this.run("BEGIN TRANSACTION");
+        this.transaction.onGoing = true;
+
+        for (let i = 0; i < sqls.length; i++) {
+            let { changes } = await this.run(sqls[i], params[i]);
+            if (strictCheck && changes == 0) {
+                await this.run("ROLLBACK");
+                this.transaction.onGoing = false;
+            }
+
+            totalChanges += changes;
+        }
+
+        await this.run("COMMIT");
+
+        return totalChanges;
     }
 }
 

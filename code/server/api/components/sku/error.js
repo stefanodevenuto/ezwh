@@ -1,6 +1,7 @@
 const INITIALIZATION_ERROR_MESSAGE = "Internal error: try again later!"
 const SKU_NOT_FOUND_MESSAGE        = "No SKU associated to id";
 const POSITION_NOT_CAPABLE_MESSAGE = "Position not capable enough to hold newAvailableQuantity";
+const POSITION_ALREADY_OCCUPIED    = "Position already assigned to another SKU";
 
 class SkuErrorFactory {
     static initializeMapFailed() {
@@ -19,6 +20,13 @@ class SkuErrorFactory {
 
     static newPositionNotCapable() {
         let error = new Error(POSITION_NOT_CAPABLE_MESSAGE);
+		error.code = 422;
+
+		return error;
+    }
+
+    static newPositionAlreadyOccupied() {
+        let error = new Error(POSITION_ALREADY_OCCUPIED);
 		error.code = 422;
 
 		return error;

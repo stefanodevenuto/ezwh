@@ -1,6 +1,7 @@
 const SkuDAO = require('./dao')
 const Sku = require("./sku");
 const { SkuErrorFactory } = require('./error');
+const { PositionErrorFactory } = require('../position/error');
 const Cache = require('lru-cache')
 //const sizeof = require('object-sizeof')
 
@@ -10,34 +11,37 @@ class SkuController {
 		this.skuMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
 		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
 		this.allInCache = false;
+		this.observers = [];
 	}
 
-	async initMap() {
-		const allSku = await this.dao.getAllSkus()
-			.catch(() => { throw SkuErrorFactory.initializeMapFailed() });
+	// ################################ Observer-Observable Pattern
 
-		if (this.enableCache && allSku.length < this.skuMap.max) {
-			allSku.map((sku) => this.skuMap.set(sku.id, sku));
-			this.allInCache = true;
+	addObserver(observer) {
+        this.observers.push(observer);
+    }
+
+    notify(data) {
+        if (this.observers.length > 0) {
+            this.observers.forEach(observer => observer.update(data));
+        }
+    }
+
+	update(data) {
+		const { action, value: position } = data;
+		if (action === "DELETE") {
+			let sku = this.skuMap.get(position.skuId);
+			if (sku !== undefined)
+				sku.positionId = null;
 		}
 	}
 
+    // ################################ API
+	
 	async getAllSkus(req, res, next) {
 		try {
-			if (this.enableCache && this.allInCache) {
-				const allSku = Array.from(this.skuMap.values());
-				return res.status(200).json(allSku);
-			}
-
 			const rows = await this.dao.getAllSkus();
 			const skus = rows.map(record => new Sku(record.id, record.description, record.weight, record.volume, record.notes,
-				record.position, record.availableQuantity, record.price));
-
-			if (this.enableCache && rows.length < this.skuMap.max) {
-				allSku.map((sku) => this.skuMap.set(sku.id, sku));
-				this.allInCache = true;
-			}
-
+				record.positionId, record.availableQuantity, record.price));
 			return res.status(200).json(skus);
 		} catch (err) {
 			return next(err);
@@ -59,8 +63,18 @@ class SkuController {
 			if (row === undefined)
 				throw SkuErrorFactory.newSkuNotFound();
 
-			const sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
-				row.position, row.availableQuantity, row.price);
+			let sku;
+			/*let position = null;
+			if (this.enableCache) {
+				if (row.positionId !== null)
+					position = await this.positionController.getPositionByIDInternal(row.positionId);
+
+				sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
+					position, row.availableQuantity, row.price);
+			} else {*/
+				sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
+					row.positionId, row.availableQuantity, row.price);
+			//}
 
 			if (this.enableCache)
 				this.skuMap.set(sku.id, sku)
@@ -94,38 +108,84 @@ class SkuController {
 			const skuId = req.params.id;
 			const rawSku = req.body;
 
+			const totalWeight = rawSku.newAvailableQuantity * rawSku.newWeight;
+			const totalVolume = rawSku.newAvailableQuantity * rawSku.newVolume;
+
+			const { changes } = await this.dao.modifySku(skuId, rawSku, totalWeight, totalVolume);
+
+			// ERROR: no SKU associated to id
+			if (changes === 0)
+				throw SkuErrorFactory.newSkuNotFound();
+
 			if (this.enableCache) {
 				let sku = this.skuMap.get(Number(skuId));
-				sku.description = rawSku.newDescription;
-				sku.weight = rawSku.newWeight;
-				sku.volume = rawSku.newVolume;
-				sku.notes = rawSku.newNotes;
-				sku.price = rawSku.newPrice;
-				sku.availableQuantity = rawSku.newAvailableQuantity;
-			}
 
-			await this.dao.modifySku(skuId, rawSku);
+				if (sku !== undefined) {
+					sku.description = rawSku.newDescription;
+					sku.weight = rawSku.newWeight;
+					sku.volume = rawSku.newVolume;
+					sku.notes = rawSku.newNotes;
+					sku.price = rawSku.newPrice;
+					sku.availableQuantity = rawSku.newAvailableQuantity;
+
+					this.notify({action: "UPDATE_QUANTITY", value: sku});
+				}
+			}
 
 			return res.status(200).send();
 		} catch (err) {
+			if (err.code === "SQLITE_CONSTRAINT") {
+                if (err.message.includes("occupiedWeight"))
+                    err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
+                else if (err.message.includes("occupiedVolume"))
+                    err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
+            }
+
 			return next(err);
 		}
 	}
 
 	async addModifySkuPosition(req, res, next) {
 		try {
-			const skuId = req.params.id;
+			const skuId = Number(req.params.id);
 			const newPosition = req.body.position;
 
+			let skuInDB = undefined;
 			if (this.enableCache) {
-				let sku = this.skuMap.get(Number(skuId));
-				sku.position = newPosition;
+				let sku = this.skuMap.get(skuId);
+
+				if (sku !== undefined)
+					skuInDB = sku; 
 			}
 
-			await this.dao.addModifySkuPosition(skuId, newPosition);
+			const totalChanges = await this.dao.addModifySkuPosition(skuId, newPosition, skuInDB);
+
+			if (totalChanges === 0)
+				throw SkuErrorFactory.newSkuNotFound();
+
+			//if (totalChanges === 1)
+			//	throw PositionErrorFactory.newPositionNotFound();
+
+			if (this.enableCache) {
+				let sku = this.skuMap.get(skuId);
+
+				if (sku !== undefined) {
+					sku.positionId = newPosition;
+				}
+			}
 
 			return res.status(200).send();
 		} catch (err) {
+			if (err.code === "SQLITE_CONSTRAINT") {
+				if (err.message.includes("sku.positionId"))
+					err = SkuErrorFactory.newPositionAlreadyOccupied();
+				else if(err.message.includes("FOREIGN"))
+					err = PositionErrorFactory.newPositionNotFound();
+				else if (err.message.includes("occupiedWeight"))
+                    err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
+                else if (err.message.includes("occupiedVolume"))
+                    err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
+			}
 			return next(err);
 		}
 	}
@@ -134,11 +194,13 @@ class SkuController {
 		try {
 			const skuId = req.params.id;
 
+			const { changes } = await this.dao.deleteSku(skuId);
+			if (changes === 0)
+				throw SkuErrorFactory.newSkuNotFound();
+
 			if (this.enableCache) {
 				this.skuMap.delete(Number(skuId));
 			}
-
-			await this.dao.deleteSku(skuId);
 
 			return res.status(204).send();
 		} catch (err) {
