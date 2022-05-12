@@ -10,6 +10,7 @@ class SkuController {
 		this.skuMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
 		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
 		this.allInCache = false;
+		this.observers = [];
 	}
 
 	async initMap() {
@@ -21,6 +22,18 @@ class SkuController {
 			this.allInCache = true;
 		}
 	}
+
+	addObserver(observer) {
+        this.observers.push(observer);
+    }
+
+    notify(data) {
+        if (this.observers.length > 0) {
+            this.observers.forEach(observer => observer.update(data));
+        }
+    }
+
+	//update() {...}	TODO
 
 	async getAllSkus(req, res, next) {
 		try {
