@@ -1,6 +1,5 @@
 const INITIALIZATION_ERROR_MESSAGE = "Internal error: try again later!"
-const SKU_NOT_FOUND_MESSAGE        = "No SKU associated to id"; // CHECK
-const POSITION_NOT_CAPABLE_MESSAGE = "Position not capable enough to hold newAvailableQuantity";
+const ITEM_NOT_FOUND_MESSAGE        = "No item associated to id";
 
 class ItemErrorFactory {
     static initializeMapFailed() {  //CHECK
