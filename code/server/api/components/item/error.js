@@ -26,12 +26,16 @@ class ItemErrorFactory {
 
     static genericCorruptedData() {
         let error = new Error(VALIDATION_OF_ID_FAILED_MESSAGE);
-        return error.code = 422;
+        error.code = 422;
+
+        return error;
     }
 
     static unauthorizedAccess() {
         let error = new Error(UNAUTHORIZED_ACCESS_MESSAGE);
-        return error.code = 401;
+        error.code = 401;
+        
+        return error;
     }
     
     static notLoggedIn() {
