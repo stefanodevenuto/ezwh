@@ -22,15 +22,16 @@ class TestResultController {
             this.observers.forEach(observer => observer.update(data));
         }
     }
+	*/
 
 	update(data) {
-		const { action, value: position } = data;
-		if (action === "DELETE") {
-			let sku = this.skuMap.get(position.skuId);
-			if (sku !== undefined)
-				sku.positionId = null;
+		const { action, value: testDescriptorId } = data;
+		if (action === "DELETE_TESTDESCRIPTOR") {
+			let testResult = this.testResultMap.get(testDescriptorId);
+			if (testResult !== undefined)
+				testResult.testDescriptorId = null;
 		}
-	}*/
+	}
 
     // ################################ API
 	

@@ -19,6 +19,7 @@ function registerApiRoutes(router, prefix = '') {
 		positionRoute.controller.addObserver(skuRoute.controller);
 		skuRoute.controller.addObserver(positionRoute.controller);
 		testDescriptorRoute.controller.addObserver(skuRoute.controller);
+		testDescriptorRoute.controller.addObserver(testResultRoute.controller);
 	}
 	
 	// Set all Routes
