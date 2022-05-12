@@ -10,18 +10,34 @@ class ItemController {
 		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
 		//this.allInCache = false;
 		this.observers = [];
-
 	}
 
-	addObserver(observer) {	// to keep compatibility with index.js, but not implemented yet 
+	addObserver(observer) {	//ok
         this.observers.push(observer);
     }
 
-    //notify(data) {
-    //}
+    notify(data) {	//ok
+        if (this.observers.length > 0) {
+            this.observers.forEach(observer => observer.update(data));
+        }
+    }
 
-    //update(data) {
-	//}
+    /*update(data) {	//oc change for item
+		// 	possible scenarios:
+		// 		1) supplier does not provide an item anymore;
+		// 		2) SKU changes (e.g. his ID)
+		
+		const { action, value: TODO } = data;
+        switch(action) {
+            case "test_case_1": {
+            }
+            break;
+
+            case "test_case_2": {
+            }
+            break;
+        }
+	}*/
 
 	async getAllItems(req, res, next) {  // getAllItems
 		try {
@@ -46,7 +62,6 @@ class ItemController {
 				if(item !== undefined)
 					return res.status(200).json(item);
 			}
-		// if cache disabled, take from db
 		const row = await this.dao.getItemByID(itemId);
 
 		if(row === undefined)
@@ -101,7 +116,7 @@ class ItemController {
 				// i can change only description, price
 				item.description = rawItem.newDescription;
 				item.price = rawItem.newPrice;
-				this.itemMap.set(Number(itemId), item);		//check
+				this.itemMap.set(Number(itemId), item);		//check keys
 			}
 
 			return res.status(200).send();
