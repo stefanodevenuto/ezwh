@@ -2,6 +2,7 @@ const ItemDAO = require('./dao');
 const Item = require("./item");
 const { ItemErrorFactory } = require('./error');
 const Cache = require('lru-cache');
+const { validationResult } = require('express-validator');
 
 class ItemController {
 	constructor() {	//check
@@ -42,6 +43,9 @@ class ItemController {
 	async getAllItems(req, res, next) {  // getAllItems
 		try {
 			const rows = await this.dao.getAllItems();
+			//if(rows === undefined) {
+			//  throw ItemErrorFactory.internalError();
+			//}
 			const items = rows.map(record => new Item(
 				record.id,
 				record.description,
@@ -62,28 +66,31 @@ class ItemController {
 				if(item !== undefined)
 					return res.status(200).json(item);
 			}
-		const row = await this.dao.getItemByID(itemId);
+			const row = await this.dao.getItemByID(itemId);
 
-		if(row === undefined)
-			throw ItemErrorFactory.newItemNotFound();
+			if(row === undefined)
+				throw ItemErrorFactory.itemNotFound();
 			
-		const item = new Item(
-			row.id,
-			row.description,
-			row.price,
-			row.SKUId,
-			row.supplierId);
+			const item = new Item(
+				row.id,
+				row.description,
+				row.price,
+				row.SKUId,
+				row.supplierId);
 
-		if(this.enableCache)
-			this.itemMap.set(item.id, item);
-		
-		return res.status(200).json(item);
+			if(this.enableCache)
+				this.itemMap.set(item.id, item);
+			
+			return res.status(200).json(item);
 		} catch (err) {
 			return next(err);
 		}
 	}
 
 	async createItem(req, res, next) {   // createItem
+		/*
+			How can i implement errors here?
+		 */
 		try {
 			const { id } = await this.dao.createItem(req.body);
 
@@ -110,7 +117,8 @@ class ItemController {
 			const rawItem = req.body;
 
 			await this.dao.modifyItem(itemId, rawItem);
-
+			if(rawItem === undefined)
+				throw ItemErrorFactory.itemNotFound();
 			if(this.enableCache) {
 				let item = this.itemMap.get(Number(itemId));
 				// i can change only description, price
@@ -128,7 +136,6 @@ class ItemController {
 	async deleteItem(req, res, next) {   // deleteItem
 		try {
 			const itemId = req.params.id;
-			
 			await this.dao.deleteItem(itemId);
 
 			if(this.enableCache)
