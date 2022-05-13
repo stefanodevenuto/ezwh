@@ -1,12 +1,15 @@
 const SKUItemDAO = require('./dao')
 const SKUItem = require("./SKUItem");
 const { SKUItemErrorFactory } = require('./error');
-const Cache = require('lru-cache')
+const { SKUErrorFactory, SkuErrorFactory } = require('../sku/error');
+const Cache = require('lru-cache');
+const SkuController = require('../sku/controller');
 //const sizeof = require('object-sizeof')
 
 class SKUItemController {
 	constructor() {
 		this.dao = new SKUItemDAO();
+		this.skuController = new SkuController;
 		this.SKUItemMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
 		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
 		this.allInCache = false;
@@ -26,15 +29,20 @@ class SKUItemController {
     }
 
 	update(data) {
-		const { action, value: position } = data;
-		if (action === "DELETE") {
-			let sku = this.skuMap.get(position.skuId);
-			if (sku !== undefined)
-				sku.positionId = null;
+		const {action, value} = data;
+		if (action === "DELETE_SKUITEM") {
+			const skuItemId = value;
+			let skuItem = this.skuItemMap(skuItemId);
+			if (skuItem !== undefined)
+			   skuItem.skuId = null;		 
+		} else if(action === "UPDATE_SKUITEM"){
+			const oldSkuItem = value;
+			let skuItem = this.skuItemMap(oldSkuItem.id);
+			
 		}
 	}
 
-	async initMap() {
+	/*async initMap() {
 		const allSKUItem = await this.dao.getAllSKUItems()
 			.catch(() => { throw SKUItemErrorFactory.initializeMapFailed() });
 
@@ -42,22 +50,12 @@ class SKUItemController {
 			allSKUItem.map((SKUItem) => this.SKUItemMap.set(SKUItem.RFID, SKUItem));
 			this.allInCache = true;
 		}
-	}
+	}*/
 
 	async getAllSKUItems(req, res, next) {
 		try {
-			if (this.enableCache && this.allInCache) {
-				const allSKUItem = Array.from(this.SKUItemMap.values());
-				return res.status(200).json(allSKUItem);
-			}
-
 			const rows = await this.dao.getAllSKUItems();
 			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId, record.available, record.dateOfStock));
-
-			if (this.enableCache && rows.length < this.SKUItemMap.max) {
-				SKUItems.map((SKUItem) => this.SKUItemMap.set(SKUItem.RFID, SKUItem));
-				this.allInCache = true;
-			}
 
 			return res.status(200).json(SKUItems);
 		} catch (err) {
@@ -96,12 +94,9 @@ class SKUItemController {
 			
 			const skuId = req.params.id;
 
-			if (this.enableCache) {
-				const SKUItem = this.SKUItemMap.get(skuId);
-
-				if (SKUItem !== undefined)
-					return res.status(200).json(SKUItem);
-			}
+			const sku = await this.skuController.getSkuByID(skuId);
+			if(sku === undefined)
+				throw SkuErrorFactory.newSkuNotFound();
 
 			const row = await this.dao.getSKUItemBySKUID(skuId);
 			if (row === undefined)
@@ -132,6 +127,9 @@ class SKUItemController {
 
 			return res.status(201).send();
 		} catch (err) {
+			if (err.code === "SQLITE_CONSTRAINT")
+				err = SkuErrorFactory.newSkuNotFound();
+			 
 			return next(err);
 		}
 	}
@@ -141,14 +139,22 @@ class SKUItemController {
 			const SKUItemId = req.params.rfid;
 			const rawSKUItem = req.body;
 
-			if (this.enableCache) {
-				let SKUItems = this.SKUItemMap.get(SKUItemId);
-				SKUItems.RFID = rawSKUItem.newRFID;
-				SKUItems.available = rawSKUItem.newAvailable;
-				SKUItems.dateOfStock = rawSKUItem.newDateOfStock;
-			}
-
 			await this.dao.modifySKUItem(SKUItemId, rawSKUItem);
+
+
+			if (this.enableCache) {
+				let oldSkuItem = this.skuItemMap.get(SKUItemId);
+				this.skuItemMap.delete(SKUItemId);
+			 
+				if (oldSkuItem !== undefined) {
+				   oldSkuItem.RFID = rawSKUItem.newRFID;
+				   oldSkuItem.available = rawSKUItem.newAvailable;
+				   oldSkuItem.dateOfStock = rawSKUItem.newDateOfStock;
+				}
+			 
+				this.skuItemMap.set(oldSkuItem.RFID, oldSkuItem);
+				// notify({action: "UPDATE_SKUITEM", value: oldSkuItem}), but I can do it if you want
+			 }
 
 			return res.status(200).send();
 		} catch (err) {
@@ -165,6 +171,8 @@ class SKUItemController {
 			}
 			
 			await this.dao.deleteSKUItem(SKUItemId);
+
+			notify({action: "DELETE_SKUITEM", value: SKUItemId})
 
 			return res.status(204).send();
 		} catch (err) {
