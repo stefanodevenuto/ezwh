@@ -1,5 +1,5 @@
 // GENERIC ERRORS
-const INITIALIZATION_ERROR_MESSAGE    = "Internal error: try again later!"    //internal server error
+const INTERNAL_ERROR_MESSAGE    = "Internal error: try again later!"    //internal server error
 const VALIDATION_OF_ID_FAILED_MESSAGE = "Semantic errors inside id!";         //maybe corrupted DB?
 const UNAUTHORIZED_ACCESS_MESSAGE     = "You do not have the necessary permissions!"    
 const NOT_LOGGED_IN_MESSAGE           = "You are not logged in!"
@@ -17,8 +17,8 @@ const SUPPLIER_ALREADY_SELLING_ITEM_MESSAGE = "The supplier is already selling a
 
 
 class ItemErrorFactory {
-    static initializeMapFailed() {  
-        let error = new Error(INITIALIZATION_ERROR_MESSAGE);
+    static internalError() {  
+        let error = new Error(INTERNAL_ERROR_MESSAGE);
 		error.code = 500;   // changed from 404 to 500
 
 		return error;
