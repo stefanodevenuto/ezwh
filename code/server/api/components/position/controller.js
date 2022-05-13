@@ -190,9 +190,8 @@ class PositionController {
                 throw PositionErrorFactory.newPositionNotFound();
 
             if (this.enableCache) {
-                let position = this.positionMap.get(positionID);
                 this.positionMap.delete(positionID);
-                this.notify({action: "DELETE", value: position});
+                this.notify({action: "DELETE_POSITION", value: positionID});
             }
 
             return res.status(204).send();

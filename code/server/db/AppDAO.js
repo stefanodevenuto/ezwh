@@ -24,7 +24,7 @@ class AppDAO {
                         copyDb.run("ROLLBACK");
                         transaction.onGoing = false;
                     }
-                        
+
                     reject(err)
                 } else {
                     resolve({ id: this.lastID, changes: this.changes })
@@ -62,7 +62,7 @@ class AppDAO {
         })
     }
 
-    async serialize(sqls, params = [[]], strictCheck = false) {
+    async serialize(sqls, params = [[]]) {
         let totalChanges = 0;
 
         await this.run("BEGIN TRANSACTION");
@@ -70,17 +70,36 @@ class AppDAO {
 
         for (let i = 0; i < sqls.length; i++) {
             let { changes } = await this.run(sqls[i], params[i]);
-            if (strictCheck && changes == 0) {
-                await this.run("ROLLBACK");
-                this.transaction.onGoing = false;
-            }
-
             totalChanges += changes;
         }
 
         await this.run("COMMIT");
 
         return totalChanges;
+    }
+
+    async startTransaction() {
+        if (this.transaction.onGoing === true)
+            return;
+
+        await this.run("BEGIN TRANSACTION");
+        this.transaction.onGoing = true;
+    }
+
+    async commitTransaction() {
+        if (this.transaction.onGoing === false)
+            return;
+
+        await this.run("COMMIT");
+        this.transaction.onGoing = false;
+    }
+
+    async rollbackTransaction() {
+        if (this.transaction.onGoing === false)
+            return;
+
+        await this.run("ROLLBACK");
+        this.transaction.onGoing = false;
     }
 }
 
