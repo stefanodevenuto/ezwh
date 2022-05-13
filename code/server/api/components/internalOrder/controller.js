@@ -1,14 +1,15 @@
-const ReturnOrderDAO = require('./dao')
-const ReturnOrder = require("./returnOrder");
+const InternalOrderDAO = require('./dao')
+const InternalOrder = require("./internalOrder");
 const SkuDAO = require('../sku/dao');
 const SkuController = require('../sku/controller')
 const Products = require('./products');
+const ProductsQ = require('./productsQ.js');
 const { ReturnOrderErrorFactory } = require('./error');
 const Cache = require('lru-cache')
 
 class ReturnOrderController {
     constructor() {
-        this.dao = new ReturnOrderDAO();
+        this.dao = new InternalOrderDAO();
         this.sku = new SkuDAO();
         this.SkuController = new SkuController();
         this.returnOrderMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
@@ -49,63 +50,78 @@ class ReturnOrderController {
         }
 	}*/
 
-    async buildReturnOrders(rows){
+    async buildInternalOrders(rows){
         let last = -1;
         let p = [];
         let output = [];
         let prod = [];
+        // Possible impletentation:
+        // Use classes products from folder of return and restock Order
+        // in this way we can use the different constructor to create
+        // the object to push in the array of the and then in the array of the
+        // output 
+
         
-        if(rows[0].id === undefined){
-            rows.map((ret) => {
-                rows.map((pr) => {
-                    p.push(new Products(pr.SKUId, pr.description,
-                            pr.price, pr.RFID));  
-                })
-
-                    prod = p;
-
-                    if((output.find(a => a.id === ret.id) === undefined || output.length === 0)){
-                        output.push(new ReturnOrder(ret.id, ret.returnDate, prod, ret.restockOrderId));
-                    }
-            p = [];
-            
-            });
-        } else {
-            rows.map((ret) => {
-                    if(ret.id !== last){
-                        last = ret.id; 
-                    }
-
-                    rows.map((pr) => {
-                        if(last === pr.id){
-                            p.push(new Products(pr.SKUId, pr.description,
-                                pr.price, pr.RFID));  
+                rows.map((ret) => {
+                    if(ret.state !== "COMPLETED"){
+                        if(ret.id !== last){
+                            last = ret.id; 
                         }
-                    })
 
-                        prod = p;
+                        rows.map((pr) => {
+                            if(last === pr.id){
+                                p.push(new ProductsQ(pr.SKUId, pr.description,
+                                    pr.price, pr.qty));  
+                            }
+                        })
 
-                    if((output.find(a => a.id === ret.id) === undefined || output.length === 0)){
-                        output.push(new ReturnOrder(ret.id, ret.returnDate, prod, ret.restockOrderId));
-                        
-                    }
+                            prod = p;
+
+                        if((output.find(a => a.id === ret.id) === undefined || output.length === 0)){
+                            output.push(new InternalOrder(ret.id, ret.issueDate, ret.state, prod, ret.customerId));
+                        }
+
                     p = [];
-               
-                
+                    
+                } else {
+                    rows.map((ret) => {
+                             if(ret.id !== last){
+                                 last = ret.id; 
+                             }
+     
+                             rows.map((pr) => {
+                                 if(last === pr.id){
+                                     p.push(new Products(pr.SKUId, pr.description,
+                                         pr.price, pr.RFID));  
+                                 }
+                             })
+     
+                                 prod = p;
+     
+                             if((output.find(a => a.id === ret.id) === undefined || output.length === 0)){
+                                 output.push(new InternalOrder(ret.id, ret.issueDate, ret.state, prod, ret.customerId));
+                             }
+     
+                         p = [];
+                         
+                     });
+     
+             }
             });
-        }
     
         return output;
     }
 
     // ################################ API
-    async getAllReturnOrders(req, res, next) {
+    async getAllInternalOrders(req, res, next) {
         try {
-            const rows = await this.dao.getAllReturnOrders();
+            const rows = await this.dao.getAllInternalOrders();
            /* const positions = rows.map(record => new Position(record.positionID, record.aisleID, record.row,
                 record.col, record.maxWeight, record.maxVolume, record.occupiedWeight, record.occupiedVolume, record.skuId));*/
             
-            const output = await this.buildReturnOrders(rows);
+            console.log(rows);
+
+            const output = await this.buildInternalOrders(rows);
 
             return res.status(200).json(output);
         } catch (err) {
@@ -113,9 +129,41 @@ class ReturnOrderController {
         }
     }
 
-    async getReturnOrderByID(req, res, next) {
+    async getInternalOrdersIssued(req, res, next) {
         try {
-            const returnOrderID = req.params.id;
+            const rows = await this.dao.getInternalOrdersIssued();
+           /* const positions = rows.map(record => new Position(record.positionID, record.aisleID, record.row,
+                record.col, record.maxWeight, record.maxVolume, record.occupiedWeight, record.occupiedVolume, record.skuId));*/
+            
+            console.log(rows);
+
+            const output = await this.buildInternalOrders(rows);
+
+            return res.status(200).json(output);
+        } catch (err) {
+            return next(err);
+        }
+    }
+
+    async getInternalOrdersAccepted(req, res, next) {
+        try {
+            const rows = await this.dao.getInternalOrdersAccepted();
+           /* const positions = rows.map(record => new Position(record.positionID, record.aisleID, record.row,
+                record.col, record.maxWeight, record.maxVolume, record.occupiedWeight, record.occupiedVolume, record.skuId));*/
+            
+            console.log(rows);
+
+            const output = await this.buildInternalOrders(rows);
+
+            return res.status(200).json(output);
+        } catch (err) {
+            return next(err);
+        }
+    }
+
+    async getInternalOrderByID(req, res, next) {
+        try {
+            const internalOrderID = req.params.id;
 
             /*if (this.enableCache) {
                 const position = this.positionMap.get(positionID);
@@ -124,9 +172,9 @@ class ReturnOrderController {
                     return res.status(200).json(position);
             }*/
     
-            const rows = await this.dao.getReturnOrderByID(returnOrderID);
+            const rows = await this.dao.getInternalOrderByID(internalOrderID);
 
-            const output = await this.buildReturnOrders(rows);
+            const output = await this.buildInternalOrders(rows);
 
             if (rows === undefined)
                 throw PositionErrorFactory.newPositionNotFound();
@@ -144,15 +192,15 @@ class ReturnOrderController {
     }
 
 
-    async createReturnOrder(req, res, next) {
+    async createInternalOrder(req, res, next) {
         try {
-            const rawReturnOrder = req.body;
+            const rawInternalOrder = req.body;
 
            // if (rawPosition.positionID !== `${rawPosition.aisleID}${rawPosition.row}${rawPosition.col}`)
              //   throw PositionErrorFactory.newPositionIdNotSymmetric();
             let rawProducts = req.body.products;
-            rawProducts = rawProducts.map(record => new Products(record.SKUId, record.description,
-                record.price, record.RFID));
+            rawProducts = rawProducts.map(record => new ProductsQ(record.SKUId, record.description,
+                record.price, record.qty));
 
               /*  let userToken = AuthUser(data)
                 console.log(userToken) // Promise { <pending> }
@@ -172,7 +220,7 @@ class ReturnOrderController {
             //console.log(this.sku.getSkuByID(req.body.products.SKUId));
             
 
-            await this.dao.createReturnOrder(rawReturnOrder);
+            await this.dao.createInternalnOrder(rawInternalOrder);
 
             /*if (this.enableCache) {
                 const position = new Position(rawPosition.positionID, rawPosition.aisleID, rawPosition.row,
@@ -187,10 +235,28 @@ class ReturnOrderController {
         }
     }
 
-    async deleteReturnOrder(req, res, next) {
+    
+
+    async modifyStateInternalOrder(req, res, next) {
         try {
-            const returnOrderID = req.params.id;
-            const { changes } = await this.dao.deleteReturnOrder(returnOrderID);
+            const internalOrderId = req.params.id;
+            const rawInternalOrder = req.body;
+           
+
+            const { changes } = await this.dao.modifyStateInternalOrder(internalOrderId, rawInternalOrder);
+
+          
+            return res.status(200).send();
+        } catch (err) {
+            
+            return next(err);
+        }
+    }
+
+    async deleteInternalOrder(req, res, next) {
+        try {
+            const internalOrderID = req.params.id;
+            const { changes } = await this.dao.deleteInternalOrder(internalOrderID);
 
             /*if (changes === 0)
                 throw PositionErrorFactory.newPositionNotFound();
