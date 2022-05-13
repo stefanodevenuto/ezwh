@@ -18,20 +18,20 @@ class ItemDAO extends AppDAO{
     }
 
     async createItem(item) {
-        const query = 'INSERT INTO item(description, price, SKUId, supplierId) VALUES(?, ?, ?, ?)';
-        let lastId = await this.run(query, [item.description, item.price, item.SKUId, item.supplierId]);
+        const query = 'INSERT INTO item(id, description, price, SKUId, supplierId) VALUES(?, ?, ?, ?, ?)';
+        let lastId = await this.run(query, [item.id, item.description, item.price, item.SKUId, item.supplierId]);
 
         return lastId;
     }
 
     async modifyItem(itemId, item) {
         const query = 'UPDATE item SET description = ?, price = ? WHERE id = ?';
-        await this.run(query, [item.newDescription, item.newPrice, itemId]);
+        return await this.run(query, [item.newDescription, item.newPrice, itemId]);
     }
 
     async deleteItem(itemId) {
         const query = 'DELETE FROM item WHERE id = ?';
-        await this.run(query, [itemId]);
+        return await this.run(query, [itemId]);
     }
 }
 

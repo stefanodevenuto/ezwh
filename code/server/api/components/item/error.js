@@ -1,67 +1,12 @@
-// GENERIC ERRORS
-const INTERNAL_ERROR_MESSAGE    = "Internal error: try again later!"    //internal server error
-const VALIDATION_OF_ID_FAILED_MESSAGE = "Semantic errors inside id!";         //maybe corrupted DB?
-const UNAUTHORIZED_ACCESS_MESSAGE     = "You do not have the necessary permissions!"    
-const NOT_LOGGED_IN_MESSAGE           = "You are not logged in!"
-// 'GET' ERRORS
 const ITEM_NOT_FOUND_MESSAGE = "No item associated to provided id!";           //item not found (while requesting)
-// 'POST' ERRORS
-const SKU_NOT_FOUND_MESSAGE            = "SKU not found!";  //i.e. there is no SKU with such ID
-const BODY_VALIDATION_FAILED_MESSAGE   = "Semantic errors inside body!"; //maybe can change the message...
 const SUPPLIER_ALREADY_SELLING_SKU_MESSAGE  = "The supplier is already selling an item with the same SKUId!";
 const SUPPLIER_ALREADY_SELLING_ITEM_MESSAGE = "The supplier is already selling an item with this id!";
-// 'PUT' ERRORS
-        // we can recicle already defined functions!
-// 'DELETE' ERRORS
-        // we can recicle already defined functions!
-
+const SKU_OR_SUPPLIER_NOT_EXISTING = "The supplier and/or the Sku Id indicated don't exist!";
 
 class ItemErrorFactory {
-    static internalError() {  
-        let error = new Error(INTERNAL_ERROR_MESSAGE);
-		error.code = 500;   // changed from 404 to 500
-
-		return error;
-    }
-
-    static genericCorruptedData() {
-        let error = new Error(VALIDATION_OF_ID_FAILED_MESSAGE);
-        error.code = 422;
-
-        return error;
-    }
-
-    static unauthorizedAccess() {
-        let error = new Error(UNAUTHORIZED_ACCESS_MESSAGE);
-        error.code = 401;
-        
-        return error;
-    }
-    
-    static notLoggedIn() {
-        let error = new Error(NOT_LOGGED_IN_MESSAGE);
-		error.code = 401;
-
-		return error;
-    }
-
     static itemNotFound() {
         let error = new Error(ITEM_NOT_FOUND_MESSAGE);
 		error.code = 404;
-
-		return error;
-    }
-
-    static skuNotFound() {
-        let error = new Error(SKU_NOT_FOUND_MESSAGE);
-		error.code = 404;
-
-		return error;
-    }
-
-    static bodyValidationFailed() {
-        let error = new Error(BODY_VALIDATION_FAILED_MESSAGE);
-		error.code = 422;
 
 		return error;
     }
@@ -75,6 +20,13 @@ class ItemErrorFactory {
 
     static itemAlreadySoldBySupplier() {
         let error = new Error(SUPPLIER_ALREADY_SELLING_ITEM_MESSAGE);
+		error.code = 422;
+
+		return error;
+    }
+
+    static newSkuOrSupplierNotFound() {
+        let error = new Error(SKU_OR_SUPPLIER_NOT_EXISTING);
 		error.code = 422;
 
 		return error;
