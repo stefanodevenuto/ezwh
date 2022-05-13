@@ -5,7 +5,8 @@ var SkuRoutes = require('./sku/routes');
 var SkuItemRoutes = require('./skuItem/routes');
 var PositionRoutes = require('./position/routes');
 var TestResultRoutes = require('./test_result/routes');
-var UserRoutes = require('./user/routes')
+var UserRoutes = require('./user/routes');
+var ReturnOrderRoutes = require('./returnOrder/routes');
 
 function registerApiRoutes(router, prefix = '') {
 
@@ -15,6 +16,7 @@ function registerApiRoutes(router, prefix = '') {
 	const userRoute = new UserRoutes();
 	const skuItemRoute = new SkuItemRoutes();
 	const testResultRoute = new TestResultRoutes();
+	const returnOrderRoute = new ReturnOrderRoutes();
 	
 	// Set the Observable-Observe pattern
 	if (process.env.ENABLE_MAP === "true") {
@@ -22,6 +24,7 @@ function registerApiRoutes(router, prefix = '') {
 		skuRoute.controller.addObserver(positionRoute.controller);
 		skuItemRoute.controller.addObserver(skuItemRoute.controller);
 		userRoute.controller.addObserver(userRoute.controller);
+		returnOrderRoute.controller.addObserver(returnOrderRoute.controller);
 	}
 	
 	// Set all Routes
@@ -34,6 +37,9 @@ function registerApiRoutes(router, prefix = '') {
 	router.use(`${prefix}/skuitem`, skuItemRoute.router);
 	router.use(`${prefix}/skuitems`, skuItemRoute.router);
 	router.use(`${prefix}/skuitems`, testResultRoute.router);
+
+	router.use(`${prefix}/returnOrders`, returnOrderRoute.router);
+	router.use(`${prefix}/returnOrder`, returnOrderRoute.router);
 
 	router.use(`${prefix}/`, userRoute.router);
 	
