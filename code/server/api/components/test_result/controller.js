@@ -157,6 +157,15 @@ class TestResultController {
 			return next(err);
 		}
 	}
+
+	// ################################ Utilities
+	async hasFailedTestResultsByRFID(RFID) {
+		const { failedQuantity } = await this.dao.hasFailedTestResultsByRFID(RFID);
+		if (failedQuantity == 0)
+			return false;
+
+		return true;
+	}
 }
 
 module.exports = TestResultController;

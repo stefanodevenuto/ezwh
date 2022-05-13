@@ -8,6 +8,7 @@ var TestResultRoutes = require('./test_result/routes');
 var TestDescriptorRoutes = require('./test_descriptor/routes');
 var UserRoutes = require('./user/routes')
 var ItemRoutes = require('./item/routes');
+var RestockOrderRoutes = require('./restock_order/routes');
 
 function registerApiRoutes(router, prefix = '') {
 
@@ -19,6 +20,7 @@ function registerApiRoutes(router, prefix = '') {
 	const testResultRoute = new TestResultRoutes();
 	const testDescriptorRoute = new TestDescriptorRoutes();
 	const itemRoute = new ItemRoutes();
+	const restockOrderRoute = new RestockOrderRoutes(testResultRoute.controller);
 	
 	// Set the Observable-Observe pattern
 	if (process.env.ENABLE_MAP === "true") {
@@ -48,6 +50,10 @@ function registerApiRoutes(router, prefix = '') {
 	router.use(`${prefix}/items`, itemRoute.router);
 
 	router.use(`${prefix}/`, userRoute.router);
+	router.use(`${prefix}/restockOrder`, restockOrderRoute.router);
+	router.use(`${prefix}/restockOrders`, restockOrderRoute.router);
+
+	router.use(`${prefix}/`, restockOrderRoute.router);
 }
 
 module.exports = registerApiRoutes;
