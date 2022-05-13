@@ -7,6 +7,7 @@ var PositionRoutes = require('./position/routes');
 var TestResultRoutes = require('./test_result/routes');
 var TestDescriptorRoutes = require('./test_descriptor/routes');
 var UserRoutes = require('./user/routes')
+var ItemRoutes = require('./item/routes');
 
 function registerApiRoutes(router, prefix = '') {
 
@@ -17,6 +18,7 @@ function registerApiRoutes(router, prefix = '') {
 	const skuItemRoute = new SkuItemRoutes();
 	const testResultRoute = new TestResultRoutes();
 	const testDescriptorRoute = new TestDescriptorRoutes();
+	const itemRoute = new ItemRoutes();
 	
 	// Set the Observable-Observe pattern
 	if (process.env.ENABLE_MAP === "true") {
@@ -42,8 +44,10 @@ function registerApiRoutes(router, prefix = '') {
 	router.use(`${prefix}/testDescriptor`, testDescriptorRoute.router);
 	router.use(`${prefix}/testDescriptors`, testDescriptorRoute.router);
 
+	router.use(`${prefix}/item`, itemRoute.router);
+	router.use(`${prefix}/items`, itemRoute.router);
+
 	router.use(`${prefix}/`, userRoute.router);
-	
 }
 
 module.exports = registerApiRoutes;
