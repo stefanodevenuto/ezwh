@@ -30,32 +30,19 @@ class SKUItemController {
 
 	update(data) {
 		const {action, value} = data;
-		if (action === "DELETE_SKUITEM") {
-			const skuItemId = value;
-			let skuItem = this.skuItemMap(skuItemId);
+
+		if (action === "DELETE_SKU") {
+			const skuId = value;
+			let skuItem = this.SKUItemMap.find( (skuItemValue) => skuItemValue.SKUId === skuId);
 			if (skuItem !== undefined)
-			   skuItem.skuId = null;		 
-		} else if(action === "UPDATE_SKUITEM"){
-			const oldSkuItem = value;
-			let skuItem = this.skuItemMap(oldSkuItem.id);
-			
+				skuItem.SKUId = null;
 		}
 	}
-
-	/*async initMap() {
-		const allSKUItem = await this.dao.getAllSKUItems()
-			.catch(() => { throw SKUItemErrorFactory.initializeMapFailed() });
-
-		if (this.enableCache && allSKUItem.length < this.SKUItemMap.max) {
-			allSKUItem.map((SKUItem) => this.SKUItemMap.set(SKUItem.RFID, SKUItem));
-			this.allInCache = true;
-		}
-	}*/
 
 	async getAllSKUItems(req, res, next) {
 		try {
 			const rows = await this.dao.getAllSKUItems();
-			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId, record.available, record.dateOfStock));
+			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId, record.available, record.dateOfStock));
 
 			return res.status(200).json(SKUItems);
 		} catch (err) {
@@ -78,7 +65,7 @@ class SKUItemController {
 			if (row === undefined)
 				throw SKUItemErrorFactory.newSKUItemNotFound();
 
-			const SKUItems = new SKUItem(row.RFID, row.SKUId, row.available, row.dateOfStock);
+			const SKUItems = new SKUItem(row.RFID, row.skuId, row.available, row.dateOfStock);
 
 			if (this.enableCache)
 				this.SKUItemMap.set(SKUItems.RFID, SKUItems)
@@ -94,19 +81,13 @@ class SKUItemController {
 			
 			const skuId = req.params.id;
 
-			const sku = await this.skuController.getSkuByID(skuId);
-			if(sku === undefined)
-				throw SkuErrorFactory.newSkuNotFound();
+			// To check if exists
+			// await this.skuController.getSkuByID(skuId);
 
-			const row = await this.dao.getSKUItemBySKUID(skuId);
-			if (row === undefined)
-				throw SKUItemErrorFactory.newSKUItemNotFound();
-
-			const SKUItems = new SKUItem(row.RFID, row.SKUId, row.available, row.dateOfStock);
-
-			if (this.enableCache)
-				this.SKUItemMap.set(SKUItems.RFID, SKUItems)
-
+			const rows = await this.dao.getSKUItemBySKUID(skuId);
+			
+			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId, 
+				record.available, record.dateOfStock));
 			return res.status(200).json(SKUItems);
 		} catch (err) {
 			return next(err);
@@ -116,20 +97,23 @@ class SKUItemController {
 	async createSKUItem(req, res, next) {
 		try {
 			const rawSKUItem = req.body;
-			const { RFID } = await this.dao.createSKUItem(rawSKUItem);
+			const { id } = await this.dao.createSKUItem(rawSKUItem);
 
 			if (this.enableCache) {
-				const SKUItems = new SKUItem(rawSKUItem.RFID, rawSKUItem.SKUId, 0, rawSKUItem.dateOfStock);
-
-				this.SKUItemMap.set(RFID, SKUItems);
-	
+				const skuItem = new SKUItem(id, rawSKUItem.SKUId, 0, rawSKUItem.dateOfStock);
+				this.SKUItemMap.set(skuItem.RFID, skuItem);
 			}
 
 			return res.status(201).send();
 		} catch (err) {
-			if (err.code === "SQLITE_CONSTRAINT")
-				err = SkuErrorFactory.newSkuNotFound();
-			 
+			if (err.code === "SQLITE_CONSTRAINT") {
+				if (err.message.includes("skuItem.RFID"))
+					err = SKUItemErrorFactory.newSKUItemRFIDNotUnique();
+
+				if (err.message.includes("FOREIGN"))
+					err = SkuErrorFactory.newSkuNotFound();
+			}
+
 			return next(err);
 		}
 	}
@@ -139,25 +123,33 @@ class SKUItemController {
 			const SKUItemId = req.params.rfid;
 			const rawSKUItem = req.body;
 
-			await this.dao.modifySKUItem(SKUItemId, rawSKUItem);
-
+			const { changes } = await this.dao.modifySKUItem(SKUItemId, rawSKUItem);
+			if (changes === 0)
+				throw SKUItemErrorFactory.newSKUItemNotFound();
 
 			if (this.enableCache) {
-				let oldSkuItem = this.skuItemMap.get(SKUItemId);
-				this.skuItemMap.delete(SKUItemId);
+				let oldSkuItem = this.SKUItemMap.get(SKUItemId);
+				this.SKUItemMap.delete(SKUItemId);
+
+				const newRFID = rawSKUItem.newRFID;
 			 
 				if (oldSkuItem !== undefined) {
-				   oldSkuItem.RFID = rawSKUItem.newRFID;
+				   oldSkuItem.RFID = newRFID;
 				   oldSkuItem.available = rawSKUItem.newAvailable;
 				   oldSkuItem.dateOfStock = rawSKUItem.newDateOfStock;
+				   this.SKUItemMap.set(oldSkuItem.RFID, oldSkuItem);
 				}
-			 
-				this.skuItemMap.set(oldSkuItem.RFID, oldSkuItem);
-				// notify({action: "UPDATE_SKUITEM", value: oldSkuItem}), but I can do it if you want
+
+				notify({action: "UPDATE_SKUITEM", value: {oldRFID: SKUItemId, newRFID: newRFID}});
 			 }
 
 			return res.status(200).send();
 		} catch (err) {
+			if (err.code === "SQLITE_CONSTRAINT") {
+				if (err.message.includes("skuItem.RFID"))
+					err = SKUItemErrorFactory.newSKUItemRFIDNotUnique();
+			}
+
 			return next(err);
 		}
 	}
@@ -166,14 +158,15 @@ class SKUItemController {
 		try {
 			const SKUItemId = req.params.rfid;
 
+			const { changes } = await this.dao.deleteSKUItem(SKUItemId);
+			if (changes === 0)
+				throw SKUItemErrorFactory.newSKUItemNotFound();
+
 			if (this.enableCache) {
-				this.SKUItemMap.delete((SKUItemId));
+				this.SKUItemMap.delete(SKUItemId);
+				this.notify({action: "DELETE_SKUITEM", value: SKUItemId})
 			}
 			
-			await this.dao.deleteSKUItem(SKUItemId);
-
-			notify({action: "DELETE_SKUITEM", value: SKUItemId})
-
 			return res.status(204).send();
 		} catch (err) {
 			return next(err);

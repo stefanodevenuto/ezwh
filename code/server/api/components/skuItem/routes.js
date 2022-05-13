@@ -1,5 +1,4 @@
 const express = require('express');
-const dayjs = require('dayjs');
 const { param, body } = require("express-validator")
 const SKUItemController = require('./controller');
 const { ErrorHandler } = require("../../helper");
