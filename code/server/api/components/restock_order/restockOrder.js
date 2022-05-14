@@ -6,6 +6,7 @@ class RestockOrder {
     static COMPLETEDRETURN = "COMPLETEDRETURN";
     static COMPLETED = "COMPLETED";
 
+    static STATES = [this.ISSUED, this.DELIVERY, this.DELIVERED, this.TESTED, this.COMPLETEDRETURN, this.COMPLETED]
 
     constructor(id, issueDate, state, deliveryDate, supplierId, products, skuItems = []) {
         this.id = id;
@@ -15,6 +16,10 @@ class RestockOrder {
         this.supplierId = supplierId;
         this.products = products;
         this.skuItems = skuItems;
+    }
+
+    static isValidState(state) {
+        return this.STATES.some((s) => s === state);
     }
 }
 

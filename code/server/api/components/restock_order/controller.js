@@ -2,6 +2,7 @@ const RestockOrderDAO = require('./dao')
 const RestockOrder = require("./restockOrder");
 const Product = require("./product");
 const { RestockOrderErrorFactory } = require('./error');
+const { SKUItemErrorFactory } = require('../skuItem/error');
 const Cache = require('lru-cache')
 
 class RestockOrderController {
@@ -72,23 +73,7 @@ class RestockOrderController {
     async getRestockOrderByID(req, res, next) {
         try {
             const restockOrderId = Number(req.params.id);
-
-            if (this.enableCache) {
-                const restockOrder = this.restockOrderMap.get(restockOrderId);
-
-                if (restockOrder !== undefined)
-                    return res.status(200).json(restockOrder);
-            }
-
-            const rows = await this.dao.getRestockOrderByID(restockOrderId);
-            if (rows.length === 0)
-                throw RestockOrderErrorFactory.newRestockOrderNotFound();
-
-            const [restockOrder] = await this.buildRestockOrders(rows);
-
-            if (this.enableCache)
-                this.restockOrderMap.set(restockOrder.id, restockOrder)
-
+            let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
             return res.status(200).json(restockOrder);
         } catch (err) {
             return next(err);
@@ -120,7 +105,7 @@ class RestockOrderController {
                 throw RestockOrderErrorFactory.newRestockOrderNotReturned();
 
             let skuItemsReturned = [];
-            
+
             for (let skuItem of restockOrder.skuItems) {
                 if (await this.testResultController.hasFailedTestResultsByRFID(skuItem.RFID))
                     skuItemsReturned.push(skuItem);
@@ -150,13 +135,13 @@ class RestockOrderController {
                 products.push(product);
             }
 
-            const { id } = await this.dao.createRestockOrder(rawRestockOrder, products);
-            
+            const { id } = await this.dao.createRestockOrder(rawRestockOrder, RestockOrder.ISSUED, products);
+
             if (this.enableCache) {
                 const restockOrder = new RestockOrder(id, rawRestockOrder.issueDate, RestockOrder.ISSUED,
                     null, rawRestockOrder.supplierId, products);
 
-                this.restockOrderMap.set(restockOrder.id, restockOrder);
+                this.restockOrderMap.set(Number(restockOrder.id), restockOrder);
             }
 
             return res.status(201).send();
@@ -165,103 +150,142 @@ class RestockOrderController {
         }
     }
 
-    /*
-    async modifyPosition(req, res, next) {
+    async modifyState(req, res, next) {
         try {
-            const positionID = req.params.positionID;
-            const rawPosition = req.body;
+            const restockOrderId = Number(req.params.id);
+            const newState = req.body.newState;
 
-            const newPositionId = `${rawPosition.newAisleID}${rawPosition.newRow}${rawPosition.newCol}`;
-            const { changes } = await this.dao.modifyPosition(positionID, newPositionId, rawPosition);
-
+            const { changes } = await this.dao.modifyState(restockOrderId, newState);
             if (changes === 0)
-                throw PositionErrorFactory.newPositionNotFound();
+                throw RestockOrderErrorFactory.newRestockOrderNotFound();
 
             if (this.enableCache) {
-                let oldPosition = this.positionMap.get(positionID);
-                this.positionMap.delete(positionID);
-
-                if (oldPosition !== undefined) {
-                    oldPosition.positionID = newPositionId;
-                    oldPosition.aisleID = rawPosition.newAisleID;
-                    oldPosition.row = rawPosition.newRow;
-                    oldPosition.col = rawPosition.newCol;
-                    oldPosition.maxWeight = rawPosition.newMaxWeight;
-                    oldPosition.maxVolume = rawPosition.newMaxVolume;
-                    oldPosition.occupiedWeight = rawPosition.newOccupiedWeight;
-                    oldPosition.occupiedVolume = rawPosition.newOccupiedVolume;
-
-                    this.positionMap.set(oldPosition.positionID, oldPosition);
+                let restockOrder = this.restockOrderMap.get(restockOrderId);
+                if (restockOrder !== undefined) {
+                    restockOrder.state = newState;
                 }
             }
 
             return res.status(200).send();
         } catch (err) {
-            if (err.code === "SQLITE_CONSTRAINT")
-                err = PositionErrorFactory.newPositionIDNotUnique();
-
             return next(err);
         }
     }
 
-    async modifyPositionID(req, res, next) {
+    async modifyRestockOrderSkuItems(req, res, next) {
         try {
-            const oldPositionId = req.params.positionID;
-            const newPositionId = req.body.newPositionID;
+            const restockOrderId = Number(req.params.id);
+            const rawSkuItems = req.body.skuItems;
 
-            const splitted = newPositionId.match(/.{1,4}/g);
-            const newAisleID = splitted[0];
-            const newRow = splitted[1];
-            const newCol = splitted[2];
-
-            const { changes } = await this.dao.modifyPositionID(oldPositionId, newPositionId, newAisleID, newRow, newCol);
-
-            if (changes === 0)
-                throw PositionErrorFactory.newPositionNotFound();
+            let restockOrder = undefined;
+            let newSkuItems = [];
 
             if (this.enableCache) {
-                let oldPosition = this.positionMap.get(oldPositionId);
-                this.positionMap.delete(oldPositionId);
+                restockOrder = this.restockOrderMap.get(restockOrderId);
 
-                if (oldPosition !== undefined) {
-                    oldPosition.positionID = newPositionId;
-                    oldPosition.aisleID = newAisleID;
-                    oldPosition.row = newRow;
-                    oldPosition.col = newCol;
-                }
-
-                this.positionMap.set(oldPosition.positionID, oldPosition);
+                if (restockOrder !== undefined && restockOrder.state !== RestockOrder.DELIVERED)
+                    throw RestockOrderErrorFactory.newRestockOrderNotDelivered();
             }
+
+            if (restockOrder === undefined) {
+                let restockOrderFromDB = await this.getRestockOrderByIDInternal(restockOrderId);
+
+                if (restockOrderFromDB === undefined)
+                    throw RestockOrderErrorFactory.newRestockOrderNotFound();
+
+                if (restockOrderFromDB.state !== RestockOrder.DELIVERED)
+                    throw RestockOrderErrorFactory.newRestockOrderNotDelivered();
+            }
+
+            for (let rawSkuItem of rawSkuItems) {
+                // Multiple utility: get the Sku Item in the cache + check if the Sku Item exists
+                let skuItem = await this.skuItemController.getSKUItemByRFIDInternal(rawSkuItem.rfid);
+
+                if (restockOrder !== undefined)
+                    newSkuItems.push(skuItem);
+            }
+
+            await this.dao.modifyRestockOrderSkuItems(restockOrderId, rawSkuItems);
+
+            if (restockOrder !== undefined)
+                restockOrder.skuItems = [...restockOrder.skuItems, ...newSkuItems];
 
             return res.status(200).send();
         } catch (err) {
-            if (err.code === "SQLITE_CONSTRAINT")
-                err = PositionErrorFactory.newPositionIDNotUnique();
+            return next(err);
+        }
+    }
+
+    async modifyTransportNote(req, res, next) {
+        try {
+            const restockOrderId = Number(req.params.id);
+            const deliveryDate = req.body.transportNote.deliveryDate;
+
+            let restockOrder = undefined;
+            if (this.enableCache) {
+                restockOrder = this.restockOrderMap.get(restockOrderId);
+
+                if (restockOrder !== undefined && restockOrder.state !== RestockOrder.DELIVERY)
+                    throw RestockOrderErrorFactory.newRestockOrderNotDelivery();
+            }
+
+            if (restockOrder === undefined) {
+                let restockOrderFromDB = await this.getRestockOrderByIDInternal(restockOrderId);
+
+                if (restockOrderFromDB === undefined)
+                    throw RestockOrderErrorFactory.newRestockOrderNotFound();
+
+                if (restockOrderFromDB.state !== RestockOrder.DELIVERY)
+                    throw RestockOrderErrorFactory.newRestockOrderNotDelivery();
+            }
+
+            await this.dao.modifyTransportNote(restockOrderId, deliveryDate);
+
+            if (restockOrder !== undefined)
+                restockOrder.deliveryDate = deliveryDate;
+                
+            return res.status(200).send();
+        } catch (err) {
+            if (err.code === "SQLITE_CONSTRAINT") {
+                if (err.message.includes("deliveryDate"))
+                    err = RestockOrderErrorFactory.newRestockOrderDeliveryBeforeIssue();
+            }
 
             return next(err);
         }
     }
 
-    async deletePosition(req, res, next) {
+    async deleteRestockOrder(req, res, next) {
         try {
-            const positionID = req.params.positionID;
-            const { changes } = await this.dao.deletePosition(positionID);
+            const restockOrderId = req.params.id;
+            await this.dao.deleteRestockOrder(restockOrderId);
 
             if (changes === 0)
-                throw PositionErrorFactory.newPositionNotFound();
+                throw RestockOrderErrorFactory.newRestockOrderNotFound();
 
             if (this.enableCache) {
-                this.positionMap.delete(positionID);
-                this.notify({action: "DELETE_POSITION", value: positionID});
+                let restockOrder = this.restockOrderMap.get(restockOrderId);
+
+                if (restockOrder !== undefined) {
+
+                    restockOrder.skuItems.map((skuItem) => {
+                        skuItem.restockOrderId = null;
+                    })
+
+                    this.restockOrderMap.delete(restockOrderId);
+                }
+
+                //this.notify({action: "DELETE_RESTOCKORDER", value: restockOrderId});
             }
 
             return res.status(204).send();
         } catch (err) {
             return next(err);
         }
-    }*/
+    }
 
     // ################## Utilities
+
     async buildRestockOrders(rows) {
         let restockOrders = [];
         if (rows.length > 0) {
@@ -280,7 +304,7 @@ class RestockOrderController {
                     // Otherwise, create the current restockOrder and clear the products array
                     const restockOrder = new RestockOrder(lastRestockOrder.id, lastRestockOrder.issueDate, lastRestockOrder.state,
                         lastRestockOrder.deliveryDate, lastRestockOrder.supplierId, products);
-                    
+
                     restockOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache(restockOrder.id);
                     restockOrders.push(restockOrder);
 
@@ -304,6 +328,26 @@ class RestockOrderController {
         }
 
         return restockOrders;
+    }
+
+    async getRestockOrderByIDInternal(restockOrderId) {
+        if (this.enableCache) {
+            const restockOrder = this.restockOrderMap.get(restockOrderId);
+
+            if (restockOrder !== undefined)
+                return restockOrder;
+        }
+
+        const rows = await this.dao.getRestockOrderByID(restockOrderId);
+        if (rows.length === 0)
+            throw RestockOrderErrorFactory.newRestockOrderNotFound();
+
+        const [restockOrder] = await this.buildRestockOrders(rows);
+
+        if (this.enableCache)
+            this.restockOrderMap.set(restockOrder.id, restockOrder)
+
+        return restockOrder;
     }
 }
 

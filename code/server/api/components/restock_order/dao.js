@@ -3,8 +3,7 @@ const AppDAO = require("../../../db/AppDAO");
 class RestockOrderDAO extends AppDAO{
 
     constructor() { super(); }
-    
-    
+        
     async getAllRestockOrders() {
         // PER CREATE: const query_get_item_id = "SELECT id FROM item WHERE SKUId = ? AND supplierId = ?";
 
@@ -42,50 +41,50 @@ class RestockOrderDAO extends AppDAO{
         return await this.all(query, [restockOrderId]);
     }
 
-    async createRestockOrder(restockOrder, products) {
+    async createRestockOrder(restockOrder, state, products) {
         const query_restockOrder = 'INSERT INTO restockOrder(issueDate, state, supplierId) VALUES (?, ?, ?)';
         const query_association = 'INSERT INTO restockOrder_item(itemId, restockOrderId, qty) VALUES (?, ?, ?)';
         
         await this.startTransaction();
 
-        const { id } = await this.run(query_restockOrder, [restockOrder.issueDate, restockOrder.state, restockOrder.supplierId]);
+        const { id } = await this.run(query_restockOrder, [restockOrder.issueDate, state, restockOrder.supplierId]);
 
         // Se volessi dire che un Item sta in un ordine solo, si dovrebbe aggiungere restockOrder_item supplierId, in maniera da avere
         // una VERA chiave primaria, e basterebbe poi mettere UNIQUE la coppia
-        for (let product of products) {
-            console.log(id)
-            console.log(product.item.id);
-            console.log(product.qty);
+        for (let product of products)
             await this.run(query_association, [product.item.id, id, product.qty]);
-        }
 
         await this.commitTransaction();
         return id;
     }
 
-    /*
-    async modifyPosition(oldPositionID, newPositionID, position) {
-        const query = 'UPDATE position SET positionID = ?, aisleID = ?, row = ?, col = ?, maxWeight = ?, maxVolume = ?, occupiedWeight = ?, occupiedVolume = ? WHERE positionID = ?'
-
-        return await this.run(query, [newPositionID, position.newAisleID, position.newRow, position.newCol, position.newMaxWeight, position.newMaxVolume, position.newOccupiedWeight,
-            position.newOccupiedVolume, oldPositionID]);
+    async modifyState(restockOrderId, newState) {
+        const query = 'UPDATE restockOrder SET state = ? WHERE id = ?'
+        return await this.run(query, [newState, restockOrderId]);
     }
 
-    async modifyPositionID(oldPositionId, newPositionId, newAisleId, newRow, newCol) {
-        const query = 'UPDATE position SET positionID = ?, aisleID = ?, row = ?, col = ? WHERE positionID = ?'
-        return await this.run(query, [newPositionId, newAisleId, newRow, newCol, oldPositionId]);
+    async modifyRestockOrderSkuItems(restockOrderId, skuItems) {
+        const query = 'UPDATE skuItem SET restockOrderId = ? WHERE RFID = ?'
+
+        let params = [];
+        let queries = [];
+        for (let skuItem of skuItems) {
+            params.push([restockOrderId, skuItem.rfid])
+            queries.push(query);
+        }
+
+        return await this.serialize(queries, params);
     }
 
-    async deletePosition(positionID) {
-        const query = 'DELETE FROM position WHERE positionID = ?'
-        return await this.run(query, [positionID]);
+    async modifyTransportNote(restockOrderId, deliveryDate) {
+        const query = 'UPDATE restockOrder SET deliveryDate = ? WHERE id = ?'
+        return await this.run(query, [deliveryDate, restockOrderId]);
     }
 
-    /* Utilities */
-    /*async modifyOccupiedFieldsPosition(skuId, totalWeight, totalVolume) {
-        const query = "UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE skuId = ?";
-        return await this.run(query, [totalWeight, totalVolume, skuId]);
-    }*/
+    async deleteRestockOrder(restockOrderId) {
+        const query = 'DELETE FROM restockOrder WHERE id = ?'
+        return await this.run(query, [restockOrderId]);
+    }
 }
 
 module.exports = RestockOrderDAO;

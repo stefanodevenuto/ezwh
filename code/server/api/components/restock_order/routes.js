@@ -1,7 +1,8 @@
 const express = require('express');
-const { param, body } = require("express-validator")
+const { param, body, checkSchema } = require("express-validator")
 const RestockOrderController = require('./controller');
 const { ErrorHandler } = require("../../helper");
+const RestockOrder = require("./restockOrder");
 
 class RestockOrderRoutes {
 	constructor(testResultController, skuItemController, itemController) {
@@ -20,13 +21,11 @@ class RestockOrderRoutes {
 			(req, res, next) => this.controller.getAllIssuedRestockOrders(req, res, next)
 		);
 
-
         this.router.get(
 			'/',
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getAllRestockOrders(req, res, next)
 		);
-
         
         this.router.get(
 			'/:id',
@@ -51,36 +50,38 @@ class RestockOrderRoutes {
 			(req, res, next) => this.controller.createRestockOrder(req, res, next)
 		);
 
-		/*
 		this.router.put(
-			'/:positionID',
-			param('positionID').isString().withMessage("ERROR: PositionId is not a String"),
-			body("newAisleID").isString().isLength({min: 4, max: 4}),
-			body("newRow").isString().isLength({min: 4, max: 4}),
-			body("newCol").isString().isLength({min: 4, max: 4}),
-			body("newMaxWeight").isNumeric(),
-			body("newMaxVolume").isNumeric(),
-            body("newOccupiedWeight").isNumeric(),
-			body("newOccupiedVolume").isNumeric(),
+			'/:id',
+			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			body("newState").isString()
+				.custom((state) => RestockOrder.isValidState(state))
+				.withMessage("Invalid State"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifyPosition(req, res, next)
+			(req, res, next) => this.controller.modifyState(req, res, next)
 		);
 
 		this.router.put(
-			'/:positionID/changeID',
-			param('positionID').isString().withMessage("ERROR: PositionId is not a String"),
-			body("newPositionID").isString().isLength({min: 12, max: 12}),
+			'/:id/skuItems',
+			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			body("skuItems").isArray(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifyPositionID(req, res, next)
+			(req, res, next) => this.controller.modifyRestockOrderSkuItems(req, res, next)
+		);
+
+		this.router.put(
+			'/:id/transportNote',
+			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			body("transportNote.deliveryDate").isDate(),
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.modifyTransportNote(req, res, next)
 		);
 
 		this.router.delete(
-			'/:positionID',
-			param('positionID').isNumeric().withMessage("ERROR: PositionId is not a number"),
+			'/:id',
+			param('id').isNumeric().withMessage("ERROR: id is not a number"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.deletePosition(req, res, next)
+			(req, res, next) => this.controller.deleteRestockOrder(req, res, next)
 		);
-        */
 	}
 }
 
