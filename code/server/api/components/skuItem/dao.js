@@ -35,10 +35,16 @@ class SKUItemDAO extends AppDAO{
             SKUItem.newDateOfStock, RFID]);
     }
 
-
     async deleteSKUItem(RFID) {
         const query = 'DELETE FROM skuItem WHERE RFID = ?'
         return await this.run(query, [RFID]);
+    }
+
+    // #################### Utilities
+
+    async getAllSkuItemsByRestockOrder(restockOrderId) {
+        const query = "SELECT RFID FROM skuItem WHERE restockOrderId = ?";
+        return await this.all(query, [restockOrderId]);
     }
 }
 

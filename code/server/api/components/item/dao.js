@@ -33,6 +33,13 @@ class ItemDAO extends AppDAO{
         const query = 'DELETE FROM item WHERE id = ?';
         return await this.run(query, [itemId]);
     }
+
+    // ###################### Utilities
+
+    async getItemBySkuIdAndSupplierId(skuId, supplierId) {
+        const query = "SELECT * FROM item WHERE SKUId = ? AND supplierId = ?";
+        return await this.get(query, [skuId, supplierId]);
+    }
 }
 
 module.exports = ItemDAO;

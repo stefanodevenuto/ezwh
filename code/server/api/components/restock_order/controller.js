@@ -1,16 +1,19 @@
 const RestockOrderDAO = require('./dao')
 const RestockOrder = require("./restockOrder");
+const Product = require("./product");
 const { RestockOrderErrorFactory } = require('./error');
 const Cache = require('lru-cache')
 
 class RestockOrderController {
-    constructor(testResultController) {
+    constructor(testResultController, skuItemController, itemController) {
         this.dao = new RestockOrderDAO();
         this.restockOrderMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
         this.enableCache = (process.env.ENABLE_MAP === "true") || false;
         this.observers = [];
 
         this.testResultController = testResultController;
+        this.skuItemController = skuItemController;
+        this.itemController = itemController;
     }
 
     // ################################ Observer-Observable Pattern
@@ -113,13 +116,8 @@ class RestockOrderController {
                 restockOrder = restockOrderDB;
             }
 
-            if (restockOrder.state !== "COMPLETEDRETURN")
+            if (restockOrder.state !== RestockOrder.COMPLETEDRETURN)
                 throw RestockOrderErrorFactory.newRestockOrderNotReturned();
-
-            // DUMMY DUMMY DUMMY
-            restockOrder.skuItems[0] = {SKUId: 1, RFID: "12345678901234567890123456789014"};
-            restockOrder.skuItems[1] = {SKUId: 1, RFID: "12345678901234567890123456789015"};
-            // DUMMY DUMMY DUMMY
 
             let skuItemsReturned = [];
             
@@ -134,39 +132,33 @@ class RestockOrderController {
         }
     }
 
+    // 1. Per ogni products (SKUId):
+    //  1. Recupero l'itemId (SKUId + supplierId)
+    //  2. Inserisco nella tabella associativa (restockOrderId, itemId, qty)
+    // 2. Creo restockOrder
+
     async createRestockOrder(req, res, next) {
         try {
             const rawRestockOrder = req.body;
             const supplierId = rawRestockOrder.supplierId;
 
             // Multiple utility: get the Item in the cache + check if the Item exists
-            let items = [];
+            let products = [];
             for (let rawItem of rawRestockOrder.products) {
-                // REAL REAL REAL
-                    //let item = await this.itemController.getItemBySkuIdAndSupplierId(rawItem.SKUId, supplierId);
-                    //items.push(item);
-                // REAL REAL REAL
+                let item = await this.itemController.getItemBySkuIdAndSupplierId(rawItem.SKUId, supplierId);
+                let product = new Product(item, rawItem.qty);
+                products.push(product);
             }
 
-            // DUMMY DUMMY DUMMY
-            items.push({id: 4});
-            // DUMMY DUMMY DUMMY
-
-            const { id } = await this.dao.createRestockOrder(rawRestockOrder, items);
+            const { id } = await this.dao.createRestockOrder(rawRestockOrder, products);
             
             if (this.enableCache) {
-                const restockOrder = new RestockOrder(id, rawRestockOrder.issueDate, "ISSUED",
-                    null, rawRestockOrder.supplierId, items);
+                const restockOrder = new RestockOrder(id, rawRestockOrder.issueDate, RestockOrder.ISSUED,
+                    null, rawRestockOrder.supplierId, products);
 
                 this.restockOrderMap.set(restockOrder.id, restockOrder);
             }
 
-            // 1. Creo restockOrder
-            // 2. Per ogni products (SKUId):
-            //  1. Recupero l'itemId (SKUId + supplierId)
-            //  2. Inserisco nella tabella associativa (restockOrderId, itemId, qty)
-            // 
-            
             return res.status(201).send();
         } catch (err) {
             return next(err);
@@ -280,40 +272,34 @@ class RestockOrderController {
             for (let row of rows) {
                 // If it's the same restockOrder, continue adding the related Skus
                 if (row.id == lastRestockOrder.id) {
-                    products.push({
-                        SKUId: row.SKUId, description: row.description,
-                        price: row.price, qty: row.qty
-                    });
+                    let item = await this.itemController.getItemBySkuIdAndSupplierId(
+                        row.SKUId, lastRestockOrder.supplierId);
+                    let product = new Product(item, row.qty);
+                    products.push(product);
                 } else {
                     // Otherwise, create the current restockOrder and clear the products array
                     const restockOrder = new RestockOrder(lastRestockOrder.id, lastRestockOrder.issueDate, lastRestockOrder.state,
                         lastRestockOrder.deliveryDate, lastRestockOrder.supplierId, products);
-
-                    /*
-                    let skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache();
-                    restockOrder.skuItems = skuItems.map((s) => s.RFID); // Oppure skuItemController passa già solo RFID
-                    */
+                    
+                    restockOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache(restockOrder.id);
                     restockOrders.push(restockOrder);
 
                     // Reset
                     lastRestockOrder = row;
                     products = [];
 
-                    // Don't lose the current Sku!
-                    products.push({ 
-                        SKUId: row.SKUId, description: row.description, 
-                        price: row.price, qty: row.qty 
-                    });
+                    // Don't lose the current Item!
+                    let item = await this.itemController.getItemBySkuIdAndSupplierId(row.SKUId, lastRestockOrder.supplierId)
+                    let product = new Product(item, row.qty);
+                    products.push(product);
                 }
             }
 
             // Create the last restockOrder
             const restockOrder = new RestockOrder(lastRestockOrder.id, lastRestockOrder.issueDate, lastRestockOrder.state,
                 lastRestockOrder.deliveryDate, lastRestockOrder.supplierId, products);
-            /*
-            let skuItems = await this.skuItemController.getAllSkuItemsByRestockOrder();
-            restockOrder.skuItems = skuItems.map((s) => s.RFID); // Oppure skuItemController passa già solo RFID
-            */
+
+            restockOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache(restockOrder.id);
             restockOrders.push(restockOrder);
         }
 

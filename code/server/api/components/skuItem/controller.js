@@ -179,6 +179,23 @@ class SKUItemController {
 
 		return SKUItems;
 	}
+
+	async getAllSkuItemsByRestockOrderAndCache(restockOrderId) {
+		try {
+			const rows = await this.dao.getAllSkuItemsByRestockOrder(restockOrderId);
+			const skuItems = [];
+
+			for (let row of rows) {
+				let skuItem = await this.getSKUItemByRFIDInternal(row.RFID);
+				skuItems.push(skuItem);
+			}
+
+			return skuItems;
+		} catch (error) {
+			console.log(error);
+		}
+
+	}
 }
 
 module.exports = SKUItemController;

@@ -39,19 +39,20 @@ class RestockOrderDAO extends AppDAO{
         return await this.all(query, [restockOrderId]);
     }
 
-    async createRestockOrder(restockOrder, items) {
+    async createRestockOrder(restockOrder, products) {
         const query_restockOrder = 'INSERT INTO restockOrder(issueDate, state, supplierId) VALUES (?, ?, ?)';
         const query_association = 'INSERT INTO restockOrder_item VALUES (?, ?, ?)';
         
-        this.startTransaction();
+        await this.startTransaction();
 
         const { id } = await this.run(query_restockOrder, [restockOrder.issueDate, restockOrder.state, restockOrder.supplierId]);
-        
-        for (let item of items) {
-            // Se volessi dire che un Item sta in un ordine solo, basta mettere itemId UNIQUE in restockOrder_item
-            await this.run(query_association, [id, item.id, item.qty]);
-        }
 
+        // Se volessi dire che un Item sta in un ordine solo, si dovrebbe aggiungere restockOrder_item supplierId, in maniera da avere
+        // una VERA chiave primaria, e basterebbe poi mettere UNIQUE la coppia
+        for (let product of products)
+            await this.run(query_association, [id, product.item.id, product.qty]);
+
+        await this.commitTransaction();
         return id;
     }
 

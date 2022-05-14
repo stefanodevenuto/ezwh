@@ -4,10 +4,10 @@ const RestockOrderController = require('./controller');
 const { ErrorHandler } = require("../../helper");
 
 class RestockOrderRoutes {
-	constructor(testResultController) {
+	constructor(testResultController, skuItemController, itemController) {
 		this.errorHandler = new ErrorHandler();
 		this.name = 'restockOrder';
-		this.controller = new RestockOrderController(testResultController);
+		this.controller = new RestockOrderController(testResultController, skuItemController, itemController);
 		this.router = express.Router();
 		this.initRoutes();
 	}
@@ -44,7 +44,7 @@ class RestockOrderRoutes {
 
 		this.router.post(
 			'/',
-			body("issueDate").isDate(),
+			body("issueDate").isString(),
 			body("products").isArray(),
 			body("supplierId").isNumeric(),
 			this.errorHandler.validateRequest,
