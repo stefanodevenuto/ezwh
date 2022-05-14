@@ -11,7 +11,8 @@ class RestockOrderDAO extends AppDAO{
         const query = 'SELECT RO.id AS id, RO.issueDate, RO.state, RO.supplierId, RO.deliveryDate, I.SKUId, I.description, I.price, ROI.qty\
             FROM restockOrder RO \
             JOIN restockOrder_item ROI ON RO.id = ROI.restockOrderId \
-            JOIN item I ON ROI.itemId = I.id';
+            JOIN item I ON ROI.itemId = I.id \
+            ORDER BY RO.id, I.id';
 
         // Returns a list containing an element for each Item of each Restock Order
         return await this.all(query);
@@ -22,7 +23,8 @@ class RestockOrderDAO extends AppDAO{
             FROM restockOrder RO \
             JOIN restockOrder_item ROI ON RO.id = ROI.restockOrderId \
             JOIN item I ON ROI.itemId = I.id \
-            WHERE RO.state = "ISSUED"';
+            WHERE RO.state = "ISSUED" \
+            ORDER BY RO.id, I.id';
 
         // Returns a list containing an element for each Item of each Restock Order
         return await this.all(query);
@@ -33,7 +35,8 @@ class RestockOrderDAO extends AppDAO{
             FROM restockOrder RO \
             JOIN restockOrder_item ROI ON RO.id = ROI.restockOrderId \
             JOIN item I ON ROI.itemId = I.id \
-            WHERE RO.id = ?';
+            WHERE RO.id = ? \
+            ORDER BY RO.id';
         
         // Returns a list containing an element for each Item of the Restock Order
         return await this.all(query, [restockOrderId]);
@@ -41,7 +44,7 @@ class RestockOrderDAO extends AppDAO{
 
     async createRestockOrder(restockOrder, products) {
         const query_restockOrder = 'INSERT INTO restockOrder(issueDate, state, supplierId) VALUES (?, ?, ?)';
-        const query_association = 'INSERT INTO restockOrder_item VALUES (?, ?, ?)';
+        const query_association = 'INSERT INTO restockOrder_item(itemId, restockOrderId, qty) VALUES (?, ?, ?)';
         
         await this.startTransaction();
 
@@ -49,8 +52,12 @@ class RestockOrderDAO extends AppDAO{
 
         // Se volessi dire che un Item sta in un ordine solo, si dovrebbe aggiungere restockOrder_item supplierId, in maniera da avere
         // una VERA chiave primaria, e basterebbe poi mettere UNIQUE la coppia
-        for (let product of products)
-            await this.run(query_association, [id, product.item.id, product.qty]);
+        for (let product of products) {
+            console.log(id)
+            console.log(product.item.id);
+            console.log(product.qty);
+            await this.run(query_association, [product.item.id, id, product.qty]);
+        }
 
         await this.commitTransaction();
         return id;
