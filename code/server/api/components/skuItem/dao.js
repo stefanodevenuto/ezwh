@@ -24,7 +24,7 @@ class SKUItemDAO extends AppDAO{
 
     async createSKUItem(SKUItem) {
         const query = 'INSERT INTO skuItem(RFID, SKUId, Available, DateOfStock) VALUES (?, ?, 0, ?)'
-        let lastId = await this.run(query, [SKUItem.RFID, SKUItem.SKUId, SKUItem.dateOfStock]);
+        let lastId = await this.run(query, [SKUItem.RFID, SKUItem.SKUId, SKUItem.DateOfStock]);
         
         return lastId;
     }

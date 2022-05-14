@@ -17,7 +17,7 @@ function registerApiRoutes(router, prefix = '') {
 	const skuRoute = new SkuRoutes();
 	const userRoute = new UserRoutes();
 	const skuItemRoute = new SkuItemRoutes();
-	const testResultRoute = new TestResultRoutes();
+	const testResultRoute = new TestResultRoutes(skuItemRoute.controller);
 	const testDescriptorRoute = new TestDescriptorRoutes();
 	const itemRoute = new ItemRoutes();
 	const restockOrderRoute = new RestockOrderRoutes(testResultRoute.controller);
@@ -28,8 +28,7 @@ function registerApiRoutes(router, prefix = '') {
 		skuRoute.controller.addObserver(positionRoute.controller);
 		testDescriptorRoute.controller.addObserver(skuRoute.controller);
 		testDescriptorRoute.controller.addObserver(testResultRoute.controller);
-		skuItemRoute.controller.addObserver(skuItemRoute.controller);
-		userRoute.controller.addObserver(userRoute.controller);
+		skuItemRoute.controller.addObserver(testResultRoute.controller);
 	}
 	
 	// Set all Routes

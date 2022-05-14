@@ -17,23 +17,23 @@ class SKUItemController {
 
 	}
 
-	
+
 	addObserver(observer) {
-        this.observers.push(observer);
-    }
+		this.observers.push(observer);
+	}
 
 	notify(data) {
-        if (this.observers.length > 0) {
-            this.observers.forEach(observer => observer.update(data));
-        }
-    }
+		if (this.observers.length > 0) {
+			this.observers.forEach(observer => observer.update(data));
+		}
+	}
 
 	update(data) {
-		const {action, value} = data;
+		const { action, value } = data;
 
 		if (action === "DELETE_SKU") {
 			const skuId = value;
-			let skuItem = this.SKUItemMap.find( (skuItemValue) => skuItemValue.SKUId === skuId);
+			let skuItem = this.SKUItemMap.find((skuItemValue) => skuItemValue.SKUId === skuId);
 			if (skuItem !== undefined)
 				skuItem.SKUId = null;
 		}
@@ -53,24 +53,8 @@ class SKUItemController {
 	async getSKUItemByRFID(req, res, next) {
 		try {
 			const SKUItemId = req.params.rfid;
-
-			if (this.enableCache) {
-				const SKUItemM = this.SKUItemMap.get(SKUItemId);
-
-				if (SKUItemM !== undefined)
-					return res.status(200).json(SKUItemM);
-			}
-
-			const row = await this.dao.getSKUItemByRFID(SKUItemId);
-			if (row === undefined)
-				throw SKUItemErrorFactory.newSKUItemNotFound();
-
-			const SKUItems = new SKUItem(row.RFID, row.skuId, row.available, row.dateOfStock);
-
-			if (this.enableCache)
-				this.SKUItemMap.set(SKUItems.RFID, SKUItems)
-
-			return res.status(200).json(SKUItems);
+			const skuItem = await this.getSKUItemByRFIDInternal(SKUItemId);
+			return res.status(200).json(skuItem);
 		} catch (err) {
 			return next(err);
 		}
@@ -78,15 +62,15 @@ class SKUItemController {
 
 	async getSKUItemBySKUID(req, res, next) {
 		try {
-			
+
 			const skuId = req.params.id;
 
 			// To check if exists
 			// await this.skuController.getSkuByID(skuId);
 
 			const rows = await this.dao.getSKUItemBySKUID(skuId);
-			
-			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId, 
+
+			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
 				record.available, record.dateOfStock));
 			return res.status(200).json(SKUItems);
 		} catch (err) {
@@ -132,16 +116,16 @@ class SKUItemController {
 				this.SKUItemMap.delete(SKUItemId);
 
 				const newRFID = rawSKUItem.newRFID;
-			 
+
 				if (oldSkuItem !== undefined) {
-				   oldSkuItem.RFID = newRFID;
-				   oldSkuItem.available = rawSKUItem.newAvailable;
-				   oldSkuItem.dateOfStock = rawSKUItem.newDateOfStock;
-				   this.SKUItemMap.set(oldSkuItem.RFID, oldSkuItem);
+					oldSkuItem.RFID = newRFID;
+					oldSkuItem.available = rawSKUItem.newAvailable;
+					oldSkuItem.dateOfStock = rawSKUItem.newDateOfStock;
+					this.SKUItemMap.set(oldSkuItem.RFID, oldSkuItem);
 				}
 
-				notify({action: "UPDATE_SKUITEM", value: {oldRFID: SKUItemId, newRFID: newRFID}});
-			 }
+				this.notify({ action: "UPDATE_SKUITEM", value: { oldRFID: SKUItemId, newRFID: newRFID } });
+			}
 
 			return res.status(200).send();
 		} catch (err) {
@@ -164,13 +148,36 @@ class SKUItemController {
 
 			if (this.enableCache) {
 				this.SKUItemMap.delete(SKUItemId);
-				this.notify({action: "DELETE_SKUITEM", value: SKUItemId})
+				this.notify({ action: "DELETE_SKUITEM", value: SKUItemId })
 			}
-			
+
 			return res.status(204).send();
 		} catch (err) {
 			return next(err);
 		}
+	}
+
+	// ################## Utilities
+	async getSKUItemByRFIDInternal(rfid) {
+		const SKUItemId = rfid;
+
+		if (this.enableCache) {
+			const SKUItemM = this.SKUItemMap.get(SKUItemId);
+
+			if (SKUItemM !== undefined)
+				return SKUItemM;
+		}
+
+		const row = await this.dao.getSKUItemByRFID(SKUItemId);
+		if (row === undefined)
+			throw SKUItemErrorFactory.newSKUItemNotFound();
+
+		const SKUItems = new SKUItem(row.RFID, row.skuId, row.available, row.dateOfStock);
+
+		if (this.enableCache)
+			this.SKUItemMap.set(SKUItems.RFID, SKUItems)
+
+		return SKUItems;
 	}
 }
 
