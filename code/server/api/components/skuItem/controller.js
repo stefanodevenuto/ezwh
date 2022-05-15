@@ -3,7 +3,7 @@ const SKUItem = require("./SKUItem");
 const { SKUItemErrorFactory } = require('./error');
 const { SKUErrorFactory, SkuErrorFactory } = require('../sku/error');
 const SkuController = require('../sku/controller');
-//const sizeof = require('object-sizeof')
+
 
 class SKUItemController {
 	constructor() {
@@ -17,7 +17,7 @@ class SKUItemController {
 			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId, 
 				record.available, record.dateOfStock, record.restockOrderId));
 
-			return res.status(200).json(SKUItems);
+			return res.status(200).json(rows);
 		} catch (err) {
 			return next(err);
 		}

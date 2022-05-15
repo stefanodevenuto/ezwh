@@ -12,9 +12,6 @@ class ItemRoutes {      // ok
 		this.initRoutes();
 	}
 
-	async initMap() {	//ok
-		await this.controller.initMap();
-	} 
 
 	initRoutes() {
 
