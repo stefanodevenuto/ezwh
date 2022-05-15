@@ -4,6 +4,7 @@ const { UserErrorFactory } = require('./error');
 const Cache = require('lru-cache');
 const { raw } = require('express');
 var CryptoJS = require("crypto-js");
+const { PositionErrorFactory } = require('../position/error');
 //const sizeof = require('object-sizeof')
 
 class UserController {
@@ -81,7 +82,10 @@ class UserController {
 		try {
 			const rawUser = req.body;
 			console.log(rawUser);
-			const id = await this.dao.checkManager(rawUser);
+			const row = await this.dao.checkManager(rawUser);
+
+			if(row === undefined)
+				throw PositionErrorFactory.newPositionNotFound(); // put 401
 
 			if (this.enableCache) {
 				let users = this.userMap.get(id);

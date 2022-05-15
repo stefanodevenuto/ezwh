@@ -28,6 +28,15 @@ class UserRoutes {
 		);
 
 		this.router.get(
+			'/userinfo',
+			/* this.authSerivce.isAuthorized(),
+			this.authSerivce.hasPermission(this.name, 'read'),*/
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.getUserInfo(req, res, next)
+		);
+
+
+		this.router.get(
 			'/suppliers',
 			/* this.authSerivce.isAuthorized(),
 			this.authSerivce.hasPermission(this.name, 'read'),*/

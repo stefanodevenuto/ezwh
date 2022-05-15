@@ -39,9 +39,9 @@ class UserDao extends AppDAO{
 
     async checkManager(User) {
         const query = 'SELECT id, email, password FROM user WHERE email = ? AND password = ?'
-        let lastID = await this.run(query, [User.email, CryptoJS.MD5(User.password)]);
+        let row = await this.get(query, [User.email, CryptoJS.MD5(User.password)]);
 
-        return lastID;
+        return row;
     }
 
 

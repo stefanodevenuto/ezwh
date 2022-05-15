@@ -38,6 +38,7 @@ class ReturnOrderDAO extends AppDAO{
         
         return lastId;
     }
+    
 
     async deleteReturnOrder(returnOrderID) {
         const query = 'DELETE FROM returnOrder WHERE id = ?'
