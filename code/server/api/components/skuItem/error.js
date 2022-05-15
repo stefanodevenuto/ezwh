@@ -5,22 +5,25 @@ const RFID_NOT_UNIQUE                  = "The inserted RFID is already taken";
 
 class SKUItemErrorFactory {
     static initializeMapFailed() {
-        let error = new Error(INITIALIZATION_ERROR_MESSAGE);
-		error.code = 404;
+        let error = new Error();
+		error.customCode = 404;
+        error.customMessage = INITIALIZATION_ERROR_MESSAGE;
 
 		return error;
     }
     
     static newSKUItemNotFound() {
         let error = new Error(SKUITEM_NOT_FOUND_MESSAGE);
-		error.code = 404;
+		error.customCode = 404;
+        error.customMessage = INITIALIZATION_ERROR_MESSAGE;
 
 		return error;
     }
 
     static newSKUItemRFIDNotUnique() {
         let error = new Error(RFID_NOT_UNIQUE);
-		error.code = 404;
+		error.customCode = 422;
+        error.customMessage = INITIALIZATION_ERROR_MESSAGE;
 
 		return error;
     }

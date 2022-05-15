@@ -8,43 +8,13 @@ const Cache = require('lru-cache')
 class RestockOrderController {
     constructor(testResultController, skuItemController, itemController) {
         this.dao = new RestockOrderDAO();
-        this.restockOrderMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
-        this.enableCache = (process.env.ENABLE_MAP === "true") || false;
-        this.observers = [];
-
         this.testResultController = testResultController;
         this.skuItemController = skuItemController;
         this.itemController = itemController;
     }
 
-    // ################################ Observer-Observable Pattern
-    addObserver(observer) {
-        this.observers.push(observer);
-    }
-
-    notify(data) {
-        if (this.observers.length > 0) {
-            this.observers.forEach(observer => observer.update(data));
-        }
-    }
-
-    update(data) {
-        const { action, value } = data;
-        
-        if (action === "UPDATE_SKUITEM") {
-            const { oldRFID, newRFID, restockOrderId } = value;
-            
-            let restockOrder = this.restockOrderMap.get(restockOrderId);
-            if (restockOrder !== undefined) {
-                restockOrder.skuItems.map((skuItem) => {
-                    if (skuItem.valid === false && skuItem.RFID === oldRFID)
-                        skuItem.RFID = newRFID;
-                });
-            }
-        }
-    }
-
     // ################################ API
+
     async getAllRestockOrders(req, res, next) {
         try {
             const rows = await this.dao.getAllRestockOrders();
@@ -79,28 +49,15 @@ class RestockOrderController {
         try {
             const restockOrderId = Number(req.params.id);
 
-            let restockOrder;
-            if (this.enableCache) {
-                const restockOrderMap = this.restockOrderMap.get(restockOrderId);
+            const rows = await this.dao.getRestockOrderByID(restockOrderId);
+            if (rows.length === 0)
+                throw RestockOrderErrorFactory.newRestockOrderNotFound();
 
-                if (restockOrderMap !== undefined)
-                    restockOrder = restockOrderMap;
-            }
-
-            if (restockOrder === undefined) {
-                const rows = await this.dao.getRestockOrderByID(restockOrderId);
-                if (rows.length === 0)
-                    throw RestockOrderErrorFactory.newRestockOrderNotFound();
-
-                const [restockOrderDB] = await this.buildRestockOrders(rows);
-                restockOrder = restockOrderDB;
-            }
-
+            const [restockOrder] = await this.buildRestockOrders(rows);
             if (restockOrder.state !== RestockOrder.COMPLETEDRETURN)
                 throw RestockOrderErrorFactory.newRestockOrderNotReturned();
 
             let skuItemsReturned = [];
-
             for (let skuItem of restockOrder.skuItems) {
                 if (await this.testResultController.hasFailedTestResultsByRFID(skuItem.RFID))
                     skuItemsReturned.push(skuItem);
@@ -112,17 +69,11 @@ class RestockOrderController {
         }
     }
 
-    // 1. Per ogni products (SKUId):
-    //  1. Recupero l'itemId (SKUId + supplierId)
-    //  2. Inserisco nella tabella associativa (restockOrderId, itemId, qty)
-    // 2. Creo restockOrder
-
     async createRestockOrder(req, res, next) {
         try {
             const rawRestockOrder = req.body;
             const supplierId = rawRestockOrder.supplierId;
 
-            // Multiple utility: get the Item in the cache + check if the Item exists
             let products = [];
             for (let rawItem of rawRestockOrder.products) {
                 let item = await this.itemController.getItemBySkuIdAndSupplierId(rawItem.SKUId, supplierId);
@@ -130,15 +81,7 @@ class RestockOrderController {
                 products.push(product);
             }
 
-            const id = await this.dao.createRestockOrder(rawRestockOrder, RestockOrder.ISSUED, products);
-
-            if (this.enableCache) {
-                const restockOrder = new RestockOrder(id, rawRestockOrder.issueDate, RestockOrder.ISSUED,
-                    null, rawRestockOrder.supplierId, products);
-
-                this.restockOrderMap.set(Number(restockOrder.id), restockOrder);
-            }
-
+            await this.dao.createRestockOrder(rawRestockOrder, RestockOrder.ISSUED, products);
             return res.status(201).send();
         } catch (err) {
             return next(err);
@@ -154,13 +97,6 @@ class RestockOrderController {
             if (changes === 0)
                 throw RestockOrderErrorFactory.newRestockOrderNotFound();
 
-            if (this.enableCache) {
-                let restockOrder = this.restockOrderMap.get(restockOrderId);
-                if (restockOrder !== undefined) {
-                    restockOrder.state = newState;
-                }
-            }
-
             return res.status(200).send();
         } catch (err) {
             return next(err);
@@ -172,41 +108,17 @@ class RestockOrderController {
             const restockOrderId = Number(req.params.id);
             const rawSkuItems = req.body.skuItems;
 
-            let restockOrder = undefined;
-            let newSkuItems = [];
+            let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
 
-            if (this.enableCache) {
-                restockOrder = this.restockOrderMap.get(restockOrderId);
+            if (restockOrder === undefined)
+                throw RestockOrderErrorFactory.newRestockOrderNotFound();
 
-                if (restockOrder !== undefined && restockOrder.state !== RestockOrder.DELIVERED)
-                    throw RestockOrderErrorFactory.newRestockOrderNotDelivered();
-            }
+            if (restockOrder.state !== RestockOrder.DELIVERED)
+                throw RestockOrderErrorFactory.newRestockOrderNotDelivered();
 
-            if (restockOrder === undefined) {
-                let restockOrderFromDB = await this.getRestockOrderByIDInternal(restockOrderId);
-
-                if (restockOrderFromDB === undefined)
-                    throw RestockOrderErrorFactory.newRestockOrderNotFound();
-
-                if (restockOrderFromDB.state !== RestockOrder.DELIVERED)
-                    throw RestockOrderErrorFactory.newRestockOrderNotDelivered();
-            }
-
-            for (let rawSkuItem of rawSkuItems) {
-                // Multiple utility: get the Sku Item in the cache + check if the Sku Item exists
-                let skuItem = await this.skuItemController.getSKUItemByRFIDInternal(rawSkuItem.rfid);
-
-                if (restockOrder !== undefined)
-                    newSkuItems.push(skuItem);
-            }
-
-            await this.dao.modifyRestockOrderSkuItems(restockOrderId, rawSkuItems);
-
-            if (this.enableCache) {
-                if (restockOrder !== undefined)
-                    restockOrder.skuItems = [...restockOrder.skuItems, ...newSkuItems];
-                this.notify({action: "UPDATE_RESTOCKORDER", value: {restockOrderId: restockOrderId, skuItems: newSkuItems}})
-            }
+            const totalChanges = await this.dao.modifyRestockOrderSkuItems(restockOrderId, rawSkuItems);
+            if (totalChanges !== rawSkuItems.length)
+                throw SKUItemErrorFactory.newSKUItemNotFound();
 
             return res.status(200).send();
         } catch (err) {
@@ -219,29 +131,15 @@ class RestockOrderController {
             const restockOrderId = Number(req.params.id);
             const deliveryDate = req.body.transportNote.deliveryDate;
 
-            let restockOrder = undefined;
-            if (this.enableCache) {
-                restockOrder = this.restockOrderMap.get(restockOrderId);
+            let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
 
-                if (restockOrder !== undefined && restockOrder.state !== RestockOrder.DELIVERY)
-                    throw RestockOrderErrorFactory.newRestockOrderNotDelivery();
-            }
+            if (restockOrder === undefined)
+                throw RestockOrderErrorFactory.newRestockOrderNotFound();
 
-            if (restockOrder === undefined) {
-                let restockOrderFromDB = await this.getRestockOrderByIDInternal(restockOrderId);
-
-                if (restockOrderFromDB === undefined)
-                    throw RestockOrderErrorFactory.newRestockOrderNotFound();
-
-                if (restockOrderFromDB.state !== RestockOrder.DELIVERY)
-                    throw RestockOrderErrorFactory.newRestockOrderNotDelivery();
-            }
+            if (restockOrder.state !== RestockOrder.DELIVERY)
+                throw RestockOrderErrorFactory.newRestockOrderNotDelivery();
 
             await this.dao.modifyTransportNote(restockOrderId, deliveryDate);
-
-            if (restockOrder !== undefined)
-                restockOrder.deliveryDate = deliveryDate;
-                
             return res.status(200).send();
         } catch (err) {
             if (err.code === "SQLITE_CONSTRAINT") {
@@ -255,26 +153,10 @@ class RestockOrderController {
 
     async deleteRestockOrder(req, res, next) {
         try {
-            const restockOrderId = req.params.id;
-            await this.dao.deleteRestockOrder(restockOrderId);
-
+            const restockOrderId = req.params.id; 
+            const { changes } = await this.dao.deleteRestockOrder(restockOrderId);
             if (changes === 0)
                 throw RestockOrderErrorFactory.newRestockOrderNotFound();
-
-            if (this.enableCache) {
-                let restockOrder = this.restockOrderMap.get(restockOrderId);
-
-                if (restockOrder !== undefined) {
-
-                    restockOrder.skuItems.map((skuItem) => {
-                        skuItem.restockOrderId = null;
-                    })
-
-                    this.restockOrderMap.delete(restockOrderId);
-                }
-
-                //this.notify({action: "DELETE_RESTOCKORDER", value: restockOrderId});
-            }
 
             return res.status(204).send();
         } catch (err) {
@@ -296,6 +178,7 @@ class RestockOrderController {
                 if (row.id == lastRestockOrder.id) {
                     let item = await this.itemController.getItemBySkuIdAndSupplierId(
                         row.SKUId, lastRestockOrder.supplierId);
+
                     let product = new Product(item, row.qty);
                     products.push(product);
                 } else {
@@ -303,14 +186,14 @@ class RestockOrderController {
                     const restockOrder = new RestockOrder(lastRestockOrder.id, lastRestockOrder.issueDate, lastRestockOrder.state,
                         lastRestockOrder.deliveryDate, lastRestockOrder.supplierId, products);
 
-                    restockOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache(restockOrder.id);
+                    restockOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrder(restockOrder.id);
                     restockOrders.push(restockOrder);
 
                     // Reset
                     lastRestockOrder = row;
                     products = [];
 
-                    // Don't lose the current Item!
+                    // Don't lose the current product!
                     let item = await this.itemController.getItemBySkuIdAndSupplierId(row.SKUId, lastRestockOrder.supplierId)
                     let product = new Product(item, row.qty);
                     products.push(product);
@@ -321,7 +204,7 @@ class RestockOrderController {
             const restockOrder = new RestockOrder(lastRestockOrder.id, lastRestockOrder.issueDate, lastRestockOrder.state,
                 lastRestockOrder.deliveryDate, lastRestockOrder.supplierId, products);
 
-            restockOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache(restockOrder.id);
+            restockOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrder(restockOrder.id);
             restockOrders.push(restockOrder);
         }
 
@@ -329,36 +212,11 @@ class RestockOrderController {
     }
 
     async getRestockOrderByIDInternal(restockOrderId) {
-        if (this.enableCache) {
-            const restockOrder = this.restockOrderMap.get(restockOrderId);
-
-            if (restockOrder !== undefined) {
-
-                // Check if all valid Items
-                for (let product of restockOrder.products) {
-                    if (product.item.valid === false)
-                        product.item = await this.itemController.getItemByIDInternal(product.item.id);
-                }
-
-                // Check if all valid Sku Items
-                for (let skuItem of restockOrder.skuItems) {
-                    if (skuItem.valid === false)
-                        skuItem = await this.skuItemController.getSKUItemByRFIDInternal(skuItem.RFID);
-                }
-
-                return restockOrder;
-            }
-        }
-
         const rows = await this.dao.getRestockOrderByID(restockOrderId);
         if (rows.length === 0)
             throw RestockOrderErrorFactory.newRestockOrderNotFound();
 
         const [restockOrder] = await this.buildRestockOrders(rows);
-
-        if (this.enableCache)
-            this.restockOrderMap.set(restockOrder.id, restockOrder)
-
         return restockOrder;
     }
 }

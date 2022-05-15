@@ -3,15 +3,17 @@ const SKU_NOT_UNIQUE = "The SKU associated to id already has a Test Descriptor a
 
 class TestDescriptorErrorFactory {
     static newTestDescriptorNotFound() {
-        let error = new Error(TESTDESCRIPTOR_NOT_FOUND_MESSAGE);
-		error.code = 404;
+        let error = new Error();
+		error.customCode = 404;
+        error.customMessage = TESTDESCRIPTOR_NOT_FOUND_MESSAGE;
 
 		return error;
     }
 
     static newSKUAlreadyWithTestDescriptor() {
-        let error = new Error(SKU_NOT_UNIQUE);
-		error.code = 404;
+        let error = new Error();
+		error.customCode = 404;
+        error.customMessage = SKU_NOT_UNIQUE;
 
 		return error;
     }

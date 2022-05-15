@@ -36,17 +36,13 @@ class SkuDAO extends AppDAO {
         ]);
     }
 
-    async addModifySkuPosition(skuId, newPosition, sku = undefined) {
+    async addModifySkuPosition(skuId, newPosition) {
         const query_sku = 'UPDATE sku SET positionId = ? WHERE id = ?';
         const query_update_position = "UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE positionId = ?";
 
-        // If the SKU is already in the Cache, no need to re-recover it
-        let row;
-        if (sku === undefined) {
-            row = await this.getSkuByID(skuId);
-            if (row === undefined)
-                return 0;
-        } else row = sku;
+        let row = await this.getSkuByID(skuId);
+        if (row === undefined)
+            return 0;
 
         const totalWeight = row.availableQuantity * row.weight;
         const totalVolume = row.availableQuantity * row.volume;

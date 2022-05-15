@@ -21,6 +21,7 @@ class TestResultController {
 			const rows = await this.dao.getAllTestResults(rfid);
 			const testResults = rows.map(record => new TestResult(record.id, record.date, record.result == 1,
 				record.testDescriptorId, record.RFID));
+
 			return res.status(200).json(testResults);
 		} catch (err) {
 			return next(err);
@@ -51,10 +52,7 @@ class TestResultController {
 	async createTestResult(req, res, next) {
 		try {
 			const rawTestResult = req.body;
-
-			const id = await this.dao.createTestResult(rawTestResult);
-
-
+			await this.dao.createTestResult(rawTestResult);
 			return res.status(201).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
@@ -74,11 +72,8 @@ class TestResultController {
 			const rawTestResult = req.body;
 
 			const { changes } = await this.dao.modifyTestResult(id, rfid, rawTestResult);
-
-			// ERROR: no TestResult associated to id
 			if (changes === 0)
 				throw TestResultErrorFactory.newTestResultNotFound();
-
 
 			return res.status(200).send();
 		} catch (err) {
@@ -107,6 +102,7 @@ class TestResultController {
 	}
 
 	// ################################ Utilities
+	
 	async hasFailedTestResultsByRFID(RFID) {
 		const { failedQuantity } = await this.dao.hasFailedTestResultsByRFID(RFID);
 		if (failedQuantity == 0)

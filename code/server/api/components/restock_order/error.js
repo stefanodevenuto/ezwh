@@ -6,36 +6,41 @@ const RESTOCKORDER_DELIVERY_BEFORE_ISSUE = "The inserted delivery date is before
 
 class RestockOrderErrorFactory {
     static newRestockOrderNotFound() {
-        let error = new Error(RESTOCKORDER_NOT_FOUND_MESSAGE);
-		error.code = 404;
+        let error = new Error();
+		error.customCode = 404;
+        error.customMessage = RESTOCKORDER_NOT_FOUND_MESSAGE;
 
 		return error;
     }
     
     static newRestockOrderNotReturned() {
-        let error = new Error(RESTOCKORDER_NOT_COMPLETEDRETURN);
-		error.code = 422;
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = RESTOCKORDER_NOT_COMPLETEDRETURN;
 
 		return error;
     }
 
     static newRestockOrderNotDelivered() {
-        let error = new Error(RESTOCKORDER_NOT_DELIVERED);
-		error.code = 422;
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = RESTOCKORDER_NOT_DELIVERED;
 
 		return error;
     }
 
     static newRestockOrderNotDelivery() {
-        let error = new Error(RESTOCKORDER_NOT_DELIVERY);
-		error.code = 422;
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = RESTOCKORDER_NOT_DELIVERY;
 
 		return error;
     }
 
     static newRestockOrderDeliveryBeforeIssue() {
-        let error = new Error(RESTOCKORDER_DELIVERY_BEFORE_ISSUE);
-		error.code = 422;
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = RESTOCKORDER_DELIVERY_BEFORE_ISSUE;
 
 		return error;
     }
