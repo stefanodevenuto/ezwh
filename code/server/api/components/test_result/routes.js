@@ -41,6 +41,7 @@ class TestResultRoutes {
 			(req, res, next) => this.controller.createTestResult(req, res, next)
 		);
 
+		
 		this.router.put(
 			'/:rfid/testResult/:id',
 			param('rfid').isString().isLength({min: 32, max: 32}),

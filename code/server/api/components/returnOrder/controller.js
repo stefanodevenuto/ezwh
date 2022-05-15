@@ -95,15 +95,13 @@ class ReturnOrderController {
                 record.price, record.RFID));
 
             for(let row of rawProducts){
-               console.log(row.SKUId);
                let id = await this.sku.getSkuByID(row.SKUId);
-               console.log(id);
                if(id === undefined){
                    return res.status(404).send();
                }
             }
             
-
+            
             await this.dao.createReturnOrder(rawReturnOrder);
 
             return res.status(201).send();

@@ -1,38 +1,15 @@
 const UserDao = require('./dao')
 const User = require("./user");
 const { UserErrorFactory } = require('./error');
-const Cache = require('lru-cache');
 const { raw } = require('express');
 var CryptoJS = require("crypto-js");
 const { PositionErrorFactory } = require('../position/error');
-//const sizeof = require('object-sizeof')
+
+
 
 class UserController {
 	constructor() {
 		this.dao = new UserDao();
-		this.userMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
-		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
-		this.allInCache = false;
-		this.observers = [];
-	}
-
-	addObserver(observer) {
-        this.observers.push(observer);
-    }
-
-    notify(data) {
-        if (this.observers.length > 0) {
-            this.observers.forEach(observer => observer.update(data));
-        }
-    }
-
-	update(data) {
-		const { action, value: position } = data;
-		if (action === "DELETE") {
-			let user = this.userMap.get(position.id);
-			if (user !== undefined)
-				user.id = null;
-		}
 	}
 
     // ################################ API
@@ -64,14 +41,6 @@ class UserController {
 			const rawUser = req.body;
 			const { id } = await this.dao.createUser(rawUser);
 
-			if (this.enableCache) {
-				const user = new User(id, rawUser.name, rawUser.surname,
-					rawUser.username, rawUser.password, rawUser.type);
-
-				this.userMap.set(Number(id), user);
-				console.log(this.userMap);
-			}
-
 			return res.status(201).send();
 		} catch (err) {
 			return next(err);
@@ -80,19 +49,99 @@ class UserController {
 
 	async loginManager(req, res, next) {
 		try {
+
 			const rawUser = req.body;
-			console.log(rawUser);
-			const row = await this.dao.checkManager(rawUser);
+			
+			const row = await this.dao.checkManager(rawUser.username, rawUser.password);
 
 			if(row === undefined)
 				throw PositionErrorFactory.newPositionNotFound(); // put 401
 
-			if (this.enableCache) {
-				let users = this.userMap.get(id);
-				res.body = users;
-				console.log(id);
-			}
+
+			return res.status(200).send();
+		} catch (err) {
+			return next(err);
+		}
+	}
+
+	async loginCustomer(req, res, next) {
+		try {
+
+			const rawUser = req.body;
 			
+			const row = await this.dao.checkCustomer(rawUser.username, rawUser.password);
+
+			if(row === undefined)
+				throw PositionErrorFactory.newPositionNotFound(); // put 401
+
+
+			return res.status(200).send();
+		} catch (err) {
+			return next(err);
+		}
+	}
+
+	async loginSupplier(req, res, next) {
+		try {
+
+			const rawUser = req.body;
+			
+			const row = await this.dao.checkSupplier(rawUser.username, rawUser.password);
+
+			if(row === undefined)
+				throw PositionErrorFactory.newPositionNotFound(); // put 401
+
+
+			return res.status(200).send();
+		} catch (err) {
+			return next(err);
+		}
+	}
+
+	async loginClerk(req, res, next) {
+		try {
+
+			const rawUser = req.body;
+			
+			const row = await this.dao.checkClerk(rawUser.username, rawUser.password);
+
+			if(row === undefined)
+				throw PositionErrorFactory.newPositionNotFound(); // put 401
+
+
+			return res.status(200).send();
+		} catch (err) {
+			return next(err);
+		}
+	}
+
+	async loginQualityEmployee(req, res, next) {
+		try {
+
+			const rawUser = req.body;
+			
+			const row = await this.dao.checkQualityEmployee(rawUser.username, rawUser.password);
+
+			if(row === undefined)
+				throw PositionErrorFactory.newPositionNotFound(); // put 401
+
+
+			return res.status(200).send();
+		} catch (err) {
+			return next(err);
+		}
+	}
+	
+	async loginDeliveryEmployee(req, res, next) {
+		try {
+
+			const rawUser = req.body;
+			
+			const row = await this.dao.checkDeliveryEmployee(rawUser.username, rawUser.password);
+
+			if(row === undefined)
+				throw PositionErrorFactory.newPositionNotFound(); // put 401
+
 
 			return res.status(200).send();
 		} catch (err) {
@@ -109,15 +158,6 @@ class UserController {
 
 			const id = await this.dao.modifyRight(userUsername, rawUserType);
 
-			if (this.enableCache) {
-				let user = this.userMap.get(Number(id));
-
-				if (user !== undefined) {
-					user.type = user.newType;
-			
-					this.notify({action: "UPDATE_TYPE", value: user});
-				}
-			}
 
 			return res.status(200).send();
 		} catch (err) {
@@ -135,9 +175,6 @@ class UserController {
 			if (changes === 0)
 				throw SkuErrorFactory.newSkuNotFound();
 
-			if (this.enableCache) {
-				this.userMap.delete(userUsername);
-			}
 
 			return res.status(204).send();
 		} catch (err) {

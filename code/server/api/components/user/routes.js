@@ -84,6 +84,38 @@ class UserRoutes {
 			(req, res, next) => this.controller.loginManager(req, res, next)
 		);
 
+		this.router.post(
+			'/supplierSessions',
+			body('username').isString(),
+			body('password').isString().isLength({min:8}),
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.loginManager(req, res, next)
+		);
+
+		this.router.post(
+			'/clerkSessions',
+			body('username').isString(),
+			body('password').isString().isLength({min:8}),
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.loginManager(req, res, next)
+		);
+
+		this.router.post(
+			'/qualityEmployeeSessions',
+			body('username').isString(),
+			body('password').isString().isLength({min:8}),
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.loginManager(req, res, next)
+		);
+
+		this.router.post(
+			'/deliveryEmployeeSessions',
+			body('username').isString(),
+			body('password').isString().isLength({min:8}),
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.loginManager(req, res, next)
+		);
+
 		this.router.put(
 			'/users/:username',
 			param('username').isString().withMessage("ERROR: username is not a string"),

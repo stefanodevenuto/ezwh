@@ -12,10 +12,6 @@ class ReturnOrderRoutes {
 		this.initRoutes();
 	}
 
-	async initMap() {
-		await this.controller.initMap();
-	} 
-
 	initRoutes() {
 
         this.router.get(
@@ -28,20 +24,23 @@ class ReturnOrderRoutes {
 
         this.router.get(
 			'/:id',
-			param('id').isString().withMessage("ERROR: PositionId is not a String"),
+			param('id').isString().withMessage("ERROR: ReturnOrderId is not a number"),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getReturnOrderByID(req, res, next)
 		);
 
 		this.router.post(
 			'/',
+			body("returnDate").isString(),
+			body("products").isArray(),
+			body("restockOrderId").isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.createReturnOrder(req, res, next)
 		);
 
 		this.router.delete(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: PositionId is not a number"),
+			param('id').isNumeric().withMessage("ERROR: ReturnOrderId is not a number"),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteReturnOrder(req, res, next)
 		);

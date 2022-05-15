@@ -12,9 +12,7 @@ class SKUItemRoutes {
 		this.initRoutes();
 	}
 
-	async initMap() {
-		await this.controller.initMap();
-	} 
+
 
 	initRoutes() {
 
@@ -28,14 +26,14 @@ class SKUItemRoutes {
 		
         this.router.get(
 			'/:rfid',
-			param('rfid').isString(),
+			param('rfid').isString().withMessage("ERROR: RFID is not a string"),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getSKUItemByRFID(req, res, next)
 		);
 
 		this.router.get(
 			'/sku/:id',
-			param('id').isNumeric(),
+			param('id').isNumeric().withMessage("ERROR: id is not a number"),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getSKUItemBySKUID(req, res, next)
 		);
@@ -44,32 +42,24 @@ class SKUItemRoutes {
 			'/',
 			body('RFID').isString(),
 			body('SKUId').isNumeric(),
-			//body('Available').isNumeric(),
 			body('DateOfStock').isString(),
-			//body('returnOrderId').isNumeric(),
-			//body('restockOrderId').isNumeric(),
-			//body('internalOrderId').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.createSKUItem(req, res, next)
 		);
 
 		this.router.put(
 			'/:rfid',
-			//param('RFID').isString().withMessage("ERROR: RFID is not a string"),
+			param('RFID').isString().withMessage("ERROR: RFID is not a string"),
 			body('newRFID').isString(),
 			body('newAvailable').isNumeric(),
-			//body('Available').isNumeric(),
 			body('newDateOfStock').isString(),
-			//body('returnOrderId').isNumeric(),
-			//body('restockOrderId').isNumeric(),
-			//body('internalOrderId').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.modifySKUItem(req, res, next)
 		);
 
 		this.router.delete(
 			'/:rfid',
-			param('rfid').isNumeric().withMessage("ERROR: RFID is not a number"),
+			param('rfid').isString().withMessage("ERROR: RFID is not a string"),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteSKUItem(req, res, next)
 		);

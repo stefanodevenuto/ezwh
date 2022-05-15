@@ -6,25 +6,25 @@ class InternalOrderDAO extends AppDAO{
     constructor() { super(); }
     
     async getAllInternalOrders() {
-        const query = 'SELECT internalOrder.id, issueDate, state, item.SKUId,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
-        JOIN internalOrder_item ON internalOrder.id = internalOrder_item.internalOrderId \
-        JOIN item ON internalOrder_item.itemId = item.id\
-        LEFT JOIN SKUItem ON item.SKUId = SKUItem.SKUId\
-        GROUP BY internalOrder.id, item.SKUId, RFID';
+        JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
+        JOIN sku ON internalOrder_sku.skuId = sku.id\
+        LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
+        GROUP BY internalOrder.id, sku.id, RFID';
         return await this.all(query);
     }
 
 
     async getInternalOrderByID(internalOrderID) {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, item.SKUId,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
-        JOIN internalOrder_item ON internalOrder.id = internalOrder_item.internalOrderId \
-        JOIN item ON internalOrder_item.itemId = item.id\
-        LEFT JOIN SKUItem ON item.SKUId = SKUItem.SKUId\
+        JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
+        JOIN sku ON internalOrder_sku.skuId = sku.id\
+        LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
         WHERE internalOrder.id = ?';
         
         let rows = await this.all(query, [internalOrderID]);
@@ -35,12 +35,12 @@ class InternalOrderDAO extends AppDAO{
 
     async getInternalOrdersAccepted() {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, item.SKUId,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
-        JOIN internalOrder_item ON internalOrder.id = internalOrder_item.internalOrderId \
-        JOIN item ON internalOrder_item.itemId = item.id\
-        LEFT JOIN SKUItem ON item.SKUId = SKUItem.SKUId\
+        JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
+        JOIN sku ON internalOrder_sku.skuId = sku.id\
+        LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
         WHERE internalOrder.state = ?';
         
         let rows = await this.all(query, ["ACCEPTED"]);
@@ -50,12 +50,12 @@ class InternalOrderDAO extends AppDAO{
 
     async getInternalOrdersIssued() {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, item.SKUId,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
-        JOIN internalOrder_item ON internalOrder.id = internalOrder_item.internalOrderId \
-        JOIN item ON internalOrder_item.itemId = item.id\
-        LEFT JOIN SKUItem ON item.SKUId = SKUItem.SKUId\
+        JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
+        JOIN sku ON internalOrder_sku.skuId = sku.id\
+        LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
         WHERE internalOrder.state = ?';
         
         let rows = await this.all(query, ["ISSUED"]);
@@ -75,22 +75,23 @@ class InternalOrderDAO extends AppDAO{
         return lastId;
     }
 
-
-
-    // Ha senso creare una tabella anzichè solo internalOrder_item
-    // internalOrder_skuitem
-    // perché dice che se lo stato è completato 
-    // vuole questo body da inserire
-    // {
-    //    "newState":"COMPLETED",
-    //    "products":[{"SkuID":1,"RFID":"12345678901234567890123456789016"},{"SkuID":1,"RFID":"12345678901234567890123456789038"},...]
-    // }
-    // quindi e quindi nella tabella internalOrder_skuitem
-    // salvare solo il rfid dal quale poi è possibile accedere allo skuid
     async modifyStateInternalOrder(internalOrderId, rawInternalOrder) {
         
         const query = 'UPDATE internalOrder SET state = ? WHERE id = ?'
-        return await this.run(query, [rawInternalOrder.newState, internalOrderId]);
+
+        const query_add_id_skuItem = 'UPDATE skuItem SET internalOrderId = ? WHERE RFID = ?';
+
+        await this.startTransaction();
+
+        let { id } = await this.run(query, [rawInternalOrder.newState, internalOrderId]);
+
+        for(let row of rawInternalOrder.products){
+            await this.run(query_add_id_skuItem, [internalOrderId, row.RFID]);
+        }
+
+        await this.commitTransaction();
+
+        return id;
     }
 
 
@@ -100,11 +101,7 @@ class InternalOrderDAO extends AppDAO{
         return await this.run(query, [internalOrderID]);
     }
 
-    /* Utilities */
-    /*async modifyOccupiedFieldsPosition(skuId, totalWeight, totalVolume) {
-        const query = "UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE skuId = ?";
-        return await this.run(query, [totalWeight, totalVolume, skuId]);
-    }*/
+    
 }
 
 module.exports = InternalOrderDAO;

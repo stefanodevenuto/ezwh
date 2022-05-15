@@ -12,9 +12,6 @@ class PositionRoutes {
 		this.initRoutes();
 	}
 
-	async initMap() {
-		await this.controller.initMap();
-	} 
 
 	initRoutes() {
 

@@ -23,6 +23,7 @@ class UserDao extends AppDAO{
         return row;
     }
 
+
     async getSKUItemBySKUID(SKUId) {
         const query = 'SELECT * FROM skuItem WHERE skuId = ? AND available = ?';
         let row = await this.get(query, [SKUId, 1]);
@@ -37,12 +38,52 @@ class UserDao extends AppDAO{
         return lastId;
     }
 
-    async checkManager(User) {
-        const query = 'SELECT id, email, password FROM user WHERE email = ? AND password = ?'
-        let row = await this.get(query, [User.email, CryptoJS.MD5(User.password)]);
+    async checkManager(email, password) {
+        const query = 'SELECT id, email, password FROM user WHERE email = ? AND password = ? AND type = ?'
+        let row = await this.get(query, [email, CryptoJS.MD5(password), "manager"]);
 
         return row;
     }
+
+    async checkCustomer(email, password) {
+        const query = 'SELECT id, email, password FROM user WHERE email = ? AND password = ? AND type = ?'
+        let row = await this.get(query, [email, CryptoJS.MD5(password), "customer"]);
+
+        return row;
+    }
+
+
+    async checkSupplier(email, password) {
+        const query = 'SELECT id, email, password FROM user WHERE email = ? AND password = ? AND type = ?'
+        let row = await this.get(query, [email, CryptoJS.MD5(password), "supplier"]);
+
+        return row;
+    }
+
+
+    async checkClerk(email, password) {
+        const query = 'SELECT id, email, password FROM user WHERE email = ? AND password = ? AND type = ?'
+        let row = await this.get(query, [email, CryptoJS.MD5(password), "clerk"]);
+
+        return row;
+    }
+
+
+    async checkQualityEmployee(email, password) {
+        const query = 'SELECT id, email, password FROM user WHERE email = ? AND password = ? AND type = ?'
+        let row = await this.get(query, [email, CryptoJS.MD5(password), "qualityEmployee"]);
+
+        return row;
+    }
+
+
+    async checkDeliveryEmployee(email, password) {
+        const query = 'SELECT id, email, password FROM user WHERE email = ? AND password = ? AND type = ?'
+        let row = await this.get(query, [email, CryptoJS.MD5(password), "deliveryEmployee"]);
+
+        return row;
+    }
+
 
 
     async modifyRight(username, User) {

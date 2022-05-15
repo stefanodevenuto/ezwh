@@ -30,13 +30,23 @@ class ReturnOrderDAO extends AppDAO{
         return rows;
     }
 
-    // come tengo traccia dei products che creo?
 
     async createReturnOrder(returnOrder) {
         const query = 'INSERT INTO returnOrder(returnDate, restockOrderId) VALUES (?, ?)';
-        let lastId = await this.run(query, [returnOrder.returnDate, returnOrder.restockOrderId]);
-        
-        return lastId;
+        const query_add_id_skuItem = 'UPDATE skuItem SET restockOrderId = ?, returnOrderId = ? WHERE RFID = ?';
+
+        await this.startTransaction();
+
+        let { id } = await this.run(query, [returnOrder.returnDate, returnOrder.restockOrderId]);
+
+        for(let row of returnOrder.products){
+            await this.run(query_add_id_skuItem, [returnOrder.restockOrderId, id, row.RFID]);
+        }
+
+        await this.commitTransaction();
+
+
+        return id;
     }
     
 
@@ -45,11 +55,6 @@ class ReturnOrderDAO extends AppDAO{
         return await this.run(query, [returnOrderID]);
     }
 
-    /* Utilities */
-    /*async modifyOccupiedFieldsPosition(skuId, totalWeight, totalVolume) {
-        const query = "UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE skuId = ?";
-        return await this.run(query, [totalWeight, totalVolume, skuId]);
-    }*/
 }
 
 module.exports = ReturnOrderDAO;

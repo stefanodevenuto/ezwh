@@ -12,9 +12,7 @@ class SkuRoutes {
 		this.initRoutes();
 	}
 
-	async initMap() {
-		await this.controller.initMap();
-	} 
+
 
 	initRoutes() {
 
