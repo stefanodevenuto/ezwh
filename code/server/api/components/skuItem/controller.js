@@ -39,6 +39,23 @@ class SKUItemController {
 		}
 	}
 
+	async getSKUItemBySKUID(req, res, next) {
+		try {
+			const skuId = req.params.id;
+
+			// To check if exists
+			await this.skuController.getSkuByIDInternal(skuId);
+
+			const rows = await this.dao.getSKUItemBySKUID(skuId);
+
+			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
+				record.available, record.dateOfStock, record.restockOrderId));
+			return res.status(200).json(SKUItems);
+		} catch (err) {
+			return next(err);
+		}
+	}
+
 	async getSKUItemByRFID(req, res, next) {
 		try {
 			const SKUItemId = req.params.rfid;
