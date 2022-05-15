@@ -12,16 +12,10 @@ class PositionRoutes {
 		this.initRoutes();
 	}
 
-	async initMap() {
-		await this.controller.initMap();
-	} 
-
 	initRoutes() {
 
         this.router.get(
 			'/',
-			/* this.authSerivce.isAuthorized(),
-			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getAllPositions(req, res, next)
 		);

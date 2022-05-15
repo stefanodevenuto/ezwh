@@ -16,8 +16,6 @@ class TestResultRoutes {
 
         this.router.get(
 			'/:rfid/testResults',
-			/* this.authSerivce.isAuthorized(),
-			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getAllTestResults(req, res, next)
 		);
@@ -30,7 +28,6 @@ class TestResultRoutes {
 			(req, res, next) => this.controller.getTestResultByID(req, res, next)
 		);
 
-        
 		this.router.post(
 			'/testResult',
 			body('rfid').isString().isLength({min: 32, max: 32}),

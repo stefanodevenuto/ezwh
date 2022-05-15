@@ -5,8 +5,6 @@ class SKUItem {
         this.available = available;
         this.dateOfStock = dateOfStock;
         this.restockOrderId = restockOrderId;
-
-        this.valid = true;
     }
 }
 

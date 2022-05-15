@@ -5,29 +5,33 @@ const SKU_OR_SUPPLIER_NOT_EXISTING = "The supplier and/or the Sku Id indicated d
 
 class ItemErrorFactory {
     static itemNotFound() {
-        let error = new Error(ITEM_NOT_FOUND_MESSAGE);
-		error.code = 404;
+        let error = new Error();
+		error.customCode = 404;
+        error.customMessage = ITEM_NOT_FOUND_MESSAGE;
 
 		return error;
     }
 
-    static skuAlreadyAssociatedForSupplier() {  // maybe find a shorter name
-        let error = new Error(SUPPLIER_ALREADY_SELLING_SKU_MESSAGE);
-		error.code = 422;
+    static skuAlreadyAssociatedForSupplier() {
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = SUPPLIER_ALREADY_SELLING_SKU_MESSAGE;
 
 		return error;
     }
 
     static itemAlreadySoldBySupplier() {
-        let error = new Error(SUPPLIER_ALREADY_SELLING_ITEM_MESSAGE);
-		error.code = 422;
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = SUPPLIER_ALREADY_SELLING_ITEM_MESSAGE;
 
 		return error;
     }
 
     static newSkuOrSupplierNotFound() {
-        let error = new Error(SKU_OR_SUPPLIER_NOT_EXISTING);
-		error.code = 422;
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = SKU_OR_SUPPLIER_NOT_EXISTING;
 
 		return error;
     }

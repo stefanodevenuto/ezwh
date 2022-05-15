@@ -3,15 +3,17 @@ const TESTDESCRIPTOR_OR_SKUITEM_NOT_FOUND = "No Test Descriptor associated to id
 
 class TestResultErrorFactory {
     static newTestResultNotFound() {
-        let error = new Error(TESTRESULT_NOT_FOUND_MESSAGE);
-		error.code = 404;
+        let error = new Error();
+		error.customCode = 404;
+        error.customMessage = TESTRESULT_NOT_FOUND_MESSAGE;
 
 		return error;
     }
 
     static newTestDescriptorOrSkuItemNotFound() {
-        let error = new Error(TESTDESCRIPTOR_OR_SKUITEM_NOT_FOUND);
-		error.code = 404;
+        let error = new Error();
+		error.customCode = 404;
+        error.customMessage = TESTDESCRIPTOR_OR_SKUITEM_NOT_FOUND;
 
 		return error;
     }

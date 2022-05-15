@@ -23,7 +23,7 @@ class TestDescriptorDAO extends AppDAO {
         await this.startTransaction();
 
         const { id } = await this.run(query_test_descriptor, [testDescriptor.name, testDescriptor.procedureDescription,
-            testDescriptor.idSKU]);
+        testDescriptor.idSKU]);
         console.log(id);
         await this.run(query_sku, [id, testDescriptor.idSKU]);
 
@@ -32,18 +32,13 @@ class TestDescriptorDAO extends AppDAO {
         return id;
     }
 
-    async modifyTestDescriptor(newTestDescriptorId, newTestDescriptor, testDescriptor = {objOrReturn: undefined}) {
+    async modifyTestDescriptor(newTestDescriptorId, newTestDescriptor) {
         const query_test_descriptor = 'UPDATE testDescriptor SET name = ?, procedureDescription = ?, idSKU = ? WHERE id = ?';
         const query_sku = 'UPDATE sku SET testDescriptorId = ? WHERE id = ?';
 
-        let row;
-        if (testDescriptor.objOrReturn === undefined) {
-            row = await this.getTestDescriptorByID(newTestDescriptorId);
-            if (row === undefined)
-                return 0;
-        } else {
-            row = testDescriptor.objOrReturn;
-        }
+        let row = await this.getTestDescriptorByID(newTestDescriptorId);
+        if (row === undefined)
+            return 0;
 
         const oldSkuId = row.idSKU;
         testDescriptor.objOrReturn = oldSkuId;

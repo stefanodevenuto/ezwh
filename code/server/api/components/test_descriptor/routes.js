@@ -16,12 +16,9 @@ class TestDescriptorRoutes {
 
         this.router.get(
 			'/',
-			/* this.authSerivce.isAuthorized(),
-			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getAllTestDescriptors(req, res, next)
 		);
-		
         
         this.router.get(
 			'/:id',
