@@ -36,6 +36,14 @@ class UserController {
 		}
 	}
 
+	async getUserInfo(req, res, next){
+		try {
+			return res.status(200).send(req);
+		} catch (err) {
+			return next(err);
+		}
+	}
+
 	async createUser(req, res, next) {
 		try {
 			const rawUser = req.body;
@@ -57,6 +65,7 @@ class UserController {
 			if(row === undefined)
 				throw PositionErrorFactory.newPositionNotFound(); // put 401
 
+			this.getUserInfo(row, res, next);
 
 			return res.status(200).send();
 		} catch (err) {
@@ -74,6 +83,7 @@ class UserController {
 			if(row === undefined)
 				throw PositionErrorFactory.newPositionNotFound(); // put 401
 
+			this.getUserInfo(row, res, next);
 
 			return res.status(200).send();
 		} catch (err) {
@@ -91,7 +101,8 @@ class UserController {
 			if(row === undefined)
 				throw PositionErrorFactory.newPositionNotFound(); // put 401
 
-
+			this.getUserInfo(row, res, next);
+			
 			return res.status(200).send();
 		} catch (err) {
 			return next(err);
@@ -107,7 +118,8 @@ class UserController {
 
 			if(row === undefined)
 				throw PositionErrorFactory.newPositionNotFound(); // put 401
-
+			
+			this.getUserInfo(row, res, next);
 
 			return res.status(200).send();
 		} catch (err) {
@@ -124,8 +136,9 @@ class UserController {
 
 			if(row === undefined)
 				throw PositionErrorFactory.newPositionNotFound(); // put 401
-
-
+	
+			this.getUserInfo(row, res, next);
+		
 			return res.status(200).send();
 		} catch (err) {
 			return next(err);
@@ -142,7 +155,8 @@ class UserController {
 			if(row === undefined)
 				throw PositionErrorFactory.newPositionNotFound(); // put 401
 
-
+			this.getUserInfo(row, res, next);
+			
 			return res.status(200).send();
 		} catch (err) {
 			return next(err);
