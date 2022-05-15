@@ -16,6 +16,7 @@ class InternalOrderDAO extends AppDAO{
         return await this.all(query);
     }
 
+
     async getInternalOrderByID(internalOrderID) {
 
         const query = 'SELECT internalOrder.id, issueDate, state, item.SKUId,  \
@@ -63,10 +64,14 @@ class InternalOrderDAO extends AppDAO{
     }
 
 
-    async createInternalnOrder(internalOrder) {
+    async createInternalnOrder(internalOrder, products) {
         const query = 'INSERT INTO internalOrder(issueDate, customerId) VALUES (?, ?)';
+        const queryItem = 'INSERT INTO internalOrder_item(internalOrderId, itemId, qty) VALUES (?, ?, ?)';
         let lastId = await this.run(query, [internalOrder.issueDate, internalOrder.customerId]);
-        
+
+        for(let row of products){
+            await this.run(queryItem, [lastId.id, row.SKUId, row.qty]);
+        }
         return lastId;
     }
 

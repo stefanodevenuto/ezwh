@@ -30,6 +30,8 @@ class ReturnOrderDAO extends AppDAO{
         return rows;
     }
 
+    // come tengo traccia dei products che creo?
+
     async createReturnOrder(returnOrder) {
         const query = 'INSERT INTO returnOrder(returnDate, restockOrderId) VALUES (?, ?)';
         let lastId = await this.run(query, [returnOrder.returnDate, returnOrder.restockOrderId]);
