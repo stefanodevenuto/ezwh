@@ -5,6 +5,8 @@ class Item {    // COMPLETED
         this.price = price;
         this.SKUId = SKUId;
         this.supplierId = supplierId;
+
+        this.valid = true;
     }
 }
 

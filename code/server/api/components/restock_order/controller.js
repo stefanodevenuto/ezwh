@@ -18,7 +18,7 @@ class RestockOrderController {
     }
 
     // ################################ Observer-Observable Pattern
-    /*addObserver(observer) {
+    addObserver(observer) {
         this.observers.push(observer);
     }
 
@@ -29,25 +29,20 @@ class RestockOrderController {
     }
 
     update(data) {
-        const { action, value: sku } = data;
-        switch(action) {
-            case "UPDATE_QUANTITY": {
-                let position = this.positionMap.get(sku.positionId);
-                if (position !== undefined) {
-                    position.occupiedWeight = sku.availableQuantity * sku.weight;
-                    position.occupiedVolume = sku.availableQuantity * sku.volume;
-                }
+        const { action, value } = data;
+        
+        if (action === "UPDATE_SKUITEM") {
+            const { oldRFID, newRFID, restockOrderId } = value;
+            
+            let restockOrder = this.restockOrderMap.get(restockOrderId);
+            if (restockOrder !== undefined) {
+                restockOrder.skuItems.map((skuItem) => {
+                    if (skuItem.valid === false && skuItem.RFID === oldRFID)
+                        skuItem.RFID = newRFID;
+                });
             }
-            break;
-
-            case "UPDATE_SKU_ID": {
-                let position = this.positionMap.get(newPosition);
-                if (position !== undefined)
-                    position.skuId = sku.id;
-            }
-            break;
         }
-    }*/
+    }
 
     // ################################ API
     async getAllRestockOrders(req, res, next) {
@@ -135,7 +130,7 @@ class RestockOrderController {
                 products.push(product);
             }
 
-            const { id } = await this.dao.createRestockOrder(rawRestockOrder, RestockOrder.ISSUED, products);
+            const id = await this.dao.createRestockOrder(rawRestockOrder, RestockOrder.ISSUED, products);
 
             if (this.enableCache) {
                 const restockOrder = new RestockOrder(id, rawRestockOrder.issueDate, RestockOrder.ISSUED,
@@ -207,8 +202,11 @@ class RestockOrderController {
 
             await this.dao.modifyRestockOrderSkuItems(restockOrderId, rawSkuItems);
 
-            if (restockOrder !== undefined)
-                restockOrder.skuItems = [...restockOrder.skuItems, ...newSkuItems];
+            if (this.enableCache) {
+                if (restockOrder !== undefined)
+                    restockOrder.skuItems = [...restockOrder.skuItems, ...newSkuItems];
+                this.notify({action: "UPDATE_RESTOCKORDER", value: {restockOrderId: restockOrderId, skuItems: newSkuItems}})
+            }
 
             return res.status(200).send();
         } catch (err) {
@@ -334,8 +332,22 @@ class RestockOrderController {
         if (this.enableCache) {
             const restockOrder = this.restockOrderMap.get(restockOrderId);
 
-            if (restockOrder !== undefined)
+            if (restockOrder !== undefined) {
+
+                // Check if all valid Items
+                for (let product of restockOrder.products) {
+                    if (product.item.valid === false)
+                        product.item = await this.itemController.getItemByIDInternal(product.item.id);
+                }
+
+                // Check if all valid Sku Items
+                for (let skuItem of restockOrder.skuItems) {
+                    if (skuItem.valid === false)
+                        skuItem = await this.skuItemController.getSKUItemByRFIDInternal(skuItem.RFID);
+                }
+
                 return restockOrder;
+            }
         }
 
         const rows = await this.dao.getRestockOrderByID(restockOrderId);

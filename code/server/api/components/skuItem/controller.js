@@ -10,13 +10,14 @@ class SKUItemController {
 	constructor() {
 		this.dao = new SKUItemDAO();
 		this.skuController = new SkuController;
-		this.SKUItemMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
+		this.SKUItemMap = new Cache({
+			max: Number(process.env.EACH_MAP_CAPACITY), 
+			dispose: skuItem => skuItem.valid = false 
+		});
 		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
 		this.allInCache = false;
 		this.observers = [];
-
 	}
-
 
 	addObserver(observer) {
 		this.observers.push(observer);
@@ -37,12 +38,22 @@ class SKUItemController {
 			if (skuItem !== undefined)
 				skuItem.SKUId = null;
 		}
+
+		if (action === "UPDATE_RESTOCKORDER") {
+			const { restockOrderId, skuItems } = value;
+			skuItems.map((s) => {
+				let skuItem = this.SKUItemMap.get(s.RFID);
+				if (skuItem !== undefined)
+					skuItem.restockOrderId = restockOrderId
+			});
+		}
 	}
 
 	async getAllSKUItems(req, res, next) {
 		try {
 			const rows = await this.dao.getAllSKUItems();
-			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId, record.available, record.dateOfStock));
+			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId, 
+				record.available, record.dateOfStock, record.restockOrderId));
 
 			return res.status(200).json(SKUItems);
 		} catch (err) {
@@ -71,7 +82,7 @@ class SKUItemController {
 			const rows = await this.dao.getSKUItemBySKUID(skuId);
 
 			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
-				record.available, record.dateOfStock));
+				record.available, record.dateOfStock, record.restockOrderId));
 			return res.status(200).json(SKUItems);
 		} catch (err) {
 			return next(err);
@@ -172,7 +183,7 @@ class SKUItemController {
 		if (row === undefined)
 			throw SKUItemErrorFactory.newSKUItemNotFound();
 
-		const SKUItems = new SKUItem(row.RFID, row.skuId, row.available, row.dateOfStock);
+		const SKUItems = new SKUItem(row.RFID, row.skuId, row.available, row.dateOfStock, row.restockOrderId);
 
 		if (this.enableCache)
 			this.SKUItemMap.set(SKUItems.RFID, SKUItems)

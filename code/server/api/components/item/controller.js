@@ -6,7 +6,10 @@ const Cache = require('lru-cache');
 class ItemController {
 	constructor() {
 		this.dao = new ItemDAO();
-		this.itemMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
+		this.itemMap = new Cache({
+			max: Number(process.env.EACH_MAP_CAPACITY), 
+			dispose: item => item.valid = false
+		});
 		this.keysMapping = new Map();
 		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
 		this.observers = [];
@@ -59,29 +62,7 @@ class ItemController {
 	async getItemByID(req, res, next) {  // getItemByID
 		try {
 			const itemId = Number(req.params.id);
-
-			if (this.enableCache) {
-				const item = this.itemMap.get(Number(itemId));
-				if (item !== undefined)
-					return res.status(200).json(item);
-			}
-
-			const row = await this.dao.getItemByID(itemId);
-			if (row === undefined)
-				throw ItemErrorFactory.itemNotFound();
-
-			const item = new Item(
-				row.id,
-				row.description,
-				row.price,
-				row.SKUId,
-				row.supplierId);
-
-			if (this.enableCache) {
-				this.itemMap.set(item.id, item);
-				this.keysMapping.set(item.id, `${item.SKUId}${item.supplierId}`);
-			}
-
+			let item = await this.getItemByIDInternal(itemId);
 			return res.status(200).json(item);
 		} catch (err) {
 			return next(err);
@@ -177,6 +158,32 @@ class ItemController {
 		}
 
 		const row = await this.dao.getItemBySkuIdAndSupplierId(skuId, supplierId);
+		if (row === undefined)
+			throw ItemErrorFactory.itemNotFound();
+
+		const item = new Item(
+			row.id,
+			row.description,
+			row.price,
+			row.SKUId,
+			row.supplierId);
+
+		if (this.enableCache) {
+			this.itemMap.set(item.id, item);
+			this.keysMapping.set(item.id, `${item.SKUId}${item.supplierId}`);
+		}
+
+		return item;
+	}
+
+	async getItemByIDInternal(itemId) {
+		if (this.enableCache) {
+			const item = this.itemMap.get(Number(itemId));
+			if (item !== undefined)
+				return item;
+		}
+
+		const row = await this.dao.getItemByID(itemId);
 		if (row === undefined)
 			throw ItemErrorFactory.itemNotFound();
 
