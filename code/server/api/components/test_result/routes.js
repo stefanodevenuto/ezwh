@@ -32,7 +32,7 @@ class TestResultRoutes {
 
         
 		this.router.post(
-			'/testResults',
+			'/testResult',
 			body('rfid').isString().isLength({min: 32, max: 32}),
 			body('idTestDescriptor').isNumeric(),
 			body('Date').isDate(),

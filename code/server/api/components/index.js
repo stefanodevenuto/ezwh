@@ -27,18 +27,6 @@ function registerApiRoutes(router, prefix = '') {
 	const restockOrderRoute = new RestockOrderRoutes(testResultRoute.controller, 
 		skuItemRoute.controller, itemRoute.controller);
 	
-	// Set the Observable-Observe pattern
-	if (process.env.ENABLE_MAP === "true") {
-		positionRoute.controller.addObserver(skuRoute.controller);
-		skuRoute.controller.addObserver(positionRoute.controller);
-		testDescriptorRoute.controller.addObserver(skuRoute.controller);
-		testDescriptorRoute.controller.addObserver(testResultRoute.controller);
-		skuItemRoute.controller.addObserver(skuItemRoute.controller);
-		userRoute.controller.addObserver(userRoute.controller);
-		returnOrderRoute.controller.addObserver(returnOrderRoute.controller);
-		internalOrderRoute.controller.addObserver(internalOrderRoute.controller);
-		skuItemRoute.controller.addObserver(testResultRoute.controller);
-	}
 	
 	// Set all Routes
 	router.use(`${prefix}/sku`, skuRoute.router);

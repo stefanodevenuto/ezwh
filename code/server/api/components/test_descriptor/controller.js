@@ -2,37 +2,12 @@ const TestDescriptorDAO = require('./dao')
 const TestDescriptor = require("./testDescriptor");
 const { TestDescriptorErrorFactory } = require('./error');
 const { SkuErrorFactory } = require('../sku/error');
-const Cache = require('lru-cache');
+
 
 class TestDescriptorController {
 	constructor() {
 		this.dao = new TestDescriptorDAO();
-		this.testDescriptorMap = new Cache({ max: Number(process.env.EACH_MAP_CAPACITY) });
-		this.enableCache = (process.env.ENABLE_MAP === "true") || false;
-		this.observers = [];
 	}
-
-	// ################################ Observer-Observable Pattern
-
-	addObserver(observer) {
-        this.observers.push(observer);
-    }
-
-    notify(data) {
-        if (this.observers.length > 0) {
-            this.observers.forEach(observer => observer.update(data));
-        }
-    }
-
-    /*
-	update(data) {
-		const { action, value: position } = data;
-		if (action === "DELETE") {
-			let sku = this.skuMap.get(position.skuId);
-			if (sku !== undefined)
-				sku.positionId = null;
-		}
-	}*/
 
     // ################################ API
 	
@@ -52,13 +27,6 @@ class TestDescriptorController {
 		try {
 			const testDescriptorId = Number(req.params.id);
 
-			if (this.enableCache) {
-				const testDescriptor = this.testDescriptorMap.get(Number(testDescriptorId));
-
-				if (testDescriptor !== undefined)
-					return res.status(200).json(testDescriptor);
-			}
-
 			const row = await this.dao.getTestDescriptorByID(testDescriptorId);
 			if (row === undefined)
 				throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
@@ -66,9 +34,6 @@ class TestDescriptorController {
 			let testDescriptor = new TestDescriptor(row.id, row.name,
                 row.procedureDescription, row.idSKU);
 			
-			if (this.enableCache)
-				this.testDescriptorMap.set(testDescriptor.id, testDescriptor);
-
 			return res.status(200).json(testDescriptor);
 		} catch (err) {
 			return next(err);
@@ -79,16 +44,6 @@ class TestDescriptorController {
 		try {
 			const rawTestDescriptor = req.body;
 			const id = await this.dao.createTestDescriptor(rawTestDescriptor);
-
-			if (this.enableCache) {
-				const testDescriptor = new TestDescriptor(id, rawTestDescriptor.name,
-                    rawTestDescriptor.procedureDescription, rawTestDescriptor.idSKU);
-
-                console.log(testDescriptor)
-
-				this.testDescriptorMap.set(Number(id), testDescriptor);
-                this.notify({action: "ADD_TESTDESCRIPTOR", value: testDescriptor});
-            }
 
 			return res.status(201).send();
 		} catch (err) {
@@ -107,34 +62,13 @@ class TestDescriptorController {
 			const rawTestDescriptor = req.body;
 
             let testDescriptorInDB = undefined;
-			if (this.enableCache) {
-				let testDescriptor = this.testDescriptorMap.get(testDescriptorId);
-
-				if (testDescriptor !== undefined)
-					testDescriptorInDB = testDescriptor; 
-			}
-
-            let result = {objOrReturn: testDescriptorInDB};
+		
+			let result = {objOrReturn: testDescriptorInDB};
 			const changes = await this.dao.modifyTestDescriptor(testDescriptorId, rawTestDescriptor, result);
 
 			if (changes === 0)
 				throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
 
-			if (this.enableCache) {
-				let testDescriptor = this.testDescriptorMap.get(Number(testDescriptorId));
-                const oldIdSKU = result.objOrReturn;
-                const newIdSKU = rawTestDescriptor.newIdSKU;
-
-				if (testDescriptor !== undefined) {
-					testDescriptor.name = rawTestDescriptor.newName;
-					testDescriptor.procedureDescription = rawTestDescriptor.newProcedureDescription;
-					testDescriptor.idSKU = rawTestDescriptor.newIdSKU;
-				}
-
-                this.notify({action: "UPDATE_TESTDESCRIPTOR", value: {
-                    newValue: {id: newIdSKU, testDescriptorId: testDescriptorId}, oldIdSKU
-                } });
-			}
 
 			return res.status(200).send();
 		} catch (err) {
@@ -156,11 +90,6 @@ class TestDescriptorController {
 			const { changes } = await this.dao.deleteTestDescriptor(testDescriptorId);
 			if (changes === 0)
 				throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
-
-			if (this.enableCache) {
-				this.testDescriptorMap.delete(Number(testDescriptorId));
-                this.notify({action: "DELETE_TESTDESCRIPTOR", value: testDescriptorId});
-			}
 
 			return res.status(204).send();
 		} catch (err) {
