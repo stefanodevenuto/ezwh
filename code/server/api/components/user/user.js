@@ -1,3 +1,4 @@
+const { timeStamp } = require("console");
 var CryptoJS = require("crypto-js");
 
 class User {

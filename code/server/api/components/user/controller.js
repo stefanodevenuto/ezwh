@@ -17,9 +17,8 @@ class UserController {
 	async getAllSuppliers(req, res, next) {
 		try {
 			const rows = await this.dao.getAllSuppliers();
-			const suppliers = rows.map(record => new User(record.id, record.name,
-				record.surname, record.password.toString(), record.email, record.type));
-			return res.status(200).json(suppliers);
+		
+			return res.status(200).json(rows);
 		} catch (err) {
 			return next(err);
 		}
@@ -28,9 +27,8 @@ class UserController {
 	async getAllUsers(req, res, next) {
 		try {
 			const rows = await this.dao.getAllUsers();
-			const users = rows.map(record => new User(record.id, record.name,
-				record.surname, record.password.toString(), record.email, record.type));
-			return res.status(200).json(users);
+			
+			return res.status(200).json(rows);
 		} catch (err) {
 			return next(err);
 		}
@@ -95,8 +93,9 @@ class UserController {
 		try {
 
 			const rawUser = req.body;
-			
+
 			const row = await this.dao.checkSupplier(rawUser.username, rawUser.password);
+			
 
 			if(row === undefined)
 				throw PositionErrorFactory.newPositionNotFound(); // put 401
