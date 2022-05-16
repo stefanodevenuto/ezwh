@@ -84,11 +84,11 @@ class InternalOrderDAO extends AppDAO{
         await this.startTransaction();
 
         let { id } = await this.run(query, [rawInternalOrder.newState, internalOrderId]);
-
-        for(let row of rawInternalOrder.products){
-            await this.run(query_add_id_skuItem, [internalOrderId, row.RFID]);
+        if(rawInternalOrder.newState === "COMPLETED"){
+            for(let row of rawInternalOrder.products){
+                await this.run(query_add_id_skuItem, [internalOrderId, row.RFID]);
+            }
         }
-
         await this.commitTransaction();
 
         return id;

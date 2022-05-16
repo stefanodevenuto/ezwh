@@ -67,7 +67,7 @@ class UserRoutes {
 			body('username').isString(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginManager(req, res, next)
+			(req, res, next) => this.controller.loginCustomer(req, res, next)
 		);
 
 		this.router.post(
@@ -75,7 +75,7 @@ class UserRoutes {
 			body('username').isString(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginManager(req, res, next)
+			(req, res, next) => this.controller.loginSupplier(req, res, next)
 		);
 
 		this.router.post(
@@ -83,7 +83,7 @@ class UserRoutes {
 			body('username').isString(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginManager(req, res, next)
+			(req, res, next) => this.controller.loginClerk(req, res, next)
 		);
 
 		this.router.post(
@@ -91,7 +91,7 @@ class UserRoutes {
 			body('username').isString(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginManager(req, res, next)
+			(req, res, next) => this.controller.loginQualityEmployee(req, res, next)
 		);
 
 		this.router.post(
@@ -99,7 +99,7 @@ class UserRoutes {
 			body('username').isString(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginManager(req, res, next)
+			(req, res, next) => this.controller.loginDeliveryEmployee(req, res, next)
 		);
 
 		this.router.put(

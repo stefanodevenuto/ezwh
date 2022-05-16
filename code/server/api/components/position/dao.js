@@ -5,12 +5,12 @@ class PositionDAO extends AppDAO{
     constructor() { super(); }
     
     async getAllPositions() {
-        const query = 'SELECT * FROM position';
+        const query = 'SELECT positionID, aisleID, row, col, maxWeight, maxVolume, occupiedWeight, occupiedVolume FROM position';
         return await this.all(query);
     }
 
     async getPositionByID(positionID) {
-        const query = 'SELECT * FROM position WHERE positionID = ?';
+        const query = 'SELECT positionID, aisleID, row, col, maxWeight, maxVolume, occupiedWeight, occupiedVolume FROM position WHERE positionID = ?';
         let row = await this.get(query, [positionID]);
 
         return row;

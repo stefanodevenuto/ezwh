@@ -12,9 +12,8 @@ class PositionController {
     async getAllPositions(req, res, next) {
         try {
             const rows = await this.dao.getAllPositions();
-            const positions = rows.map(record => new Position(record.positionID, record.aisleID, record.row,
-                record.col, record.maxWeight, record.maxVolume, record.occupiedWeight, record.occupiedVolume, record.skuId));
-            return res.status(200).json(positions);
+      
+            return res.status(200).json(rows);
         } catch (err) {
             return next(err);
         }
@@ -28,11 +27,9 @@ class PositionController {
             if (row === undefined)
                 throw PositionErrorFactory.newPositionNotFound();
     
-            const position = new Position(row.positionID, row.aisleID, row.row,
-                row.col, row.maxWeight, row.maxVolume, row.occupiedWeight, row.occupiedVolume)
-    
+           
          
-            return res.status(200).json(position);
+            return res.status(200).json(row);
         } catch (err) {
             return next(err);
         }
