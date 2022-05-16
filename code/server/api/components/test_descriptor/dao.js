@@ -18,7 +18,7 @@ class TestDescriptorDAO extends AppDAO {
 
     async createTestDescriptor(testDescriptor) {
         const query_test_descriptor = 'INSERT INTO testDescriptor(name, procedureDescription, idSKU) VALUES (?, ?, ?)';
-        const query_sku = 'UPDATE sku SET testDescriptorId = ? WHERE id = ?';
+        const query_sku = 'UPDATE sku SET testDescriptor = ? WHERE id = ?';
 
         await this.startTransaction();
 
@@ -34,7 +34,7 @@ class TestDescriptorDAO extends AppDAO {
 
     async modifyTestDescriptor(newTestDescriptorId, newTestDescriptor, testDescriptor = {objOrReturn: undefined}) {
         const query_test_descriptor = 'UPDATE testDescriptor SET name = ?, procedureDescription = ?, idSKU = ? WHERE id = ?';
-        const query_sku = 'UPDATE sku SET testDescriptorId = ? WHERE id = ?';
+        const query_sku = 'UPDATE sku SET testDescriptor = ? WHERE id = ?';
 
         let row;
         if (testDescriptor.objOrReturn === undefined) {
