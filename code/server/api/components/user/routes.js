@@ -42,20 +42,6 @@ class UserRoutes {
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getAllSuppliers(req, res, next)
 		);
-		
-        this.router.get(
-			'/',
-			param('rfid').isString(),
-			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getSKUItemByRFID(req, res, next)
-		);
-
-		this.router.get(
-			'/sku/:id',
-			param('id').isNumeric(),
-			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getSKUItemBySKUID(req, res, next)
-		);	
 
 		this.router.post(
 			'/newUser',

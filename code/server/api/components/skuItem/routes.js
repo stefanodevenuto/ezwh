@@ -12,8 +12,6 @@ class SKUItemRoutes {
 		this.initRoutes();
 	}
 
-
-
 	initRoutes() {
 
         this.router.get(
