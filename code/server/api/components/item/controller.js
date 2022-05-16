@@ -2,7 +2,6 @@ const ItemDAO = require('./dao');
 const Item = require("./item");
 const { ItemErrorFactory } = require('./error');
 
-
 class ItemController {
 	constructor() {
 		this.dao = new ItemDAO();

@@ -20,7 +20,7 @@ class TestResultController {
 
 			const rows = await this.dao.getAllTestResults(rfid);
 			const testResults = rows.map(record => new TestResult(record.id, record.date, record.result == 1,
-				record.testDescriptorId, record.RFID));
+				record.testDescriptorId, record.RFID).intoJson());
 
 			return res.status(200).json(testResults);
 		} catch (err) {
@@ -43,7 +43,7 @@ class TestResultController {
 			let testResult = new TestResult(row.id, row.date, row.result == 1,
 				row.testDescriptorId, row.RFID);
 
-			return res.status(200).json(testResult);
+			return res.status(200).json(testResult.intoJson());
 		} catch (err) {
 			return next(err);
 		}

@@ -6,6 +6,15 @@ class TestResult {
         this.testDescriptorId = testDescriptorId;
         this.RFID = RFID;
     }
+
+    intoJson() {
+        return {
+            id: this.id,
+            Date: this.date,
+            Result: this.result,
+            idTestDescriptor: this.testDescriptorId
+        }
+    }
 }
 
 module.exports = TestResult;

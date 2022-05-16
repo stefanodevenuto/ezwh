@@ -19,7 +19,7 @@ class RestockOrderController {
         try {
             const rows = await this.dao.getAllRestockOrders();
             const restockOrders = await this.buildRestockOrders(rows);
-            return res.status(200).json(restockOrders);
+            return res.status(200).json(restockOrders.map((p) => p.intoJson()));
         } catch (err) {
             return next(err);
         }
@@ -29,7 +29,7 @@ class RestockOrderController {
         try {
             const rows = await this.dao.getAllIssuedRestockOrders();
             const restockOrders = await this.buildRestockOrders(rows);
-            return res.status(200).json(restockOrders);
+            return res.status(200).json(restockOrders.map((p) => p.intoJson()));
         } catch (err) {
             return next(err);
         }
@@ -39,7 +39,7 @@ class RestockOrderController {
         try {
             const restockOrderId = Number(req.params.id);
             let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
-            return res.status(200).json(restockOrder);
+            return res.status(200).json(restockOrder.intoJson());
         } catch (err) {
             return next(err);
         }
@@ -63,7 +63,12 @@ class RestockOrderController {
                     skuItemsReturned.push(skuItem);
             }
 
-            return res.status(200).json(skuItemsReturned);
+            return res.status(200).json(skuItemsReturned.map((s) => {
+                return {
+                    rfid: s.RFID,
+                    SKUId: s.SKUId
+                }
+            }));
         } catch (err) {
             return next(err);
         }

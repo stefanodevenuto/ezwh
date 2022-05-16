@@ -18,6 +18,36 @@ class RestockOrder {
         this.skuItems = skuItems;
     }
 
+    intoJson() {
+        let productsToJson = this.products.map((p) => {
+            return {
+                SKUId: p.item.SKUId,
+                description: p.item.description,
+                price: p.item.price,
+                qty: p.qty
+            }
+        });
+
+        let skuItemsToJson = this.skuItems.map((s) => {
+            return {
+                SKUId: s.SKUId,
+                rfid: s.RFID
+            }
+        })
+
+        return {
+            id: this.id,
+            issueDate: this.issueDate,
+            state: this.state,
+            products: productsToJson,
+            supplierId: this.supplierId,
+            transportNote: {
+                deliveryDate: this.deliveryDate
+            },
+            skuItems: skuItemsToJson
+        }
+    }
+
     static isValidState(state) {
         return this.STATES.some((s) => s === state);
     }

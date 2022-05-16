@@ -38,6 +38,7 @@ function registerApiRoutes(router, prefix = '') {
 	router.use(`${prefix}/skuitem`, skuItemRoute.router);
 	router.use(`${prefix}/skuitems`, skuItemRoute.router);
 
+	router.use(`${prefix}/skuitem`, testResultRoute.router);
 	router.use(`${prefix}/skuitems`, testResultRoute.router);
 	
 	router.use(`${prefix}/testDescriptor`, testDescriptorRoute.router);
