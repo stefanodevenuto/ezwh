@@ -46,6 +46,20 @@ class SKUItemDAO extends AppDAO{
         const query = "SELECT RFID FROM skuItem WHERE restockOrderId = ?";
         return await this.all(query, [restockOrderId]);
     }
+
+    async getSupplierIdByRestockOrderId(restockOrderId) {
+        const query = "SELECT supplierId FROM restockOrder RO WHERE RO.id = ?";
+        return await this.get(query, [restockOrderId]);
+    }
+
+    async getSkuAndSKUItemByRFIDInternal(rfid, supplierId) {
+        const query = 'SELECT I.SKUId, I.description, I.price\
+            FROM skuItem SI \
+            JOIN item I ON (I.supplierId = ? AND I.SKUId = SI.SKUId ) \
+            WHERE SI.RFID = ? ';
+
+        return await this.get(query, [supplierId, rfid]);
+    }
 }
 
 module.exports = SKUItemDAO;

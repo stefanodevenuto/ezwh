@@ -5,12 +5,10 @@ const SkuController = require('../sku/controller')
 const Products = require('./products');
 const { ReturnOrderErrorFactory } = require('./error');
 
-
 class ReturnOrderController {
-    constructor() {
+    constructor(skuItemController) {
         this.dao = new ReturnOrderDAO();
-        this.sku = new SkuDAO();
-        this.SkuController = new SkuController();
+        this.skuItemController = skuItemController;
     }
 
      // ################## Utilities
@@ -25,14 +23,11 @@ class ReturnOrderController {
             for (let row of rows) {
                 // If it's the same restockOrder, continue adding the related Skus
                 if (row.id == lastReturnOrder.id) {
-                    //let item = new Item(row.SKUId, row.description, row.price);
-                    let product = new Products(row.SKUId, row.description, row.price, row.RFID);
+                    let product = await this.skuItemController.getSKUItemByRFIDInternal(row.RFID);
                     products.push(product);
                 } else {
                     // Otherwise, create the current restockOrder and clear the products array
                     const returnOrder = new ReturnOrder(lastReturnOrder.id, lastReturnOrder.returnDate, products, lastReturnOrder.restockOrderId);
-
-                    //returnOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache(returnOrder.id);
                     returnOrders.push(returnOrder);
 
                     // Reset
@@ -40,7 +35,7 @@ class ReturnOrderController {
                     products = [];
 
                     // Don't lose the current Item!
-                    let product = new Products(row.SKUId, row.description, row.price, row.RFID);
+                    let product = await this.skuItemController.getSKUItemByRFIDInternal(row.RFID);
                     products.push(product);
                 }
             }
@@ -59,7 +54,6 @@ class ReturnOrderController {
     async getAllReturnOrders(req, res, next) {
         try {
             const rows = await this.dao.getAllReturnOrders();
-            
             const output = await this.buildReturnOrders(rows);
             
             return res.status(200).json(output);
@@ -71,14 +65,12 @@ class ReturnOrderController {
     async getReturnOrderByID(req, res, next) {
         try {
             const returnOrderID = req.params.id;
-    
+
             const rows = await this.dao.getReturnOrderByID(returnOrderID);
+            if (rows.length === 0)
+                throw ReturnOrderErrorFactory.newReturnOrderNotFound();
 
             const output = await this.buildReturnOrders(rows);
-        
-            if (rows === undefined)
-                throw PositionErrorFactory.newPositionNotFound();
-
             return res.status(200).json(output);
         } catch (err) {
             return next(err);
@@ -89,21 +81,17 @@ class ReturnOrderController {
     async createReturnOrder(req, res, next) {
         try {
             const rawReturnOrder = req.body;
+            const restockOrderId = rawReturnOrder.restockOrderId;
             
-            let rawProducts = req.body.products;
-            rawProducts = rawProducts.map(record => new Products(record.SKUId, record.description,
-                record.price, record.RFID));
-
-            for(let row of rawProducts){
-               let id = await this.sku.getSkuByID(row.SKUId);
-               if(id === undefined){
-                   return res.status(404).send();
-               }
+            let products = [];
+            for (let row of rawReturnOrder.products) {
+                // Check if RestockOrder and SKUItem exist
+                let result = await this.skuItemController.getItemByRFIDInternal(row.RFID, restockOrderId);
+                let product = new Products(result.SKUId, result.description, result.price, row.RFID);
+                products.push(product);
             }
             
-            
-            await this.dao.createReturnOrder(rawReturnOrder);
-
+            await this.dao.createReturnOrder(rawReturnOrder, products);
             return res.status(201).send();
         } catch (err) {
             return next(err);
@@ -115,7 +103,8 @@ class ReturnOrderController {
         try {
             const returnOrderID = req.params.id;
             const { changes } = await this.dao.deleteReturnOrder(returnOrderID);
-
+            if (changes === 0)
+                throw ReturnOrderErrorFactory.newReturnOrderNotFound();
 
             return res.status(204).send();
         } catch (err) {

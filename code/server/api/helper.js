@@ -19,7 +19,7 @@ function registerErrorHandler(router) {
         //UtilityService.handleError(err);
 
         return res.status(err.code || 503).json({
-            error: err.customMessage || "Internal Server Error",
+            error: err.message || "Internal Server Error",
             status: err.customCode || 503
         });
     });

@@ -2,6 +2,7 @@ const SKUItemDAO = require('./dao')
 const SKUItem = require("./SKUItem");
 const { SKUItemErrorFactory } = require('./error');
 const { SkuErrorFactory } = require('../sku/error');
+const { RestockOrderErrorFactory } = require('../restock_order/error');
 const SkuController = require('../sku/controller');
 
 class SKUItemController {
@@ -13,7 +14,7 @@ class SKUItemController {
 	async getAllSKUItems(req, res, next) {
 		try {
 			const rows = await this.dao.getAllSKUItems();
-			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId, 
+			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId,
 				record.available, record.dateOfStock, record.restockOrderId));
 
 			return res.status(200).json(rows);
@@ -133,20 +134,32 @@ class SKUItemController {
 	}
 
 	async getAllSkuItemsByRestockOrder(restockOrderId) {
-		try {
-			const rows = await this.dao.getAllSkuItemsByRestockOrder(restockOrderId);
-			
-			const skuItems = [];
+		const rows = await this.dao.getAllSkuItemsByRestockOrder(restockOrderId);
 
-			for (let row of rows) {
-				let skuItem = await this.getSKUItemByRFIDInternal(row.RFID);
-				skuItems.push(skuItem);
-			}
+		const skuItems = [];
 
-			return skuItems;
-		} catch (error) {
-			console.log(error);
+		for (let row of rows) {
+			let skuItem = await this.getSKUItemByRFIDInternal(row.RFID);
+			skuItems.push(skuItem);
 		}
+
+		return skuItems;
+	}
+
+	async getItemByRFIDInternal(RFID, restockOrderId) {
+		const { supplierId } = await this.dao.getSupplierIdByRestockOrderId(restockOrderId);
+		if (supplierId === undefined)
+			throw RestockOrderErrorFactory.newRestockOrderNotFound();
+		
+		const row = await this.dao.getSkuAndSKUItemByRFIDInternal(RFID, supplierId);
+		if (row === undefined)
+			throw SKUItemErrorFactory.newSKUItemNotFound();
+
+		return {
+			SKUId: row.SKUId,
+			description: row.description,
+			price: row.price,
+		};
 	}
 }
 

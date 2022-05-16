@@ -22,7 +22,7 @@ function registerApiRoutes(router, prefix = '') {
 	const testResultRoute		= new TestResultRoutes(skuItemRoute.controller);
 	const testDescriptorRoute	= new TestDescriptorRoutes();
 	const itemRoute				= new ItemRoutes();
-	const returnOrderRoute		= new ReturnOrderRoutes();
+	const returnOrderRoute		= new ReturnOrderRoutes(skuItemRoute.controller);
 	const internalOrderRoute	= new InternalOrderRoutes();
 	const restockOrderRoute		= new RestockOrderRoutes(testResultRoute.controller, 
 									skuItemRoute.controller, itemRoute.controller);
