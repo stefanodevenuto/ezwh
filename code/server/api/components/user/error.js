@@ -7,21 +7,21 @@ const POSITION_NOT_CAPABLE_MESSAGE = "Position not capable enough to hold newAva
 class SKUItemErrorFactory {
     static initializeMapFailed() {
         let error = new Error(INITIALIZATION_ERROR_MESSAGE);
-		error.code = 404;
+		error.customCode = 404;
 
 		return error;
     }
     
     static newSKUItemNotFound() {
         let error = new Error(SKUITEM_NOT_FOUND_MESSAGE);
-		error.code = 404;
+		error.customCode = 404;
 
 		return error;
     }
 
     static newPositionNotCapable() {
         let error = new Error(POSITION_NOT_CAPABLE_MESSAGE);
-		error.code = 422;
+		error.customCode = 422;
 
 		return error;
     }

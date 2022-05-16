@@ -7,12 +7,11 @@ class PositionController {
         this.dao = new PositionDAO();
     }
 
-
     // ################################ API
+
     async getAllPositions(req, res, next) {
         try {
             const rows = await this.dao.getAllPositions();
-      
             return res.status(200).json(rows);
         } catch (err) {
             return next(err);
@@ -26,8 +25,6 @@ class PositionController {
             const row = await this.dao.getPositionByID(positionID);
             if (row === undefined)
                 throw PositionErrorFactory.newPositionNotFound();
-    
-           
          
             return res.status(200).json(row);
         } catch (err) {
@@ -81,10 +78,8 @@ class PositionController {
             const newCol = splitted[2];
 
             const { changes } = await this.dao.modifyPositionID(oldPositionId, newPositionId, newAisleID, newRow, newCol);
-
             if (changes === 0)
                 throw PositionErrorFactory.newPositionNotFound();
-
 
             return res.status(200).send();
         } catch (err) {
@@ -98,8 +93,8 @@ class PositionController {
     async deletePosition(req, res, next) {
         try {
             const positionID = req.params.positionID;
+            
             const { changes } = await this.dao.deletePosition(positionID);
-
             if (changes === 0)
                 throw PositionErrorFactory.newPositionNotFound();
 

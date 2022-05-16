@@ -15,17 +15,17 @@ var RestockOrderRoutes = require('./restock_order/routes');
 function registerApiRoutes(router, prefix = '') {
 
 	// Create all Routes
-	const positionRoute = new PositionRoutes();
-	const skuRoute = new SkuRoutes();
-	const userRoute = new UserRoutes();
-	const skuItemRoute = new SkuItemRoutes();
-	const testResultRoute = new TestResultRoutes(skuItemRoute.controller);
-	const testDescriptorRoute = new TestDescriptorRoutes();
-	const itemRoute = new ItemRoutes();
-	const returnOrderRoute = new ReturnOrderRoutes();
-	const internalOrderRoute = new InternalOrderRoutes();
-	const restockOrderRoute = new RestockOrderRoutes(testResultRoute.controller, 
-		skuItemRoute.controller, itemRoute.controller);
+	const positionRoute			= new PositionRoutes();
+	const skuRoute				= new SkuRoutes();
+	const userRoute				= new UserRoutes();
+	const skuItemRoute			= new SkuItemRoutes(skuRoute.controller);
+	const testResultRoute		= new TestResultRoutes(skuItemRoute.controller);
+	const testDescriptorRoute	= new TestDescriptorRoutes();
+	const itemRoute				= new ItemRoutes();
+	const returnOrderRoute		= new ReturnOrderRoutes(skuItemRoute.controller);
+	const internalOrderRoute	= new InternalOrderRoutes();
+	const restockOrderRoute		= new RestockOrderRoutes(testResultRoute.controller, 
+									skuItemRoute.controller, itemRoute.controller);
 	
 	
 	// Set all Routes
@@ -37,6 +37,8 @@ function registerApiRoutes(router, prefix = '') {
 
 	router.use(`${prefix}/skuitem`, skuItemRoute.router);
 	router.use(`${prefix}/skuitems`, skuItemRoute.router);
+
+	router.use(`${prefix}/skuitem`, testResultRoute.router);
 	router.use(`${prefix}/skuitems`, testResultRoute.router);
 	
 	router.use(`${prefix}/testDescriptor`, testDescriptorRoute.router);
@@ -44,14 +46,15 @@ function registerApiRoutes(router, prefix = '') {
 
 	router.use(`${prefix}/item`, itemRoute.router);
 	router.use(`${prefix}/items`, itemRoute.router);
+	
 	router.use(`${prefix}/returnOrder`, returnOrderRoute.router);
 	router.use(`${prefix}/returnOrders`, returnOrderRoute.router);
 
-	router.use(`${prefix}/`, internalOrderRoute.router);
-	router.use(`${prefix}/`, userRoute.router);
 	router.use(`${prefix}/restockOrder`, restockOrderRoute.router);
 	router.use(`${prefix}/restockOrders`, restockOrderRoute.router);
 
+	router.use(`${prefix}/`, internalOrderRoute.router);
+	router.use(`${prefix}/`, userRoute.router);
 	router.use(`${prefix}/`, restockOrderRoute.router);
 }
 

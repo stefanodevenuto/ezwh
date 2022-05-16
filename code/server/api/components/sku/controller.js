@@ -2,15 +2,14 @@ const SkuDAO = require('./dao')
 const Sku = require("./sku");
 const { SkuErrorFactory } = require('./error');
 const { PositionErrorFactory } = require('../position/error');
-//const sizeof = require('object-sizeof')
 
 class SkuController {
 	constructor() {
 		this.dao = new SkuDAO();
 	}
 
-    // ################################ API
-	
+	// ################################ API
+
 	async getAllSkus(req, res, next) {
 		try {
 			const rows = await this.dao.getAllSkus();
@@ -25,25 +24,7 @@ class SkuController {
 	async getSkuByID(req, res, next) {
 		try {
 			const skuId = Number(req.params.id);
-
-		
-			const row = await this.dao.getSkuByID(skuId);
-			if (row === undefined)
-				throw SkuErrorFactory.newSkuNotFound();
-
-			let sku;
-			/*let position = null;
-			if (this.enableCache) {
-				if (row.positionId !== null)
-					position = await this.positionController.getPositionByIDInternal(row.positionId);
-
-				sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
-					position, row.availableQuantity, row.price);
-			} else {*/
-				sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
-					row.positionId, row.availableQuantity, row.price, row.testDescriptor);
-			//}
-
+			const sku = await this.getSkuByIDInternal(skuId);
 			return res.status(200).json(sku);
 		} catch (err) {
 			return next(err);
@@ -53,8 +34,7 @@ class SkuController {
 	async createSku(req, res, next) {
 		try {
 			const rawSku = req.body;
-			const { id } = await this.dao.createSku(rawSku);
-
+			await this.dao.createSku(rawSku);
 			return res.status(201).send();
 		} catch (err) {
 			return next(err);
@@ -70,20 +50,17 @@ class SkuController {
 			const totalVolume = rawSku.newAvailableQuantity * rawSku.newVolume;
 
 			const { changes } = await this.dao.modifySku(skuId, rawSku, totalWeight, totalVolume);
-
-			// ERROR: no SKU associated to id
 			if (changes === 0)
 				throw SkuErrorFactory.newSkuNotFound();
-
 
 			return res.status(200).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
-                if (err.message.includes("occupiedWeight"))
-                    err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
-                else if (err.message.includes("occupiedVolume"))
-                    err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
-            }
+				if (err.message.includes("occupiedWeight"))
+					err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
+				else if (err.message.includes("occupiedVolume"))
+					err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
+			}
 
 			return next(err);
 		}
@@ -94,27 +71,21 @@ class SkuController {
 			const skuId = Number(req.params.id);
 			const newPosition = req.body.position;
 
-			let skuInDB = undefined;
-
-			const totalChanges = await this.dao.addModifySkuPosition(skuId, newPosition, skuInDB);
-
+			const totalChanges = await this.dao.addModifySkuPosition(skuId, newPosition);
 			if (totalChanges === 0)
 				throw SkuErrorFactory.newSkuNotFound();
-
-			//if (totalChanges === 1)
-			//	throw PositionErrorFactory.newPositionNotFound();
 
 			return res.status(200).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("sku.positionId"))
 					err = SkuErrorFactory.newPositionAlreadyOccupied();
-				else if(err.message.includes("FOREIGN"))
+				else if (err.message.includes("FOREIGN"))
 					err = PositionErrorFactory.newPositionNotFound();
 				else if (err.message.includes("occupiedWeight"))
-                    err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
-                else if (err.message.includes("occupiedVolume"))
-                    err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
+					err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
+				else if (err.message.includes("occupiedVolume"))
+					err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
 			}
 			return next(err);
 		}
@@ -128,11 +99,23 @@ class SkuController {
 			if (changes === 0)
 				throw SkuErrorFactory.newSkuNotFound();
 
-
 			return res.status(204).send();
 		} catch (err) {
 			return next(err);
 		}
+	}
+
+	// ################ Utilities
+
+	async getSkuByIDInternal(skuId) {
+		const row = await this.dao.getSkuByID(skuId);
+		if (row === undefined)
+			throw SkuErrorFactory.newSkuNotFound();
+
+		let sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
+			row.positionId, row.availableQuantity, row.price, row.testDescriptorId);
+
+		return sku;
 	}
 }
 

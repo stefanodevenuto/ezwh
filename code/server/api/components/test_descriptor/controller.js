@@ -3,7 +3,6 @@ const TestDescriptor = require("./testDescriptor");
 const { TestDescriptorErrorFactory } = require('./error');
 const { SkuErrorFactory } = require('../sku/error');
 
-
 class TestDescriptorController {
 	constructor() {
 		this.dao = new TestDescriptorDAO();
@@ -11,7 +10,6 @@ class TestDescriptorController {
 
     // ################################ API
 	
-    
 	async getAllTestDescriptors(req, res, next) {
 		try {
 			const rows = await this.dao.getAllTestDescriptors();
@@ -43,7 +41,7 @@ class TestDescriptorController {
 	async createTestDescriptor(req, res, next) {
 		try {
 			const rawTestDescriptor = req.body;
-			const id = await this.dao.createTestDescriptor(rawTestDescriptor);
+			await this.dao.createTestDescriptor(rawTestDescriptor);
 
 			return res.status(201).send();
 		} catch (err) {
@@ -60,15 +58,10 @@ class TestDescriptorController {
 		try {
 			const testDescriptorId = Number(req.params.id);
 			const rawTestDescriptor = req.body;
-
-            let testDescriptorInDB = undefined;
 		
-			let result = {objOrReturn: testDescriptorInDB};
-			const changes = await this.dao.modifyTestDescriptor(testDescriptorId, rawTestDescriptor, result);
-
+			const changes = await this.dao.modifyTestDescriptor(testDescriptorId, rawTestDescriptor);
 			if (changes === 0)
 				throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
-
 
 			return res.status(200).send();
 		} catch (err) {

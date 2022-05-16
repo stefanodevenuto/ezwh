@@ -5,25 +5,26 @@ class ReturnOrderDAO extends AppDAO{
     constructor() { super(); }
     
     async getAllReturnOrders() {
-        const query = 'SELECT returnOrder.id, returnDate, returnOrder.restockOrderId, qty, \
-        description, item.SKUId, price, RFID\
-        FROM returnOrder\
-        JOIN restockOrder_item ON returnOrder.restockOrderId = restockOrder_item.restockOrderId \
-        JOIN item ON restockOrder_item.itemId = item.id\
-        LEFT JOIN SKUItem ON item.SKUId = SKUItem.SKUId\
-        GROUP BY returnOrder.id, item.SKUId, RFID';
+        const query = 'SELECT RO.id, RO.returnDate, I.SKUId, I.description, I.price, SI.RFID \
+            FROM returnOrder RO  \
+            JOIN restockOrder_item ROI ON ROI.restockOrderId = RO.restockOrderId \
+            JOIN item I ON ROI.itemId = I.id \
+            JOIN SKUItem SI ON SI.returnOrderId = RO.id \
+            GROUP BY RO.id, SI.RFID \
+            ORDER BY RO.id, SI.RFID';
+
         return await this.all(query);
     }
 
     async getReturnOrderByID(returnOrderID) {
-
-        const query = 'SELECT returnOrder.id, returnDate, returnOrder.restockOrderId, qty, \
-        description, item.SKUId, price, RFID\
-        FROM returnOrder\
-        JOIN restockOrder_item ON returnOrder.restockOrderId = restockOrder_item.restockOrderId \
-        JOIN item ON restockOrder_item.itemId = item.id\
-        LEFT JOIN SKUItem ON item.SKUId = SKUItem.SKUId\
-        WHERE returnOrder.id = ?';
+        const query = 'SELECT RO.id, RO.returnDate, I.SKUId, I.description, I.price, SI.RFID \
+            FROM returnOrder RO  \
+            JOIN restockOrder_item ROI ON ROI.restockOrderId = RO.restockOrderId \
+            JOIN item I ON ROI.itemId = I.id \
+            JOIN SKUItem SI ON SI.returnOrderId = RO.id \
+            WHERE RO.id = ? \
+            GROUP BY RO.id, SI.RFID \
+            ORDER BY RO.id, SI.RFID';
         
         let rows = await this.all(query, [returnOrderID]);
 
@@ -31,20 +32,19 @@ class ReturnOrderDAO extends AppDAO{
     }
 
 
-    async createReturnOrder(returnOrder) {
+    async createReturnOrder(returnOrder, products) {
         const query = 'INSERT INTO returnOrder(returnDate, restockOrderId) VALUES (?, ?)';
-        const query_add_id_skuItem = 'UPDATE skuItem SET restockOrderId = ?, returnOrderId = ? WHERE RFID = ?';
+        const query_add_id_skuItem = 'UPDATE skuItem SET returnOrderId = ? WHERE RFID = ?';
 
         await this.startTransaction();
 
         let { id } = await this.run(query, [returnOrder.returnDate, returnOrder.restockOrderId]);
 
-        for(let row of returnOrder.products){
-            await this.run(query_add_id_skuItem, [returnOrder.restockOrderId, id, row.RFID]);
+        for(let row of products){
+            await this.run(query_add_id_skuItem, [id, row.RFID]);
         }
 
         await this.commitTransaction();
-
 
         return id;
     }

@@ -4,10 +4,10 @@ const SKUItemController = require('./controller');
 const { ErrorHandler } = require("../../helper");
 
 class SKUItemRoutes {
-	constructor() {
+	constructor(skuController) {
 		this.errorHandler = new ErrorHandler();
 		this.name = 'SKUItem';
-		this.controller = new SKUItemController();
+		this.controller = new SKUItemController(skuController);
 		this.router = express.Router();
 		this.initRoutes();
 	}

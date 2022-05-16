@@ -1,23 +1,57 @@
 const SKUItemDAO = require('./dao')
 const SKUItem = require("./SKUItem");
 const { SKUItemErrorFactory } = require('./error');
-const { SKUErrorFactory, SkuErrorFactory } = require('../sku/error');
+const { SkuErrorFactory } = require('../sku/error');
+const { RestockOrderErrorFactory } = require('../restock_order/error');
 const SkuController = require('../sku/controller');
 
-
 class SKUItemController {
-	constructor() {
+	constructor(skuController) {
 		this.dao = new SKUItemDAO();
-		this.skuController = new SkuController;
+		this.skuController = skuController;
 	}
 
 	async getAllSKUItems(req, res, next) {
 		try {
 			const rows = await this.dao.getAllSKUItems();
-			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId, 
+			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId,
 				record.available, record.dateOfStock, record.restockOrderId));
 
 			return res.status(200).json(rows);
+		} catch (err) {
+			return next(err);
+		}
+	}
+
+	async getSKUItemBySKUID(req, res, next) {
+		try {
+			const skuId = req.params.id;
+
+			// To check if exists
+			await this.skuController.getSkuByIDInternal(skuId);
+
+			const rows = await this.dao.getSKUItemBySKUID(skuId);
+
+			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
+				record.available, record.dateOfStock, record.restockOrderId));
+			return res.status(200).json(SKUItems);
+		} catch (err) {
+			return next(err);
+		}
+	}
+
+	async getSKUItemBySKUID(req, res, next) {
+		try {
+			const skuId = req.params.id;
+
+			// To check if exists
+			await this.skuController.getSkuByIDInternal(skuId);
+
+			const rows = await this.dao.getSKUItemBySKUID(skuId);
+
+			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
+				record.available, record.dateOfStock, record.restockOrderId));
+			return res.status(200).json(SKUItems);
 		} catch (err) {
 			return next(err);
 		}
@@ -33,28 +67,10 @@ class SKUItemController {
 		}
 	}
 
-	async getSKUItemBySKUID(req, res, next) {
-		try {
-
-			const skuId = req.params.id;
-
-			// To check if exists
-			// await this.skuController.getSkuByID(skuId);
-
-			const rows = await this.dao.getSKUItemBySKUID(skuId);
-
-			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
-				record.available, record.dateOfStock, record.restockOrderId));
-			return res.status(200).json(SKUItems);
-		} catch (err) {
-			return next(err);
-		}
-	}
-
 	async createSKUItem(req, res, next) {
 		try {
 			const rawSKUItem = req.body;
-			const { id } = await this.dao.createSKUItem(rawSKUItem);
+			await this.dao.createSKUItem(rawSKUItem);
 
 			return res.status(201).send();
 		} catch (err) {
@@ -105,6 +121,7 @@ class SKUItemController {
 	}
 
 	// ################## Utilities
+
 	async getSKUItemByRFIDInternal(rfid) {
 		const SKUItemId = rfid;
 
@@ -112,26 +129,37 @@ class SKUItemController {
 		if (row === undefined)
 			throw SKUItemErrorFactory.newSKUItemNotFound();
 
-		const SKUItems = new SKUItem(row.RFID, row.skuId, row.available, row.dateOfStock, row.restockOrderId);
-		
-		return SKUItems;
+		const skuItem = new SKUItem(row.RFID, row.skuId, row.available, row.dateOfStock, row.restockOrderId);
+		return skuItem;
 	}
 
-	async getAllSkuItemsByRestockOrderAndCache(restockOrderId) {
-		try {
-			const rows = await this.dao.getAllSkuItemsByRestockOrder(restockOrderId);
-			const skuItems = [];
+	async getAllSkuItemsByRestockOrder(restockOrderId) {
+		const rows = await this.dao.getAllSkuItemsByRestockOrder(restockOrderId);
 
-			for (let row of rows) {
-				let skuItem = await this.getSKUItemByRFIDInternal(row.RFID);
-				skuItems.push(skuItem);
-			}
+		const skuItems = [];
 
-			return skuItems;
-		} catch (error) {
-			console.log(error);
+		for (let row of rows) {
+			let skuItem = await this.getSKUItemByRFIDInternal(row.RFID);
+			skuItems.push(skuItem);
 		}
 
+		return skuItems;
+	}
+
+	async getItemByRFIDInternal(RFID, restockOrderId) {
+		const { supplierId } = await this.dao.getSupplierIdByRestockOrderId(restockOrderId);
+		if (supplierId === undefined)
+			throw RestockOrderErrorFactory.newRestockOrderNotFound();
+		
+		const row = await this.dao.getSkuAndSKUItemByRFIDInternal(RFID, supplierId);
+		if (row === undefined)
+			throw SKUItemErrorFactory.newSKUItemNotFound();
+
+		return {
+			SKUId: row.SKUId,
+			description: row.description,
+			price: row.price,
+		};
 	}
 }
 
