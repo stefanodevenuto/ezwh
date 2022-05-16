@@ -15,7 +15,7 @@ class SkuController {
 		try {
 			const rows = await this.dao.getAllSkus();
 			const skus = rows.map(record => new Sku(record.id, record.description, record.weight, record.volume, record.notes,
-				record.positionId, record.availableQuantity, record.price, record.testDescriptorId));
+				record.positionId, record.availableQuantity, record.price, record.testDescriptor));
 			return res.status(200).json(skus);
 		} catch (err) {
 			return next(err);
@@ -41,7 +41,7 @@ class SkuController {
 					position, row.availableQuantity, row.price);
 			} else {*/
 				sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
-					row.positionId, row.availableQuantity, row.price, row.testDescriptorId);
+					row.positionId, row.availableQuantity, row.price, row.testDescriptor);
 			//}
 
 			return res.status(200).json(sku);
