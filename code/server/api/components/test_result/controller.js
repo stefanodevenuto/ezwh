@@ -91,10 +91,7 @@ class TestResultController {
 			const id = req.params.id;
 			const rfid = req.params.rfid;
 
-			const { changes } = await this.dao.deleteTestResult(rfid, id);
-			if (changes === 0)
-				throw TestResultErrorFactory.newTestResultNotFound();
-
+			await this.dao.deleteTestResult(rfid, id);
 			return res.status(204).send();
 		} catch (err) {
 			return next(err);

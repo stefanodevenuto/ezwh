@@ -79,11 +79,7 @@ class TestDescriptorController {
 	async deleteTestDescriptor(req, res, next) {
 		try {
 			const testDescriptorId = req.params.id;
-
-			const { changes } = await this.dao.deleteTestDescriptor(testDescriptorId);
-			if (changes === 0)
-				throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
-
+			await this.dao.deleteTestDescriptor(testDescriptorId);
 			return res.status(204).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {

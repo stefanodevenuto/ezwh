@@ -184,11 +184,7 @@ class UserController {
 			const userUsername = req.params.username;
 			const userType = req.params.type;
 
-			const { changes } = await this.dao.deleteUser(userUsername, userType);
-			if (changes === 0)
-				throw SkuErrorFactory.newSkuNotFound();
-
-
+			await this.dao.deleteUser(userUsername, userType);
 			return res.status(204).send();
 		} catch (err) {
 			return next(err);

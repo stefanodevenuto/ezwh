@@ -1,5 +1,5 @@
 class Sku {
-    constructor(id = null, description, weight, volume, notes, positionId = null, availableQuantity, price, testDescriptor = null) {
+    constructor(id = null, description, weight, volume, notes, positionId = null, availableQuantity, price, testDescriptors) {
         this.id = id;
         this.description = description;
         this.weight = weight;
@@ -8,7 +8,7 @@ class Sku {
         this.positionId = positionId;
         this.availableQuantity = availableQuantity;
         this.price = price;
-        this.testDescriptor = testDescriptor;
+        this.testDescriptors = testDescriptors !== null ? [testDescriptors] : [];
     }
 }
 

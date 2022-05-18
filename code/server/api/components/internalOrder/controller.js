@@ -178,7 +178,7 @@ class InternalOrderController {
     async deleteInternalOrder(req, res, next) {
         try {
             const internalOrderID = req.params.id;
-            const { changes } = await this.dao.deleteInternalOrder(internalOrderID);
+            await this.dao.deleteInternalOrder(internalOrderID);
 
             return res.status(204).send();
         } catch (err) {

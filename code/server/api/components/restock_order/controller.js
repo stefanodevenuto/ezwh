@@ -159,10 +159,7 @@ class RestockOrderController {
     async deleteRestockOrder(req, res, next) {
         try {
             const restockOrderId = req.params.id; 
-            const { changes } = await this.dao.deleteRestockOrder(restockOrderId);
-            if (changes === 0)
-                throw RestockOrderErrorFactory.newRestockOrderNotFound();
-
+            await this.dao.deleteRestockOrder(restockOrderId);
             return res.status(204).send();
         } catch (err) {
             return next(err);

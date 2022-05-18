@@ -94,11 +94,7 @@ class SkuController {
 	async deleteSku(req, res, next) {
 		try {
 			const skuId = req.params.id;
-
-			const { changes } = await this.dao.deleteSku(skuId);
-			if (changes === 0)
-				throw SkuErrorFactory.newSkuNotFound();
-
+			await this.dao.deleteSku(skuId);
 			return res.status(204).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
@@ -117,7 +113,7 @@ class SkuController {
 			throw SkuErrorFactory.newSkuNotFound();
 
 		let sku = new Sku(row.id, row.description, row.weight, row.volume, row.notes,
-			row.positionId, row.availableQuantity, row.price, row.testDescriptorId);
+			row.positionId, row.availableQuantity, row.price, row.testDescriptor);
 
 		return sku;
 	}

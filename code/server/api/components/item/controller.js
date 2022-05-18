@@ -69,11 +69,7 @@ class ItemController {
 	async deleteItem(req, res, next) {
 		try {
 			const itemId = req.params.id;
-
-			const { changes } = await this.dao.deleteItem(itemId);
-			if (changes === 0)
-				throw ItemErrorFactory.itemNotFound();
-
+			await this.dao.deleteItem(itemId);
 			return res.status(204).send();
 		} catch (err) {
 			return next(err);

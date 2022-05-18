@@ -12,7 +12,9 @@ class PositionController {
     async getAllPositions(req, res, next) {
         try {
             const rows = await this.dao.getAllPositions();
-            return res.status(200).json(rows);
+            const positions = rows.map(record => new Position(record.positionID, record.aisleID, record.row,
+                record.col, record.maxWeight, record.maxVolume, record.occupiedWeight, record.occupiedVolume, record.skuId));
+            return res.status(200).json(positions);
         } catch (err) {
             return next(err);
         }
@@ -25,8 +27,11 @@ class PositionController {
             const row = await this.dao.getPositionByID(positionID);
             if (row === undefined)
                 throw PositionErrorFactory.newPositionNotFound();
-         
-            return res.status(200).json(row);
+
+            const position = new Position(row.positionID, row.aisleID, row.row,
+                row.col, row.maxWeight, row.maxVolume, row.occupiedWeight, row.occupiedVolume)
+
+            return res.status(200).json(position);
         } catch (err) {
             return next(err);
         }
@@ -93,11 +98,7 @@ class PositionController {
     async deletePosition(req, res, next) {
         try {
             const positionID = req.params.positionID;
-            
-            const { changes } = await this.dao.deletePosition(positionID);
-            if (changes === 0)
-                throw PositionErrorFactory.newPositionNotFound();
-
+            await this.dao.deletePosition(positionID);
             return res.status(204).send();
         } catch (err) {
             return next(err);

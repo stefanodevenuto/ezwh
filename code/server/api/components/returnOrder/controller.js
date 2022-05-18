@@ -102,10 +102,7 @@ class ReturnOrderController {
     async deleteReturnOrder(req, res, next) {
         try {
             const returnOrderID = req.params.id;
-            const { changes } = await this.dao.deleteReturnOrder(returnOrderID);
-            if (changes === 0)
-                throw ReturnOrderErrorFactory.newReturnOrderNotFound();
-
+            await this.dao.deleteReturnOrder(returnOrderID);
             return res.status(204).send();
         } catch (err) {
             return next(err);

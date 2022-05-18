@@ -109,11 +109,7 @@ class SKUItemController {
 	async deleteSKUItem(req, res, next) {
 		try {
 			const SKUItemId = req.params.rfid;
-
-			const { changes } = await this.dao.deleteSKUItem(SKUItemId);
-			if (changes === 0)
-				throw SKUItemErrorFactory.newSKUItemNotFound();
-
+			await this.dao.deleteSKUItem(SKUItemId);
 			return res.status(204).send();
 		} catch (err) {
 			return next(err);
