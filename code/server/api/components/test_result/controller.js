@@ -6,7 +6,6 @@ class TestResultController {
 	constructor(skuItemController) {
 		this.dao = new TestResultDAO();
 		this.skuItemController = skuItemController;
-		this.observers = [];
 	}
 
 	// ################################ API

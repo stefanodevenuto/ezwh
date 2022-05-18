@@ -40,12 +40,6 @@ class PositionDAO extends AppDAO{
         const query = 'DELETE FROM position WHERE positionID = ?'
         return await this.run(query, [positionID]);
     }
-
-    /* Utilities */
-    /*async modifyOccupiedFieldsPosition(skuId, totalWeight, totalVolume) {
-        const query = "UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE skuId = ?";
-        return await this.run(query, [totalWeight, totalVolume, skuId]);
-    }*/
 }
 
 module.exports = PositionDAO;

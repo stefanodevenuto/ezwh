@@ -3,7 +3,6 @@ const RestockOrder = require("./restockOrder");
 const Product = require("./product");
 const { RestockOrderErrorFactory } = require('./error');
 const { SKUItemErrorFactory } = require('../skuItem/error');
-const Cache = require('lru-cache')
 
 class RestockOrderController {
     constructor(testResultController, skuItemController, itemController) {
