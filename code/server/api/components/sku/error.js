@@ -1,6 +1,7 @@
 const SKU_NOT_FOUND_MESSAGE        = "No SKU associated to id";
 const POSITION_NOT_CAPABLE_MESSAGE = "Position not capable enough to hold newAvailableQuantity";
 const POSITION_ALREADY_OCCUPIED    = "Position already assigned to another SKU";
+const SKU_WITH_SKUITEMS            = "The selected Sku is related to some Sku Items";
 
 class SkuErrorFactory {
     static newSkuNotFound() {
@@ -23,6 +24,14 @@ class SkuErrorFactory {
         let error = new Error();
 		error.customCode = 422;
         error.customMessage = POSITION_ALREADY_OCCUPIED;
+
+		return error;
+    }
+
+    static newSkuWithAssociatedSkuItems() {
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = SKU_WITH_SKUITEMS;
 
 		return error;
     }

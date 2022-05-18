@@ -86,6 +86,11 @@ class TestDescriptorController {
 
 			return res.status(204).send();
 		} catch (err) {
+			if (err.code === "SQLITE_CONSTRAINT") {
+                if (err.message.includes("FOREIGN KEY"))
+					err = TestDescriptorErrorFactory.newTestDescriptorWithAssociatedTestResults();
+			}
+
 			return next(err);
 		}
 	}

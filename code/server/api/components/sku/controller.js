@@ -101,6 +101,10 @@ class SkuController {
 
 			return res.status(204).send();
 		} catch (err) {
+			if (err.code === "SQLITE_CONSTRAINT") {
+				if (err.message.includes("FOREIGN KEY"))
+					err = SkuErrorFactory.newSkuWithAssociatedSkuItems();
+			}
 			return next(err);
 		}
 	}
