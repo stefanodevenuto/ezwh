@@ -48,6 +48,9 @@ class PositionController {
 
             return res.status(201).send();
         } catch (err) {
+            if (err.code === "SQLITE_CONSTRAINT")
+				err = PositionErrorFactory.newPositionIDNotUnique();
+
             return next(err);
         }
     }
