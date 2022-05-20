@@ -46,7 +46,7 @@ class TestDescriptorController {
 
 	async modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU) {
 		try {
-			const changes = await this.dao.modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU);
+			const { changes } = await this.dao.modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU);
 			if (changes === 0)
 				throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
 		} catch (err) {
