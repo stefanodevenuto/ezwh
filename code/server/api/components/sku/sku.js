@@ -10,6 +10,11 @@ class Sku {
         this.price = price;
         this.testDescriptors = testDescriptors !== null ? [testDescriptors] : [];
     }
+
+    static mockTestSku() {
+        const sku = new Sku(null, "test sku", 20, 20, "test sku", null, 50, 10.99, [])
+        return sku;        
+    }
 }
 
 module.exports = Sku;
