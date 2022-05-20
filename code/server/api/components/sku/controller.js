@@ -71,8 +71,8 @@ class SkuController {
 			const skuId = Number(req.params.id);
 			const newPosition = req.body.position;
 
-			const totalChanges = await this.dao.addModifySkuPosition(skuId, newPosition);
-			if (totalChanges === 0)
+			const { changes } = await this.dao.addModifySkuPosition(skuId, newPosition);
+			if (changes === 0)
 				throw SkuErrorFactory.newSkuNotFound();
 
 			return res.status(200).send();

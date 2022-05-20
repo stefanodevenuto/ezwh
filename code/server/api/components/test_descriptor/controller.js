@@ -59,7 +59,7 @@ class TestDescriptorController {
 			const testDescriptorId = Number(req.params.id);
 			const rawTestDescriptor = req.body;
 		
-			const changes = await this.dao.modifyTestDescriptor(testDescriptorId, rawTestDescriptor);
+			const { changes } = await this.dao.modifyTestDescriptor(testDescriptorId, rawTestDescriptor);
 			if (changes === 0)
 				throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
 

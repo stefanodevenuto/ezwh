@@ -121,8 +121,8 @@ class RestockOrderController {
             if (restockOrder.state !== RestockOrder.DELIVERED)
                 throw RestockOrderErrorFactory.newRestockOrderNotDelivered();
 
-            const totalChanges = await this.dao.modifyRestockOrderSkuItems(restockOrderId, rawSkuItems);
-            if (totalChanges !== rawSkuItems.length)
+            const { changes } = await this.dao.modifyRestockOrderSkuItems(restockOrderId, rawSkuItems);
+            if (changes !== rawSkuItems.length)
                 throw SKUItemErrorFactory.newSKUItemNotFound();
 
             return res.status(200).send();
