@@ -13,75 +13,90 @@ class RestockOrderRoutes {
 		this.initRoutes();
 	}
 
-	
 	initRoutes() {
-
         this.router.get(
 			'/restockOrdersIssued',
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getAllIssuedRestockOrders(req, res, next)
+			(req, res, next) => this.controller.getAllIssuedRestockOrders()
+				.then((issuedRestockOrders) => res.status(200).json(issuedRestockOrders))
+				.catch((err) => next(err))
 		);
 
         this.router.get(
-			'/',
+			'/restockOrders',
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getAllRestockOrders(req, res, next)
+			(req, res, next) => this.controller.getAllRestockOrders()
+				.then((restockOrders) => res.status(200).json(restockOrders))
+				.catch((err) => next(err))
 		);
         
         this.router.get(
-			'/:id',
+			'/restockOrders/:id',
 			param('id').isString().withMessage("ERROR: Restock Order ID is not a number"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getRestockOrderByID(req, res, next)
+			(req, res, next) => this.controller.getRestockOrderByID(req.params.id)
+				.then((restockOrder) => res.status(200).json(restockOrder))
+				.catch((err) => next(err))
 		);
 
 		this.router.get(
-			'/:id/returnItems',
+			'/restockOrders/:id/returnItems',
 			param('id').isString().withMessage("ERROR: Restock Order ID is not a number"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getRestockOrderReturnItemsByID(req, res, next)
+			(req, res, next) => this.controller.getRestockOrderReturnItemsByID(req.params.id)
+				.then((returnItems) => res.status(200).json(returnItems))
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
-			'/',
+			'/restockOrder',
 			body("issueDate").isString(),
 			body("products").isArray(),
 			body("supplierId").isNumeric(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.createRestockOrder(req, res, next)
+			(req, res, next) => this.controller.createRestockOrder(req.body.issueDate,
+					req.body.products, req.body.supplierId)
+				.then(() => res.status(201).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.put(
-			'/:id',
+			'/restockOrder/:id',
 			param('id').isNumeric().withMessage("ERROR: id is not a number"),
-			body("newState").isString()
-				.custom((state) => RestockOrder.isValidState(state))
-				.withMessage("Invalid State"),
+			body("newState").isString(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifyState(req, res, next)
+			(req, res, next) => this.controller.modifyState(req.params.id, req.body.newState)
+				.then(() => res.status(200).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.put(
-			'/:id/skuItems',
+			'/restockOrder/:id/skuItems',
 			param('id').isNumeric().withMessage("ERROR: id is not a number"),
 			body("skuItems").isArray(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifyRestockOrderSkuItems(req, res, next)
+			(req, res, next) => this.controller.modifyRestockOrderSkuItems(req.params.id, req.body.skuItems)
+				.then(() => res.status(200).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.put(
-			'/:id/transportNote',
+			'/restockOrder/:id/transportNote',
 			param('id').isNumeric().withMessage("ERROR: id is not a number"),
 			body("transportNote.deliveryDate").isDate(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifyTransportNote(req, res, next)
+			(req, res, next) => this.controller.modifyTransportNote(req.params.id, req.body.transportNote.deliveryDate)
+				.then(() => res.status(200).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.delete(
-			'/:id',
+			'/restockOrder/:id',
 			param('id').isNumeric().withMessage("ERROR: id is not a number"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.deleteRestockOrder(req, res, next)
+			(req, res, next) => this.controller.deleteRestockOrder(req.params.id)
+				.then(() => res.status(204).send())
+				.catch((err) => next(err))
 		);
 	}
 }

@@ -32,13 +32,13 @@ class ReturnOrderDAO extends AppDAO{
     }
 
 
-    async createReturnOrder(returnOrder, products) {
+    async createReturnOrder(returnDate, restockOrderId, products) {
         const query = 'INSERT INTO returnOrder(returnDate, restockOrderId) VALUES (?, ?)';
         const query_add_id_skuItem = 'UPDATE skuItem SET returnOrderId = ? WHERE RFID = ?';
 
         await this.startTransaction();
 
-        let { id } = await this.run(query, [returnOrder.returnDate, returnOrder.restockOrderId]);
+        let { id } = await this.run(query, [returnDate, restockOrderId]);
 
         for(let row of products){
             await this.run(query_add_id_skuItem, [id, row.RFID]);

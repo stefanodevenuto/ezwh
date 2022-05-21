@@ -12,50 +12,33 @@ class SKUItemController {
 	}
 
 	async getAllSKUItems(req, res, next) {
-		try {
-			const rows = await this.dao.getAllSKUItems();
-			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId,
-				record.available, record.dateOfStock, record.restockOrderId));
+		const rows = await this.dao.getAllSKUItems();
+		const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId,
+			record.available, record.dateOfStock, record.restockOrderId));
 
-			return res.status(200).json(rows);
-		} catch (err) {
-			return next(err);
-		}
-	}
-	
-	async getSKUItemBySKUID(req, res, next) {
-		try {
-			const skuId = req.params.id;
-
-			// To check if exists
-			await this.skuController.getSkuByIDInternal(skuId);
-
-			const rows = await this.dao.getSKUItemBySKUID(skuId);
-
-			const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
-				record.available, record.dateOfStock, record.restockOrderId));
-			return res.status(200).json(SKUItems);
-		} catch (err) {
-			return next(err);
-		}
+		return SKUItems;
 	}
 
-	async getSKUItemByRFID(req, res, next) {
-		try {
-			const SKUItemId = req.params.rfid;
-			const skuItem = await this.getSKUItemByRFIDInternal(SKUItemId);
-			return res.status(200).json(skuItem);
-		} catch (err) {
-			return next(err);
-		}
+	async getSKUItemBySKUID(skuId) {
+
+		// To check if exists
+		await this.skuController.getSkuByIDInternal(skuId);
+
+		const rows = await this.dao.getSKUItemBySKUID(skuId);
+		const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
+			record.available, record.dateOfStock, record.restockOrderId));
+
+		return SKUItems;
 	}
 
-	async createSKUItem(req, res, next) {
-		try {
-			const rawSKUItem = req.body;
-			await this.dao.createSKUItem(rawSKUItem);
+	async getSKUItemByRFID(SKUItemId) {
+		const skuItem = await this.getSKUItemByRFIDInternal(SKUItemId);
+		return skuItem;
+	}
 
-			return res.status(201).send();
+	async createSKUItem(RFID, SKUId, DateOfStock) {
+		try {
+			await this.dao.createSKUItem(RFID, SKUId, DateOfStock);
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("skuItem.RFID"))
@@ -65,38 +48,27 @@ class SKUItemController {
 					err = SkuErrorFactory.newSkuNotFound();
 			}
 
-			return next(err);
+			throw err;
 		}
 	}
 
-	async modifySKUItem(req, res, next) {
+	async modifySKUItem(SKUItemId, newRFID, newAvailable, newDateOfStock) {
 		try {
-			const SKUItemId = req.params.rfid;
-			const rawSKUItem = req.body;
-
-			const { changes } = await this.dao.modifySKUItem(SKUItemId, rawSKUItem);
+			const { changes } = await this.dao.modifySKUItem(SKUItemId, newRFID, newAvailable, newDateOfStock);
 			if (changes === 0)
 				throw SKUItemErrorFactory.newSKUItemNotFound();
-
-			return res.status(200).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("skuItem.RFID"))
 					err = SKUItemErrorFactory.newSKUItemRFIDNotUnique();
 			}
 
-			return next(err);
+			throw err;
 		}
 	}
 
-	async deleteSKUItem(req, res, next) {
-		try {
-			const SKUItemId = req.params.rfid;
-			await this.dao.deleteSKUItem(SKUItemId);
-			return res.status(204).send();
-		} catch (err) {
-			return next(err);
-		}
+	async deleteSKUItem(SKUItemId) {
+		await this.dao.deleteSKUItem(SKUItemId);
 	}
 
 	// ################## Utilities
@@ -126,13 +98,13 @@ class SKUItemController {
 	}
 
 	async getItemByRFIDInternal(RFID, restockOrderId) {
-		const { supplierId } = await this.dao.getSupplierIdByRestockOrderId(restockOrderId);
-		if (supplierId === undefined)
+		const supplier = await this.dao.getSupplierIdByRestockOrderId(restockOrderId);
+		if (supplier === undefined)
 			throw RestockOrderErrorFactory.newRestockOrderNotFound();
-		
-		const row = await this.dao.getSkuAndSKUItemByRFIDInternal(RFID, supplierId);
+
+		const row = await this.dao.getSkuAndSKUItemByRFIDInternal(RFID, supplier.supplierId);
 		if (row === undefined)
-			throw SKUItemErrorFactory.newSKUItemNotFound();
+			throw SKUItemErrorFactory.newSKUItemRelatedToItemNotOwned();
 
 		return {
 			SKUId: row.SKUId,

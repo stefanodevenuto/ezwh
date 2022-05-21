@@ -1,29 +1,28 @@
-const INITIALIZATION_ERROR_MESSAGE = "Internal error: try again later!"
-const SKUITEM_NOT_FOUND_MESSAGE        = "No SKUItem associated to id";
-const RFID_NOT_UNIQUE                  = "The inserted RFID is already taken";
-
+const SKUITEM_NOT_FOUND_MESSAGE = "No SKUItem associated to id";
+const RFID_NOT_UNIQUE           = "The inserted RFID is already taken";
+const ITEM_NOT_OWNED            = "The Sku Item is associated to an item not sold by the Supplier of the Restock Order";
 
 class SKUItemErrorFactory {
-    static initializeMapFailed() {
+    static newSKUItemNotFound() {
         let error = new Error();
 		error.customCode = 404;
-        error.customMessage = INITIALIZATION_ERROR_MESSAGE;
-
-		return error;
-    }
-    
-    static newSKUItemNotFound() {
-        let error = new Error(SKUITEM_NOT_FOUND_MESSAGE);
-		error.customCode = 404;
-        error.customMessage = INITIALIZATION_ERROR_MESSAGE;
+        error.customMessage = SKUITEM_NOT_FOUND_MESSAGE;
 
 		return error;
     }
 
     static newSKUItemRFIDNotUnique() {
-        let error = new Error(RFID_NOT_UNIQUE);
+        let error = new Error();
 		error.customCode = 422;
-        error.customMessage = INITIALIZATION_ERROR_MESSAGE;
+        error.customMessage = RFID_NOT_UNIQUE;
+
+		return error;
+    }
+
+    static newSKUItemRelatedToItemNotOwned() {
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = ITEM_NOT_OWNED;
 
 		return error;
     }

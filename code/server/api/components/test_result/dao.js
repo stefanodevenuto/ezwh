@@ -17,22 +17,20 @@ class TestResultDAO extends AppDAO {
         return row;
     }
 
-    async createTestResult(testResult) {
+    async createTestResult(rfid, idTestDescriptor, Date, Result) {
         const query_get_last_id = 'SELECT MAX(id) as id FROM testResult WHERE RFID = ?';
         const query_insert = 'INSERT INTO testResult(id, testDescriptorId, date, result, RFID) VALUES (?, ?, ?, ?, ?)';
 
-        let { id } = await this.get(query_get_last_id, [testResult.rfid]);
+        let { id } = await this.get(query_get_last_id, [rfid]);
         const newId = id + 1;
 
-        await this.run(query_insert, [newId, testResult.idTestDescriptor,
-            testResult.Date, testResult.Result, testResult.rfid]);
-
+        await this.run(query_insert, [newId, idTestDescriptor, Date, Result, rfid]);
         return newId;
     }
 
-    async modifyTestResult(id, rfid, testResult) {
+    async modifyTestResult(id, rfid, newIdTestDescriptor, newDate, newResult) {
         const query = 'UPDATE testResult SET testDescriptorId = ?, date = ?, result = ? WHERE RFID = ? AND id = ?';
-        return await this.run(query, [testResult.newIdTestDescriptor, testResult.newDate, +testResult.newResult, rfid, id]);
+        return await this.run(query, [newIdTestDescriptor, newDate, +newResult, rfid, id]);
     }
 
     async deleteTestResult(rfid, id) {

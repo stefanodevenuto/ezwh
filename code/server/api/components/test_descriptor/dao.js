@@ -16,23 +16,20 @@ class TestDescriptorDAO extends AppDAO {
         return row;
     }
 
-    async createTestDescriptor(testDescriptor) {
+    async createTestDescriptor(name, procedureDescription, idSKU) {
         const query_test_descriptor = 'INSERT INTO testDescriptor(name, procedureDescription, idSKU) VALUES (?, ?, ?)';
         const query_sku = 'UPDATE sku SET testDescriptor = ? WHERE id = ?';
 
         await this.startTransaction();
 
-        const { id } = await this.run(query_test_descriptor, [testDescriptor.name, testDescriptor.procedureDescription,
-        testDescriptor.idSKU]);
-        console.log(id);
-        await this.run(query_sku, [id, testDescriptor.idSKU]);
+        const { id } = await this.run(query_test_descriptor, [name, procedureDescription, idSKU]);
+        await this.run(query_sku, [id, idSKU]);
 
         await this.commitTransaction();
-
         return id;
     }
 
-    async modifyTestDescriptor(newTestDescriptorId, newTestDescriptor) {
+    async modifyTestDescriptor(newTestDescriptorId, newName, newProcedureDescription, newIdSKU) {
         const query_test_descriptor = 'UPDATE testDescriptor SET name = ?, procedureDescription = ?, idSKU = ? WHERE id = ?';
         const query_sku = 'UPDATE sku SET testDescriptor = ? WHERE id = ?';
 
@@ -41,12 +38,11 @@ class TestDescriptorDAO extends AppDAO {
             return 0;
 
         const oldSkuId = row.idSKU;
-        testDescriptor.objOrReturn = oldSkuId;
 
         return await this.serialize([query_test_descriptor, query_sku, query_sku], [
-            [newTestDescriptor.newName, newTestDescriptor.newProcedureDescription, newTestDescriptor.newIdSKU, newTestDescriptorId],
+            [newName, newProcedureDescription, newIdSKU, newTestDescriptorId],
             [null, oldSkuId],
-            [newTestDescriptorId, newTestDescriptor.newIdSKU]
+            [newTestDescriptorId, newIdSKU]
         ]);
     }
 

@@ -5,8 +5,6 @@ class RestockOrderDAO extends AppDAO{
     constructor() { super(); }
         
     async getAllRestockOrders() {
-        // PER CREATE: const query_get_item_id = "SELECT id FROM item WHERE SKUId = ? AND supplierId = ?";
-
         const query = 'SELECT RO.id AS id, RO.issueDate, RO.state, RO.supplierId, RO.deliveryDate, I.SKUId, I.description, I.price, ROI.qty\
             FROM restockOrder RO \
             JOIN restockOrder_item ROI ON RO.id = ROI.restockOrderId \
@@ -41,13 +39,13 @@ class RestockOrderDAO extends AppDAO{
         return await this.all(query, [restockOrderId]);
     }
 
-    async createRestockOrder(restockOrder, state, products) {
+    async createRestockOrder(issueDate, supplierId, state, products) {
         const query_restockOrder = 'INSERT INTO restockOrder(issueDate, state, supplierId) VALUES (?, ?, ?)';
         const query_association = 'INSERT INTO restockOrder_item(itemId, restockOrderId, qty) VALUES (?, ?, ?)';
         
         await this.startTransaction();
 
-        const { id } = await this.run(query_restockOrder, [restockOrder.issueDate, state, restockOrder.supplierId]);
+        const { id } = await this.run(query_restockOrder, [issueDate, state, supplierId]);
 
         // Se volessi dire che un Item sta in un ordine solo, si dovrebbe aggiungere restockOrder_item supplierId, in maniera da avere
         // una VERA chiave primaria, e basterebbe poi mettere UNIQUE la coppia

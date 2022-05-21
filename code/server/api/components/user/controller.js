@@ -1,194 +1,115 @@
 const UserDao = require('./dao')
 const User = require("./user");
 const { UserErrorFactory } = require('./error');
-const { raw } = require('express');
-var CryptoJS = require("crypto-js");
-const { PositionErrorFactory } = require('../position/error');
-
-
 
 class UserController {
 	constructor() {
 		this.dao = new UserDao();
 	}
 
-    // ################################ API
-	
-	async getAllSuppliers(req, res, next) {
+	// ################################ API
+
+	async getUserInfo() {
+		const user = new User(9999, "DUMMY", "DUMMY",
+			"DUMMY@DUMMY.DUMMY", "DUMMY", "DUMMY");
+
+		return user.intoJson();
+	}
+
+	async getAllSuppliers() {
+		const rows = await this.dao.getAllUsersByType(User.SUPPLIER);
+
+		const suppliers = rows.map((row) => new User(row.id, row.name, row.surname,
+			row.email, row.password, row.type).intoJson())
+
+		return suppliers;
+	}
+
+	async getAllUsers() {
+		const rows = await this.dao.getAllUsers();
+
+		const users = rows.map((row) => new User(row.id, row.name, row.surname,
+			row.email, row.password, row.type).intoJson())
+
+		return users;
+	}
+
+	async createUser(username, name, surname, password, type) {
 		try {
-			const rows = await this.dao.getAllSuppliers();
-		
-			return res.status(200).json(rows);
+			if (type === User.MANAGER)
+				throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
+
+			if (!User.isValidType(type))
+				throw UserErrorFactory.newTypeNotFound();
+
+			await this.dao.createUser(username, name, surname, password, type);
 		} catch (err) {
-			return next(err);
+			if (err.code === "SQLITE_CONSTRAINT") {
+				if (err.message.includes("user.email, user.type"))
+					err = UserErrorFactory.newUserConflict();
+			}
+
+			throw err;
 		}
 	}
 
-	async getAllUsers(req, res, next) {
-		try {
-			const rows = await this.dao.getAllUsers();
-			
-			return res.status(200).json(rows);
-		} catch (err) {
-			return next(err);
+	async login(username, password, type) {
+		const row = await this.dao.checkUser(username, password);
+		if (row === undefined)
+			throw UserErrorFactory.newWrongCredential();
+
+		if (row.type !== type)
+			return {};
+
+		const user = {
+			id: row.id,
+			username: row.email,
+			name: row.name
 		}
+
+		return user;
 	}
 
-	async getUserInfo(req, res, next){
-		try {
-			return res.status(200).send(req);
-		} catch (err) {
-			return next(err);
-		}
+	async loginManager(username, password) {
+		return await this.login(username, password, User.MANAGER);
 	}
 
-	async createUser(req, res, next) {
-		try {
-			const rawUser = req.body;
-			const { id } = await this.dao.createUser(rawUser);
-
-			return res.status(201).send();
-		} catch (err) {
-			return next(err);
-		}
+	async loginCustomer(username, password) {
+		return await this.login(username, password, User.CUSTOMER);
 	}
 
-	async loginManager(req, res, next) {
-		try {
-
-			const rawUser = req.body;
-			
-			const row = await this.dao.checkManager(rawUser.username, rawUser.password);
-
-			if(row === undefined)
-				throw PositionErrorFactory.newPositionNotFound(); // put 401
-
-			this.getUserInfo(row, res, next);
-
-			return res.status(200).send();
-		} catch (err) {
-			return next(err);
-		}
+	async loginSupplier(username, password) {
+		return await this.login(username, password, User.SUPPLIER);
 	}
 
-	async loginCustomer(req, res, next) {
-		try {
-
-			const rawUser = req.body;
-			
-			const row = await this.dao.checkCustomer(rawUser.username, rawUser.password);
-
-			if(row === undefined)
-				throw PositionErrorFactory.newPositionNotFound(); // put 401
-
-			this.getUserInfo(row, res, next);
-
-			return res.status(200).send();
-		} catch (err) {
-			return next(err);
-		}
+	async loginClerk(username, password) {
+		return await this.login(username, password, User.CLERK);
 	}
 
-	async loginSupplier(req, res, next) {
-		try {
-
-			const rawUser = req.body;
-
-			const row = await this.dao.checkSupplier(rawUser.username, rawUser.password);
-			
-
-			if(row === undefined)
-				throw PositionErrorFactory.newPositionNotFound(); // put 401
-
-			this.getUserInfo(row, res, next);
-			
-			return res.status(200).send();
-		} catch (err) {
-			return next(err);
-		}
+	async loginQualityEmployee(username, password) {
+		return await this.login(username, password, User.QUALITY_EMPLOYEE);
 	}
 
-	async loginClerk(req, res, next) {
-		try {
-
-			const rawUser = req.body;
-			
-			const row = await this.dao.checkClerk(rawUser.username, rawUser.password);
-
-			if(row === undefined)
-				throw PositionErrorFactory.newPositionNotFound(); // put 401
-			
-			this.getUserInfo(row, res, next);
-
-			return res.status(200).send();
-		} catch (err) {
-			return next(err);
-		}
+	async loginDeliveryEmployee(username, password) {
+		return await this.login(username, password, User.DELIVERY_EMPLOYEE);
 	}
 
-	async loginQualityEmployee(req, res, next) {
-		try {
+	async modifyRight(username, oldType, newType) {
+		const user = await this.dao.getUserByEmailAndType(username, oldType);
+		if (user === undefined)
+			throw UserErrorFactory.newUserNotFound();
 
-			const rawUser = req.body;
-			
-			const row = await this.dao.checkQualityEmployee(rawUser.username, rawUser.password);
+		const { changes } = await this.dao.modifyRight(username, oldType, newType);
+		if (changes === 0)
+			throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
 
-			if(row === undefined)
-				throw PositionErrorFactory.newPositionNotFound(); // put 401
-	
-			this.getUserInfo(row, res, next);
-		
-			return res.status(200).send();
-		} catch (err) {
-			return next(err);
-		}
-	}
-	
-	async loginDeliveryEmployee(req, res, next) {
-		try {
-
-			const rawUser = req.body;
-			
-			const row = await this.dao.checkDeliveryEmployee(rawUser.username, rawUser.password);
-
-			if(row === undefined)
-				throw PositionErrorFactory.newPositionNotFound(); // put 401
-
-			this.getUserInfo(row, res, next);
-			
-			return res.status(200).send();
-		} catch (err) {
-			return next(err);
-		}
 	}
 
-	
+	async deleteUser(username, type) {
+		if (type === User.MANAGER)
+			throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
 
-	async modifyRight(req, res, next) {
-		try {
-			const userUsername = req.params.username;
-			const rawUserType = req.body;
-
-			const id = await this.dao.modifyRight(userUsername, rawUserType);
-
-
-			return res.status(200).send();
-		} catch (err) {
-			return next(err);
-		}
-	}
-
-
-	async deleteUser(req, res, next) {
-		try {
-			const userUsername = req.params.username;
-			const userType = req.params.type;
-
-			await this.dao.deleteUser(userUsername, userType);
-			return res.status(204).send();
-		} catch (err) {
-			return next(err);
-		}
+		await this.dao.deleteUser(username, type);
 	}
 }
 

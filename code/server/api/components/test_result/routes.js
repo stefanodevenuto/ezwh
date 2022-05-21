@@ -13,11 +13,12 @@ class TestResultRoutes {
 	}
 
 	initRoutes() {
-
         this.router.get(
 			'/:rfid/testResults',
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getAllTestResults(req, res, next)
+			(req, res, next) => this.controller.getAllTestResults(req.params.rfid)
+				.then((testResults) => res.status(200).json(testResults))
+				.catch((err) => next(err))
 		);
 		
         this.router.get(
@@ -25,7 +26,9 @@ class TestResultRoutes {
 			param('rfid').isString().withMessage("ERROR: RFID is not a string"),
 			param('id').isNumeric().withMessage("ERROR: testResultId is not a number"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getTestResultByID(req, res, next)
+			(req, res, next) => this.controller.getTestResultByID(req.params.rfid, req.params.id)
+				.then((testResult) => res.status(200).json(testResult))
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
@@ -35,7 +38,10 @@ class TestResultRoutes {
 			body('Date').isDate(),
 			body('Result').isBoolean(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.createTestResult(req, res, next)
+			(req, res, next) => this.controller.createTestResult(req.body.rfid, 
+					req.body.idTestDescriptor, req.body.Date, req.body.Result)
+				.then(() => res.status(201).send())
+				.catch((err) => next(err))
 		);
 
 		
@@ -47,7 +53,10 @@ class TestResultRoutes {
 			body('newDate').isDate(),
 			body('newResult').isBoolean(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifyTestResult(req, res, next)
+			(req, res, next) => this.controller.modifyTestResult(req.params.rfid, req.params.id,
+					req.body.newIdTestDescriptor, req.body.newDate, req.body.newResult)
+				.then(() => res.status(200).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.delete(
@@ -55,7 +64,9 @@ class TestResultRoutes {
 			param('rfid').isString().isLength({min: 32, max: 32}),
 			param('id').isString(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.deleteTestResult(req, res, next)
+			(req, res, next) => this.controller.deleteTestResult(req.params.rfid, req.params.id)
+				.then(() => res.status(204).send())
+				.catch((err) => next(err))
 		);
 	}
 }
