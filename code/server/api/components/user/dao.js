@@ -17,6 +17,11 @@ class UserDao extends AppDAO{
         return await this.all(query, ["manager"]);
     }
 
+    async getUserByID(id){
+        const query = 'SELECT id, name, surname, email, type FROM user WHERE id = ?';
+        return await this.get(query, [id]);
+    }
+
     async createUser(User) {
         const query = 'INSERT INTO user(name, surname, email, password, type) VALUES (?, ?, ?, ?, ?)'
         let lastId = await this.run(query, [User.name, User.surname, User.username, CryptoJS.MD5(User.password), User.type]);

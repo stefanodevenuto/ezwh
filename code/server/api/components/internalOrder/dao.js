@@ -27,7 +27,7 @@ class InternalOrderDAO extends AppDAO{
         LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
         WHERE internalOrder.id = ?';
         
-        let rows = await this.all(query, [internalOrderID]);
+        let rows = await this.get(query, [internalOrderID]);
 
         return rows;
     }
@@ -65,9 +65,9 @@ class InternalOrderDAO extends AppDAO{
 
 
     async createInternalnOrder(internalOrder, products) {
-        const query = 'INSERT INTO internalOrder(issueDate, customerId) VALUES (?, ?)';
-        const queryItem = 'INSERT INTO internalOrder_item(internalOrderId, itemId, qty) VALUES (?, ?, ?)';
-        let lastId = await this.run(query, [internalOrder.issueDate, internalOrder.customerId]);
+        const query = 'INSERT INTO internalOrder(issueDate, state, customerId) VALUES (?, ?, ?)';
+        const queryItem = 'INSERT INTO internalOrder_sku(internalOrderId, skuId, qty) VALUES (?, ?, ?)';
+        let lastId = await this.run(query, [internalOrder.issueDate, "ISSUED", internalOrder.customerId]);
 
         for(let row of products){
             await this.run(queryItem, [lastId.id, row.SKUId, row.qty]);
@@ -83,7 +83,7 @@ class InternalOrderDAO extends AppDAO{
 
         await this.startTransaction();
 
-        let { id } = await this.run(query, [rawInternalOrder.newState, internalOrderId]);
+        let { changes } = await this.run(query, [rawInternalOrder.newState, internalOrderId]);
         if(rawInternalOrder.newState === "COMPLETED"){
             for(let row of rawInternalOrder.products){
                 await this.run(query_add_id_skuItem, [internalOrderId, row.RFID]);
@@ -91,14 +91,19 @@ class InternalOrderDAO extends AppDAO{
         }
         await this.commitTransaction();
 
-        return id;
+        return changes;
     }
 
 
 
     async deleteInternalOrder(internalOrderID) {
+        
+        const queryPr = 'DELETE FROM internalOrder_sku WHERE internalOrderId = ?'
+        await this.run(queryPr, [internalOrderID]);
+
         const query = 'DELETE FROM internalOrder WHERE id = ?'
         return await this.run(query, [internalOrderID]);
+
     }
 
     
