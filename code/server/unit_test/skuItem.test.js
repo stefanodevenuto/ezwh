@@ -12,12 +12,10 @@ describe("Testing SKUItemDAO", () => {
 
     test("Create SKUItem", async () => {
 
-        await skuItemDao.createSKUItem(testSKUItem);
-
-        console.log(testSKUItem);
+        await skuItemDao.createSKUItem(testSKUItem);    
         
         const result = await skuItemDao.getSKUItemByRFID(testSKUItem.RFID);
-        console.log(result);
+
 
         expect(result.SKUId).toStrictEqual(testSKUItem.SKUId);
         expect(result.available).toStrictEqual(testSKUItem.available);
