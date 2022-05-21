@@ -20,7 +20,7 @@ class TestResult {
 
     static mockTestTestResult() {
         const skuItem = SkuItem.mockTestSkuItem();
-        const testResult = new TestResult(skuItem.RFID, null, "2022/02/02", true);
+        const testResult = new TestResult(null, "2022/02/02", true, null, skuItem.RFID);
         return testResult;
     }
 }

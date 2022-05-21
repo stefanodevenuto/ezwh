@@ -14,7 +14,8 @@ describe("Testing SkuDAO", () => {
     const inexistentPositionId = "999999999999";
 
     test("Create Sku", async () => {
-        const { id } = await skuDao.createSku(testSku);
+        const { id } = await skuDao.createSku(testSku.description, testSku.weight, testSku.volume,
+            testSku.notes, testSku.price, testSku.availableQuantity);
         testSku.id = id;
 
         const result = await skuDao.getSkuByID(id);
@@ -33,36 +34,19 @@ describe("Testing SkuDAO", () => {
 
     describe("Add or Modify Position of Sku", () => {
         beforeEach( async () => {
-            const { id } = await skuDao.createSku(testSku);
+            const { id } = await skuDao.createSku(testSku.description, testSku.weight, testSku.volume,
+                testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = id;
         });
 
         test("Add Position to a inexistent Sku", async () => {
-            let position = {
-                positionID: firstPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 1000,
-                maxVolume: 1000
-            };
-
-            const { changes } = await skuDao.addModifySkuPosition(-1, position.positionID);
+            const { changes } = await skuDao.addModifySkuPosition(-1, firstPositionId);
             expect(changes).toStrictEqual(0);
         });
 
         test("Add inexistent Position to a Sku", async () => {
-            let position = {
-                positionID: inexistentPositionId,
-                aisleID: "9999",
-                row: "9999",
-                col: "9999",
-                maxWeight: 1000,
-                maxVolume: 1000
-            };
-
             try {
-                await skuDao.addModifySkuPosition(testSku.id, position.positionID);
+                await skuDao.addModifySkuPosition(testSku.id, inexistentPositionId);
             } catch(err) {
                 expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
                 expect(err.message).toMatch("FOREIGN");
@@ -70,50 +54,33 @@ describe("Testing SkuDAO", () => {
         });
 
         test("Add a not occupied Position to Sku without a previous Position", async () => {
-            let position = {
-                positionID: firstPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 1000,
-                maxVolume: 1000
-            };
-            
-            await positionDao.createPosition(position);
-            await skuDao.addModifySkuPosition(testSku.id, position.positionID);
+            await positionDao.createPosition(firstPositionId, "8002", "3454", "3459", 1000, 1000);
+            await skuDao.addModifySkuPosition(testSku.id, firstPositionId);
 
             const resultSku = await skuDao.getSkuByID(testSku.id);
-            const resultPosition = await positionDao.getPositionByID(position.positionID);
+            const resultPosition = await positionDao.getPositionByID(firstPositionId);
     
-            expect(resultSku.positionId).toStrictEqual(position.positionID);
+            expect(resultSku.positionId).toStrictEqual(firstPositionId);
             expect(resultPosition.occupiedWeight).toStrictEqual(resultSku.availableQuantity * resultSku.weight);
             expect(resultPosition.occupiedVolume).toStrictEqual(resultSku.availableQuantity * resultSku.volume);
         });
 
         test("Add occupied Position to Sku without a previous Position", async () => {
-            //expect.assertions(5);            
-            let position = {
-                positionID: firstPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 1000,
-                maxVolume: 1000
-            };
-            
-            await positionDao.createPosition(position);
-            await skuDao.addModifySkuPosition(testSku.id, position.positionID);
+            //expect.assertions(5);
+            await positionDao.createPosition(firstPositionId, "8002", "3454", "3459", 1000, 1000);
+            await skuDao.addModifySkuPosition(testSku.id, firstPositionId);
 
             const resultSku = await skuDao.getSkuByID(testSku.id);
-            const resultPosition = await positionDao.getPositionByID(position.positionID);
+            const resultPosition = await positionDao.getPositionByID(firstPositionId);
     
-            expect(resultSku.positionId).toStrictEqual(position.positionID);
+            expect(resultSku.positionId).toStrictEqual(firstPositionId);
             expect(resultPosition.occupiedWeight).toStrictEqual(resultSku.availableQuantity * resultSku.weight);
             expect(resultPosition.occupiedVolume).toStrictEqual(resultSku.availableQuantity * resultSku.volume);
 
-            const { id: secondSku } = await skuDao.createSku(testSku);
+            const { id: secondSku } = await skuDao.createSku(testSku.description, testSku.weight, testSku.volume,
+                testSku.notes, testSku.price, testSku.availableQuantity);
             try {
-                await skuDao.addModifySkuPosition(secondSku, position.positionID)
+                await skuDao.addModifySkuPosition(secondSku, firstPositionId)
             } catch(err) {
                 expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
                 expect(err.message).toMatch("sku.positionId");
@@ -123,32 +90,14 @@ describe("Testing SkuDAO", () => {
         });
 
         test("Add Position to Sku with a previous Position", async () => {            
-            let firstPosition = {
-                positionID: firstPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 1000,
-                maxVolume: 1000
-            };
+            await positionDao.createPosition(firstPositionId, "8002", "3454", "3459", 1000, 1000);
+            await positionDao.createPosition(secondPositionId, "8002", "3454", "3460", 1000, 1000);
 
-            let secondPosition = {
-                positionID: secondPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 1000,
-                maxVolume: 1000
-            };
+            await skuDao.addModifySkuPosition(testSku.id, firstPositionId);
+            await skuDao.addModifySkuPosition(testSku.id, secondPositionId);
             
-            await positionDao.createPosition(firstPosition);
-            await positionDao.createPosition(secondPosition);
-
-            await skuDao.addModifySkuPosition(testSku.id, firstPosition.positionID);
-            await skuDao.addModifySkuPosition(testSku.id, secondPosition.positionID);
-            
-            const resultFirstPosition = await positionDao.getPositionByID(firstPosition.positionID);
-            const resultSecondPosition = await positionDao.getPositionByID(secondPosition.positionID);
+            const resultFirstPosition = await positionDao.getPositionByID(firstPositionId);
+            const resultSecondPosition = await positionDao.getPositionByID(secondPositionId);
             const resultSku = await skuDao.getSkuByID(testSku.id);
             
             expect(resultFirstPosition.occupiedWeight).toStrictEqual(0);
@@ -158,19 +107,10 @@ describe("Testing SkuDAO", () => {
         });
 
         test("Add a Position to a Sku with Weight exceeding", async () => {            
-            let position = {
-                positionID: firstPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 10,
-                maxVolume: 1000
-            };
-
-            await positionDao.createPosition(position);
+            await positionDao.createPosition(firstPositionId, "8002", "3454", "3459", 10, 1000);
 
             try {
-                await skuDao.addModifySkuPosition(testSku.id, position.positionID);
+                await skuDao.addModifySkuPosition(testSku.id, firstPositionId);
             } catch(err) {
                 expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
                 expect(err.message).toMatch("occupiedWeight");   
@@ -178,19 +118,10 @@ describe("Testing SkuDAO", () => {
         });
 
         test("Add a Position to a Sku with Volume exceding", async () => {            
-            let position = {
-                positionID: firstPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 1000,
-                maxVolume: 10
-            };
-
-            await positionDao.createPosition(position);
+            await positionDao.createPosition(firstPositionId, "8002", "3454", "3459", 1000, 10);
 
             try {
-                await skuDao.addModifySkuPosition(testSku.id, position.positionID);
+                await skuDao.addModifySkuPosition(testSku.id, firstPositionId);
             } catch(err) {
                 expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
                 expect(err.message).toMatch("occupiedVolume");   
@@ -207,12 +138,14 @@ describe("Testing SkuDAO", () => {
 
     describe("Modify Sku", () => {
         beforeEach( async () => {
-            const { id } = await skuDao.createSku(testSku);
+            const { id } = await skuDao.createSku(testSku.description, testSku.weight, testSku.volume,
+                testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = id;
         });
 
         test("Modify inexistent Sku", async () => {
-            const { changes } = await skuDao.modifySku(-1, testSku, 100, 100);
+            const { changes } = await skuDao.modifySku(-1, testSku.description, testSku.weight, testSku.volume,
+                testSku.notes, testSku.price, testSku.availableQuantity, 100, 100);
             expect(changes).toStrictEqual(0);
         });
 
@@ -226,7 +159,9 @@ describe("Testing SkuDAO", () => {
                 newAvailableQuantity: 10
             }
 
-            const { changes } = await skuDao.modifySku(testSku.id, modifiedSku, 100, 100);
+            const { changes } = await skuDao.modifySku(testSku.id, modifiedSku.newDescription, 
+                modifiedSku.newWeight, modifiedSku.newVolume, modifiedSku.newNotes, modifiedSku.newPrice,
+                modifiedSku.newAvailableQuantity, 110, 100);
             expect(changes).toStrictEqual(1);
 
             const result = await skuDao.getSkuByID(testSku.id);
@@ -240,17 +175,8 @@ describe("Testing SkuDAO", () => {
         });
 
         test("Modify Sku with a Position associated", async () => {
-            let position = {
-                positionID: firstPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 1000,
-                maxVolume: 1000
-            };
-
-            await positionDao.createPosition(position);
-            await skuDao.addModifySkuPosition(testSku.id, position.positionID);
+            await positionDao.createPosition(firstPositionId, "8002", "3454", "3459", 1000, 1000);
+            await skuDao.addModifySkuPosition(testSku.id, firstPositionId);
 
             let modifiedSku = {
                 newDescription: "a new description",
@@ -261,13 +187,14 @@ describe("Testing SkuDAO", () => {
                 newAvailableQuantity: 10
             }
 
-            const { changes } = await skuDao.modifySku(testSku.id, modifiedSku, 
-                modifiedSku.newWeight * modifiedSku.newAvailableQuantity,
+            const { changes } = await skuDao.modifySku(testSku.id, modifiedSku.newDescription, 
+                modifiedSku.newWeight, modifiedSku.newVolume, modifiedSku.newNotes, modifiedSku.newPrice,
+                modifiedSku.newAvailableQuantity, modifiedSku.newWeight * modifiedSku.newAvailableQuantity,
                 modifiedSku.newVolume * modifiedSku.newAvailableQuantity);
             expect(changes).toStrictEqual(2);
 
             const resultSku = await skuDao.getSkuByID(testSku.id);
-            const resultPosition = await positionDao.getPositionByID(position.positionID);
+            const resultPosition = await positionDao.getPositionByID(firstPositionId);
 
             expect(resultSku.description).toStrictEqual(modifiedSku.newDescription);
             expect(resultSku.weight).toStrictEqual(modifiedSku.newWeight);
@@ -281,17 +208,8 @@ describe("Testing SkuDAO", () => {
         });
 
         test("Modify Sku with a Position associated exceeding Weight", async () => {
-            let position = {
-                positionID: firstPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 1000,
-                maxVolume: 1000
-            };
-
-            await positionDao.createPosition(position);
-            await skuDao.addModifySkuPosition(testSku.id, position.positionID);
+            await positionDao.createPosition(firstPositionId, "8002", "3454", "3459", 1000, 1000);
+            await skuDao.addModifySkuPosition(testSku.id, firstPositionId);
 
             let modifiedSku = {
                 newDescription: "a new description",
@@ -303,8 +221,9 @@ describe("Testing SkuDAO", () => {
             }
 
             try {
-                await skuDao.modifySku(testSku.id, modifiedSku, 
-                    modifiedSku.newWeight * modifiedSku.newAvailableQuantity,
+                await skuDao.modifySku(testSku.id, modifiedSku.newDescription, 
+                    modifiedSku.newWeight, modifiedSku.newVolume, modifiedSku.newNotes, modifiedSku.newPrice,
+                    modifiedSku.newAvailableQuantity, modifiedSku.newWeight * modifiedSku.newAvailableQuantity,
                     modifiedSku.newVolume * modifiedSku.newAvailableQuantity);
             } catch(err) {
                 expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
@@ -313,17 +232,8 @@ describe("Testing SkuDAO", () => {
         });
 
         test("Modify Sku with a Position associated exceeding Volume", async () => {
-            let position = {
-                positionID: firstPositionId,
-                aisleID: "8002",
-                row: "3454",
-                col: "3459",
-                maxWeight: 1000,
-                maxVolume: 1000
-            };
-
-            await positionDao.createPosition(position);
-            await skuDao.addModifySkuPosition(testSku.id, position.positionID);
+            await positionDao.createPosition(firstPositionId, "8002", "3454", "3459", 1000, 1000);
+            await skuDao.addModifySkuPosition(testSku.id, firstPositionId);
 
             let modifiedSku = {
                 newDescription: "a new description",
@@ -335,8 +245,9 @@ describe("Testing SkuDAO", () => {
             }
 
             try {
-                await skuDao.modifySku(testSku.id, modifiedSku, 
-                    modifiedSku.newWeight * modifiedSku.newAvailableQuantity,
+                await skuDao.modifySku(testSku.id, modifiedSku.newDescription, 
+                    modifiedSku.newWeight, modifiedSku.newVolume, modifiedSku.newNotes, modifiedSku.newPrice,
+                    modifiedSku.newAvailableQuantity, modifiedSku.newWeight * modifiedSku.newAvailableQuantity,
                     modifiedSku.newVolume * modifiedSku.newAvailableQuantity);
             } catch(err) {
                 expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
