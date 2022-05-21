@@ -12,35 +12,29 @@ class UserRoutes {
 		this.initRoutes();
 	}
 
-	async initMap() {
-		await this.controller.initMap();
-	} 
-
 	initRoutes() {
-
-        this.router.get(
-			'/users',
-			/* this.authSerivce.isAuthorized(),
-			this.authSerivce.hasPermission(this.name, 'read'),*/
-			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getAllUsers(req, res, next)
-		);
-
 		this.router.get(
 			'/userinfo',
-			/* this.authSerivce.isAuthorized(),
-			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getUserInfo(req, res, next)
+			(req, res, next) => this.controller.getUserInfo()
+				.then((user) => res.status(200).json(user))
+				.catch((err) => next(err))
 		);
-
 
 		this.router.get(
 			'/suppliers',
-			/* this.authSerivce.isAuthorized(),
-			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getAllSuppliers(req, res, next)
+			(req, res, next) => this.controller.getAllSuppliers()
+				.then((suppliers) => res.status(200).json(suppliers))
+				.catch((err) => next(err))
+		);
+
+		this.router.get(
+			'/users',
+			this.errorHandler.validateRequest,
+			(req, res, next) => this.controller.getAllUsers()
+				.then((users) => res.status(200).json(users))
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
@@ -51,7 +45,10 @@ class UserRoutes {
 			body('password').isString().isLength({min:8}),
 			body('type').isString(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.createUser(req, res, next)
+			(req, res, next) => this.controller.createUser(req.body.username, req.body.name,
+					req.body.surname, req.body.password, req.body.type)
+				.then(() => res.status(201).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
@@ -59,63 +56,81 @@ class UserRoutes {
 			body('username').isString(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginManager(req, res, next)
+			(req, res, next) => this.controller.loginManager(req.body.username, req.body.password)
+				.then((user) => res.status(200).send(user))
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
 			'/customerSessions',
-			body('username').isString(),
+			body('username').isEmail(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginCustomer(req, res, next)
+			(req, res, next) => this.controller.loginCustomer(req.body.username, req.body.password)
+				.then((user) => res.status(200).send(user))
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
 			'/supplierSessions',
-			body('username').isString(),
+			body('username').isEmail(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginSupplier(req, res, next)
+			(req, res, next) => this.controller.loginSupplier(req.body.username, req.body.password)
+				.then((user) => res.status(200).send(user))
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
 			'/clerkSessions',
-			body('username').isString(),
+			body('username').isEmail(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginClerk(req, res, next)
+			(req, res, next) => this.controller.loginClerk(req.body.username, req.body.password)
+				.then((user) => res.status(200).send(user))
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
 			'/qualityEmployeeSessions',
-			body('username').isString(),
+			body('username').isEmail(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginQualityEmployee(req, res, next)
+			(req, res, next) => this.controller.loginQualityEmployee(req.body.username, req.body.password)
+				.then((user) => res.status(200).send(user))
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
 			'/deliveryEmployeeSessions',
-			body('username').isString(),
+			body('username').isEmail(),
 			body('password').isString().isLength({min:8}),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.loginDeliveryEmployee(req, res, next)
+			(req, res, next) => this.controller.loginDeliveryEmployee(req.body.username, req.body.password)
+				.then((user) => res.status(200).send(user))
+				.catch((err) => next(err))
 		);
 
 		this.router.put(
 			'/users/:username',
-			param('username').isString().withMessage("ERROR: username is not a string"),
+			param('username').isEmail(),
 			body('oldType').isString(),
 			body('newType').isString(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifyRight(req, res, next)
+			(req, res, next) => this.controller.modifyRight(req.params.username, 
+					req.body.oldType, req.body.newType)
+				.then(() => res.status(200).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.delete(
-			'/:username/:type',
-			//param('rfid').isNumeric().withMessage("ERROR: RFID is not a number"),
+			'/users/:username/:type',
+			param('username').isEmail(),
+			param('type').isString(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.deleteUser(req, res, next)
+			(req, res, next) => this.controller.deleteUser(req.params.username, req.params.type)
+				.then(() => res.status(204).send())
+				.catch((err) => next(err))
 		);
 	}
 }

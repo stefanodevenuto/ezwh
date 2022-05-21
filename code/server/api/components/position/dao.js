@@ -16,19 +16,20 @@ class PositionDAO extends AppDAO{
         return row;
     }
 
-    async createPosition(position) {
-        const query = 'INSERT INTO position(positionID, aisleID, row, col, maxWeight, maxVolume, occupiedWeight, occupiedVolume) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-        let lastId = await this.run(query, [position.positionID, position.aisleID, position.row,
-            position.col, position.maxWeight, position.maxVolume, 0, 0]);
-        
+    async createPosition(positionID, aisleID, row, col, maxWeight, maxVolume) {
+        const query = 'INSERT INTO position(positionID, aisleID, row, col, maxWeight, maxVolume, occupiedWeight, \
+            occupiedVolume) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        let lastId = await this.run(query, [positionID, aisleID, row, col, maxWeight, maxVolume, 0, 0]);
         return lastId;
     }
 
-    async modifyPosition(oldPositionID, newPositionID, position) {
+    async modifyPosition(newPositionId, newAisleID, newRow, newCol, newMaxWeight,
+        newMaxVolume, newOccupiedWeight, newOccupiedVolume, positionID) {
+
         const query = 'UPDATE position SET positionID = ?, aisleID = ?, row = ?, col = ?, maxWeight = ?, maxVolume = ?, occupiedWeight = ?, occupiedVolume = ? WHERE positionID = ?'
 
-        return await this.run(query, [newPositionID, position.newAisleID, position.newRow, position.newCol, position.newMaxWeight, position.newMaxVolume, position.newOccupiedWeight,
-            position.newOccupiedVolume, oldPositionID]);
+        return await this.run(query, [newPositionId, newAisleID, newRow, newCol, newMaxWeight, 
+            newMaxVolume, newOccupiedWeight, newOccupiedVolume, positionID]);
     }
 
     async modifyPositionID(oldPositionId, newPositionId, newAisleId, newRow, newCol) {
@@ -40,12 +41,6 @@ class PositionDAO extends AppDAO{
         const query = 'DELETE FROM position WHERE positionID = ?'
         return await this.run(query, [positionID]);
     }
-
-    /* Utilities */
-    /*async modifyOccupiedFieldsPosition(skuId, totalWeight, totalVolume) {
-        const query = "UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE skuId = ?";
-        return await this.run(query, [totalWeight, totalVolume, skuId]);
-    }*/
 }
 
 module.exports = PositionDAO;

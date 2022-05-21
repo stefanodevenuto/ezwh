@@ -32,15 +32,15 @@ describe("SKU Controller suite", () => {
 
         test("Get All SKUs", async () => {
             const result = await skuController.dao.getAllSkus();
-            expect(result).toHaveLength(33);
-            console.log(result[32]);
+            expect(result).toHaveLength(38);
+            console.log(result[37]);
 
-            expect(result[32].description).toStrictEqual(testSku.description);
-            expect(result[32].weight).toStrictEqual(testSku.weight);
-            expect(result[32].volume).toStrictEqual(testSku.volume);
-            expect(result[32].notes).toStrictEqual(testSku.notes);
-            expect(result[32].price).toStrictEqual(testSku.price);
-            expect(result[32].availableQuantity).toStrictEqual(testSku.availableQuantity);
+            expect(result[37].description).toStrictEqual(testSku.description);
+            expect(result[37].weight).toStrictEqual(testSku.weight);
+            expect(result[37].volume).toStrictEqual(testSku.volume);
+            expect(result[37].notes).toStrictEqual(testSku.notes);
+            expect(result[37].price).toStrictEqual(testSku.price);
+            expect(result[37].availableQuantity).toStrictEqual(testSku.availableQuantity);
 
 
         

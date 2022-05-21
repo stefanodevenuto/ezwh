@@ -9,9 +9,8 @@ class Position {
         this.occupiedWeight = occupiedWeight;
         this.occupiedVolume = occupiedVolume;
     }
-
     static mockTestPosition() {
-        const position = new Position(800555324421, 8005, 5532, 4421, 14, 41);
+        const position = new Position("805512436321", "8055", "1243", "6321", 15, 32);
         return position;        
     }
 }

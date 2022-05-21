@@ -6,100 +6,71 @@ class TestResultController {
 	constructor(skuItemController) {
 		this.dao = new TestResultDAO();
 		this.skuItemController = skuItemController;
-		this.observers = [];
 	}
 
 	// ################################ API
 
-	async getAllTestResults(req, res, next) {
-		try {
-			const rfid = req.params.rfid;
-			
-			// Check if the sku item exists
-			await this.skuItemController.getSKUItemByRFIDInternal(rfid);
+	async getAllTestResults(rfid) {
 
-			const rows = await this.dao.getAllTestResults(rfid);
-			const testResults = rows.map(record => new TestResult(record.id, record.date, record.result == 1,
-				record.testDescriptorId, record.RFID).intoJson());
+		// Check if the sku item exists
+		await this.skuItemController.getSKUItemByRFIDInternal(rfid);
 
-			return res.status(200).json(testResults);
-		} catch (err) {
-			return next(err);
-		}
+		const rows = await this.dao.getAllTestResults(rfid);
+		const testResults = rows.map(record => new TestResult(record.id, record.date, record.result == 1,
+			record.testDescriptorId, record.RFID).intoJson());
+
+		return testResults;
 	}
 
-	async getTestResultByID(req, res, next) {
-		try {
-			const testResultId = req.params.id;
-			const rfid = req.params.rfid;
+	async getTestResultByID(rfid, testResultId) {
 
-			// Check if the sku item exists
-			await this.skuItemController.getSKUItemByRFIDInternal(rfid);
+		// Check if the sku item exists
+		await this.skuItemController.getSKUItemByRFIDInternal(rfid);
 
-			const row = await this.dao.getTestResultByID(rfid, testResultId);
-			if (row === undefined)
-				throw TestResultErrorFactory.newTestResultNotFound();
+		const row = await this.dao.getTestResultByID(rfid, testResultId);
+		if (row === undefined)
+			throw TestResultErrorFactory.newTestResultNotFound();
 
-			let testResult = new TestResult(row.id, row.date, row.result == 1,
-				row.testDescriptorId, row.RFID);
+		let testResult = new TestResult(row.id, row.date, row.result == 1,
+			row.testDescriptorId, row.RFID);
 
-			return res.status(200).json(testResult.intoJson());
-		} catch (err) {
-			return next(err);
-		}
+		return testResult.intoJson();
 	}
 
-	async createTestResult(req, res, next) {
+	async createTestResult(rfid, idTestDescriptor, Date, Result) {
 		try {
-			const rawTestResult = req.body;
-			await this.dao.createTestResult(rawTestResult);
-			return res.status(201).send();
+			await this.dao.createTestResult(rfid, idTestDescriptor, Date, Result);
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("FOREIGN KEY"))
 					err = TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound()
 			}
 
-			return next(err);
+			throw err;
 		}
 	}
 
-
-	async modifyTestResult(req, res, next) {
+	async modifyTestResult(rfid, id, newIdTestDescriptor, newDate, newResult) {
 		try {
-			const id = req.params.id;
-			const rfid = req.params.rfid;
-			const rawTestResult = req.body;
-
-			const { changes } = await this.dao.modifyTestResult(id, rfid, rawTestResult);
+			const { changes } = await this.dao.modifyTestResult(id, rfid, newIdTestDescriptor, newDate, newResult);
 			if (changes === 0)
 				throw TestResultErrorFactory.newTestResultNotFound();
-
-			return res.status(200).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("FOREIGN KEY"))
 					err = TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound()
 			}
 
-			return next(err);
+			throw err;
 		}
 	}
 
-	async deleteTestResult(req, res, next) {
-		try {
-			const id = req.params.id;
-			const rfid = req.params.rfid;
-
-			await this.dao.deleteTestResult(rfid, id);
-			return res.status(204).send();
-		} catch (err) {
-			return next(err);
-		}
+	async deleteTestResult(rfid, id) {
+		await this.dao.deleteTestResult(rfid, id);
 	}
 
 	// ################################ Utilities
-	
+
 	async hasFailedTestResultsByRFID(RFID) {
 		const { failedQuantity } = await this.dao.hasFailedTestResultsByRFID(RFID);
 		if (failedQuantity == 0)

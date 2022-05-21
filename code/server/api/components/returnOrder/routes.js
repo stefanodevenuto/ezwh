@@ -16,17 +16,19 @@ class ReturnOrderRoutes {
 
         this.router.get(
 			'/',
-			/* this.authSerivce.isAuthorized(),
-			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getAllReturnOrders(req, res, next)
+			(req, res, next) => this.controller.getAllReturnOrders()
+				.then((returnOrders) => res.status(200).json(returnOrders))
+				.catch((err) => next(err))
 		);
 
         this.router.get(
 			'/:id',
 			param('id').isString().withMessage("ERROR: ReturnOrderId is not a number"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getReturnOrderByID(req, res, next)
+			(req, res, next) => this.controller.getReturnOrderByID(req.params.id)
+				.then((returnOrder) => res.status(200).json(returnOrder))
+				.catch((err) => next(err))
 		);
 
 		this.router.post(
@@ -35,14 +37,19 @@ class ReturnOrderRoutes {
 			body("products").isArray(),
 			body("restockOrderId").isNumeric(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.createReturnOrder(req, res, next)
+			(req, res, next) => this.controller.createReturnOrder(req.body.returnDate, req.body.products, 
+					req.body.restockOrderId)
+				.then(() => res.status(201).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.delete(
 			'/:id',
 			param('id').isNumeric().withMessage("ERROR: ReturnOrderId is not a number"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.deleteReturnOrder(req, res, next)
+			(req, res, next) => this.controller.deleteReturnOrder(req.params.id)
+				.then(() => res.status(204).send())
+				.catch((err) => next(err))
 		);
 	}
 }

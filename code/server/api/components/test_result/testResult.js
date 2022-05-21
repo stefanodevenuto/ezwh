@@ -1,5 +1,3 @@
-const SkuItem = require('../skuItem/SKUItem');
-
 class TestResult {
     constructor(id, date, result, testDescriptorId, RFID) {
         this.id = id;
@@ -16,12 +14,6 @@ class TestResult {
             Result: this.result,
             idTestDescriptor: this.testDescriptorId
         }
-    }
-
-    static mockTestTestResult() {
-        const skuItem = SkuItem.mockTestSkuItem();
-        const testResult = new TestResult(skuItem.RFID, null, "2022/02/02", true);
-        return testResult;
     }
 }
 

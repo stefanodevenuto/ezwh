@@ -1,30 +1,58 @@
-// TODO
+const CUSTOMER_NOT_FOUND = "The customer is not registered";
+const USER_NOT_FOUND = "The username is not associated to any account";
+const WRONG_CREDENTIAL   = "The credential inserted are wrong";
+const INEXISTENT_TYPE    = "The given type doesn't exist";
+const USER_CONFLICT      = "A user with same mail and type already exists";
+const ATTEMPT_PRIVILEGED = "Can't create/modify/delete a privilged account!"
 
-const INITIALIZATION_ERROR_MESSAGE = "Internal error: try again later!"
-const SKUITEM_NOT_FOUND_MESSAGE        = "No SKUItem associated to id";
-const POSITION_NOT_CAPABLE_MESSAGE = "Position not capable enough to hold newAvailableQuantity";
-
-class SKUItemErrorFactory {
-    static initializeMapFailed() {
-        let error = new Error(INITIALIZATION_ERROR_MESSAGE);
-		error.customCode = 404;
-
-		return error;
-    }
-    
-    static newSKUItemNotFound() {
-        let error = new Error(SKUITEM_NOT_FOUND_MESSAGE);
-		error.customCode = 404;
+class UserErrorFactory {
+    static newCustomerNotFound() {
+        let error = new Error();
+		error.customMessage = CUSTOMER_NOT_FOUND;
+        error.customCode = 404;
 
 		return error;
     }
 
-    static newPositionNotCapable() {
-        let error = new Error(POSITION_NOT_CAPABLE_MESSAGE);
-		error.customCode = 422;
+    static newUserNotFound() {
+        let error = new Error();
+		error.customMessage = USER_NOT_FOUND;
+        error.customCode = 404;
+
+		return error;
+    }
+
+    static newWrongCredential() {
+        let error = new Error();
+		error.customMessage = WRONG_CREDENTIAL;
+        error.customCode = 401;
+
+		return error;
+    }
+
+    static newTypeNotFound() {
+        let error = new Error();
+		error.customMessage = INEXISTENT_TYPE;
+        error.customCode = 401;
+
+		return error;
+    }
+
+    static newUserConflict() {
+        let error = new Error();
+		error.customMessage = USER_CONFLICT;
+        error.customCode = 409;
+
+		return error;
+    }
+
+    static newAttemptCreationPrivilegedAccount() {
+        let error = new Error();
+		error.customMessage = ATTEMPT_PRIVILEGED;
+        error.customCode = 422;
 
 		return error;
     }
 }
 
-module.exports = { SKUItemErrorFactory }
+module.exports = { UserErrorFactory }

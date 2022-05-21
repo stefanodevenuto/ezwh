@@ -8,87 +8,61 @@ class TestDescriptorController {
 		this.dao = new TestDescriptorDAO();
 	}
 
-    // ################################ API
-	
-	async getAllTestDescriptors(req, res, next) {
-		try {
-			const rows = await this.dao.getAllTestDescriptors();
-			const testDescriptors = rows.map(record => new TestDescriptor(record.id, record.name,
-                record.procedureDescription, record.idSKU));
-			return res.status(200).json(testDescriptors);
-		} catch (err) {
-			return next(err);
-		}
+	// ################################ API
+
+	async getAllTestDescriptors() {
+		const rows = await this.dao.getAllTestDescriptors();
+		const testDescriptors = rows.map(record => new TestDescriptor(record.id, record.name,
+			record.procedureDescription, record.idSKU));
+
+		return testDescriptors;
 	}
 
-	async getTestDescriptorByID(req, res, next) {
-		try {
-			const testDescriptorId = Number(req.params.id);
+	async getTestDescriptorByID(testDescriptorId) {
+		const row = await this.dao.getTestDescriptorByID(testDescriptorId);
+		if (row === undefined)
+			throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
 
-			const row = await this.dao.getTestDescriptorByID(testDescriptorId);
-			if (row === undefined)
-				throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
+		const testDescriptor = new TestDescriptor(row.id, row.name,
+			row.procedureDescription, row.idSKU);
 
-			let testDescriptor = new TestDescriptor(row.id, row.name,
-                row.procedureDescription, row.idSKU);
-			
-			return res.status(200).json(testDescriptor);
-		} catch (err) {
-			return next(err);
-		}
+		return testDescriptor;
 	}
 
-	async createTestDescriptor(req, res, next) {
+	async createTestDescriptor(name, procedureDescription, idSKU) {
 		try {
-			const rawTestDescriptor = req.body;
-			await this.dao.createTestDescriptor(rawTestDescriptor);
-
-			return res.status(201).send();
+			await this.dao.createTestDescriptor(name, procedureDescription, idSKU);
 		} catch (err) {
-            if (err.code === "SQLITE_CONSTRAINT") {
-				if(err.message.includes("FOREIGN"))
+			if (err.code === "SQLITE_CONSTRAINT") {
+				if (err.message.includes("FOREIGN"))
 					err = SkuErrorFactory.newSkuNotFound();
+				if (err.message.includes("testDescriptor.idSKU"))
+					err = TestDescriptorErrorFactory.newSKUAlreadyWithTestDescriptor();
 			}
 
-			return next(err);
+			throw err;
 		}
 	}
 
-	async modifyTestDescriptor(req, res, next) {
+	async modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU) {
 		try {
-			const testDescriptorId = Number(req.params.id);
-			const rawTestDescriptor = req.body;
-		
-			const { changes } = await this.dao.modifyTestDescriptor(testDescriptorId, rawTestDescriptor);
+			const changes = await this.dao.modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU);
 			if (changes === 0)
 				throw TestDescriptorErrorFactory.newTestDescriptorNotFound();
-
-			return res.status(200).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
-                if (err.message.includes("testDescriptor.idSKU"))
-                    err = TestDescriptorErrorFactory.newSKUAlreadyWithTestDescriptor();
-                else if(err.message.includes("FOREIGN"))
+				if (err.message.includes("testDescriptor.idSKU"))
+					err = TestDescriptorErrorFactory.newSKUAlreadyWithTestDescriptor();
+				else if (err.message.includes("FOREIGN"))
 					err = SkuErrorFactory.newSkuNotFound();
-            }
+			}
 
-			return next(err);
+			throw err;
 		}
 	}
 
-	async deleteTestDescriptor(req, res, next) {
-		try {
-			const testDescriptorId = req.params.id;
-			await this.dao.deleteTestDescriptor(testDescriptorId);
-			return res.status(204).send();
-		} catch (err) {
-			if (err.code === "SQLITE_CONSTRAINT") {
-                if (err.message.includes("FOREIGN KEY"))
-					err = TestDescriptorErrorFactory.newTestDescriptorWithAssociatedTestResults();
-			}
-
-			return next(err);
-		}
+	async deleteTestDescriptor(testDescriptorId) {
+		await this.dao.deleteTestDescriptor(testDescriptorId);
 	}
 }
 

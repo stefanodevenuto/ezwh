@@ -23,7 +23,7 @@ function registerApiRoutes(router, prefix = '') {
 	const testDescriptorRoute	= new TestDescriptorRoutes();
 	const itemRoute				= new ItemRoutes();
 	const returnOrderRoute		= new ReturnOrderRoutes(skuItemRoute.controller);
-	const internalOrderRoute	= new InternalOrderRoutes();
+	const internalOrderRoute	= new InternalOrderRoutes(skuRoute.controller);
 	const restockOrderRoute		= new RestockOrderRoutes(testResultRoute.controller, 
 									skuItemRoute.controller, itemRoute.controller);
 	
@@ -49,10 +49,7 @@ function registerApiRoutes(router, prefix = '') {
 	
 	router.use(`${prefix}/returnOrder`, returnOrderRoute.router);
 	router.use(`${prefix}/returnOrders`, returnOrderRoute.router);
-
-	router.use(`${prefix}/restockOrder`, restockOrderRoute.router);
-	router.use(`${prefix}/restockOrders`, restockOrderRoute.router);
-
+	
 	router.use(`${prefix}/`, internalOrderRoute.router);
 	router.use(`${prefix}/`, userRoute.router);
 	router.use(`${prefix}/`, restockOrderRoute.router);

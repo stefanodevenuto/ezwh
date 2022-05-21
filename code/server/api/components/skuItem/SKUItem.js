@@ -6,11 +6,11 @@ class SKUItem {
         this.dateOfStock = dateOfStock;
         this.restockOrderId = restockOrderId;
     }
-
     static mockTestSkuItem() {
-        const skuItem = new SKUItem("12341234123412341234123412341234", 2889, 0, "2022/02/02 09:30");
-        return skuItem;
+        const skuItem = new SKUItem("12345678912345678912345678912345", 2889, 0, "2022/11/02 05:30")
+        return skuItem;        
     }
+
 }
 
 module.exports = SKUItem;
