@@ -15,126 +15,75 @@ class RestockOrderController {
     // ################################ API
 
     async getAllRestockOrders(req, res, next) {
-        try {
-            const rows = await this.dao.getAllRestockOrders();
-            const restockOrders = await this.buildRestockOrders(rows);
-            return res.status(200).json(restockOrders.map((p) => p.intoJson()));
-        } catch (err) {
-            return next(err);
-        }
+        const rows = await this.dao.getAllRestockOrders();
+        const restockOrders = await this.buildRestockOrders(rows);
+
+        return restockOrders.map((p) => p.intoJson());
     }
 
     async getAllIssuedRestockOrders(req, res, next) {
-        try {
-            const rows = await this.dao.getAllIssuedRestockOrders();
-            const restockOrders = await this.buildRestockOrders(rows);
-            return res.status(200).json(restockOrders.map((p) => p.intoJson()));
-        } catch (err) {
-            return next(err);
-        }
+        const rows = await this.dao.getAllIssuedRestockOrders();
+        const restockOrders = await this.buildRestockOrders(rows);
+
+        return restockOrders.map((p) => p.intoJson());
     }
 
-    async getRestockOrderByID(req, res, next) {
-        try {
-            const restockOrderId = Number(req.params.id);
-            let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
-            return res.status(200).json(restockOrder.intoJson());
-        } catch (err) {
-            return next(err);
-        }
+    async getRestockOrderByID(restockOrderId) {
+        let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
+        return restockOrder.intoJson();
     }
 
-    async getRestockOrderReturnItemsByID(req, res, next) {
-        try {
-            const restockOrderId = Number(req.params.id);
+    async getRestockOrderReturnItemsByID(restockOrderId) {
+        const rows = await this.dao.getRestockOrderByID(restockOrderId);
+        if (rows.length === 0)
+            throw RestockOrderErrorFactory.newRestockOrderNotFound();
 
-            const rows = await this.dao.getRestockOrderByID(restockOrderId);
-            if (rows.length === 0)
-                throw RestockOrderErrorFactory.newRestockOrderNotFound();
+        const [restockOrder] = await this.buildRestockOrders(rows);
+        if (restockOrder.state !== RestockOrder.COMPLETEDRETURN)
+            throw RestockOrderErrorFactory.newRestockOrderNotReturned();
 
-            const [restockOrder] = await this.buildRestockOrders(rows);
-            if (restockOrder.state !== RestockOrder.COMPLETEDRETURN)
-                throw RestockOrderErrorFactory.newRestockOrderNotReturned();
-
-            let skuItemsReturned = [];
-            for (let skuItem of restockOrder.skuItems) {
-                if (await this.testResultController.hasFailedTestResultsByRFID(skuItem.RFID))
-                    skuItemsReturned.push(skuItem);
-            }
-
-            return res.status(200).json(skuItemsReturned.map((s) => {
-                return {
-                    rfid: s.RFID,
-                    SKUId: s.SKUId
-                }
-            }));
-        } catch (err) {
-            return next(err);
+        let skuItemsReturned = [];
+        for (let skuItem of restockOrder.skuItems) {
+            if (await this.testResultController.hasFailedTestResultsByRFID(skuItem.RFID))
+                skuItemsReturned.push(skuItem);
         }
+
+        return skuItemsReturned.map((s) => ({ rfid: s.RFID, SKUId: s.SKUId }));
     }
 
-    async createRestockOrder(req, res, next) {
-        try {
-            const rawRestockOrder = req.body;
-            const supplierId = rawRestockOrder.supplierId;
-
-            let products = [];
-            for (let rawItem of rawRestockOrder.products) {
-                let item = await this.itemController.getItemBySkuIdAndSupplierId(rawItem.SKUId, supplierId);
-                let product = new Product(item, rawItem.qty);
-                products.push(product);
-            }
-
-            await this.dao.createRestockOrder(rawRestockOrder, RestockOrder.ISSUED, products);
-            return res.status(201).send();
-        } catch (err) {
-            return next(err);
+    async createRestockOrder(issueDate, products, supplierId) {
+        let totalProducts = [];
+        for (let rawItem of products) {
+            let item = await this.itemController.getItemBySkuIdAndSupplierId(rawItem.SKUId, supplierId);
+            let product = new Product(item, rawItem.qty);
+            totalProducts.push(product);
         }
+
+        await this.dao.createRestockOrder(issueDate, supplierId, RestockOrder.ISSUED, totalProducts);
     }
 
-    async modifyState(req, res, next) {
-        try {
-            const restockOrderId = Number(req.params.id);
-            const newState = req.body.newState;
-
-            const { changes } = await this.dao.modifyState(restockOrderId, newState);
-            if (changes === 0)
-                throw RestockOrderErrorFactory.newRestockOrderNotFound();
-
-            return res.status(200).send();
-        } catch (err) {
-            return next(err);
-        }
+    async modifyState(restockOrderId, newState) {
+        const { changes } = await this.dao.modifyState(restockOrderId, newState);
+        if (changes === 0)
+            throw RestockOrderErrorFactory.newRestockOrderNotFound();
     }
 
-    async modifyRestockOrderSkuItems(req, res, next) {
-        try {
-            const restockOrderId = Number(req.params.id);
-            const rawSkuItems = req.body.skuItems;
+    async modifyRestockOrderSkuItems(restockOrderId, skuItems) {
+        let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
 
-            let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
+        if (restockOrder === undefined)
+            throw RestockOrderErrorFactory.newRestockOrderNotFound();
 
-            if (restockOrder === undefined)
-                throw RestockOrderErrorFactory.newRestockOrderNotFound();
+        if (restockOrder.state !== RestockOrder.DELIVERED)
+            throw RestockOrderErrorFactory.newRestockOrderNotDelivered();
 
-            if (restockOrder.state !== RestockOrder.DELIVERED)
-                throw RestockOrderErrorFactory.newRestockOrderNotDelivered();
-
-            const totalChanges = await this.dao.modifyRestockOrderSkuItems(restockOrderId, rawSkuItems);
-            if (totalChanges !== rawSkuItems.length)
-                throw SKUItemErrorFactory.newSKUItemNotFound();
-
-            return res.status(200).send();
-        } catch (err) {
-            return next(err);
-        }
+        const totalChanges = await this.dao.modifyRestockOrderSkuItems(restockOrderId, skuItems);
+        if (totalChanges !== skuItems.length)
+            throw SKUItemErrorFactory.newSKUItemNotFound();
     }
 
-    async modifyTransportNote(req, res, next) {
+    async modifyTransportNote(restockOrderId, deliveryDate) {
         try {
-            const restockOrderId = Number(req.params.id);
-            const deliveryDate = req.body.transportNote.deliveryDate;
-
             let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
 
             if (restockOrder === undefined)
@@ -144,25 +93,18 @@ class RestockOrderController {
                 throw RestockOrderErrorFactory.newRestockOrderNotDelivery();
 
             await this.dao.modifyTransportNote(restockOrderId, deliveryDate);
-            return res.status(200).send();
         } catch (err) {
             if (err.code === "SQLITE_CONSTRAINT") {
                 if (err.message.includes("deliveryDate"))
                     err = RestockOrderErrorFactory.newRestockOrderDeliveryBeforeIssue();
             }
 
-            return next(err);
+            throw err;
         }
     }
 
-    async deleteRestockOrder(req, res, next) {
-        try {
-            const restockOrderId = req.params.id; 
-            await this.dao.deleteRestockOrder(restockOrderId);
-            return res.status(204).send();
-        } catch (err) {
-            return next(err);
-        }
+    async deleteRestockOrder(restockOrderId) {
+        await this.dao.deleteRestockOrder(restockOrderId);
     }
 
     // ################## Utilities

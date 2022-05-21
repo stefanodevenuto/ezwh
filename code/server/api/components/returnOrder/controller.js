@@ -11,9 +11,44 @@ class ReturnOrderController {
         this.skuItemController = skuItemController;
     }
 
-     // ################## Utilities
+    // ################################ API
 
-     async buildReturnOrders(rows) {
+    async getAllReturnOrders() {
+        const rows = await this.dao.getAllReturnOrders();
+        const returnOrders = await this.buildReturnOrders(rows);
+
+        return returnOrders;
+    }
+
+    async getReturnOrderByID(returnOrderID) {
+        const rows = await this.dao.getReturnOrderByID(returnOrderID);
+        if (rows.length === 0)
+            throw ReturnOrderErrorFactory.newReturnOrderNotFound();
+
+        const [returnOrder] = await this.buildReturnOrders(rows);
+        return returnOrder;
+    }
+
+
+    async createReturnOrder(returnDate, products, restockOrderId) {
+        let totalProducts = [];
+        for (let row of products) {
+            // Check if RestockOrder and SKUItem exist
+            let result = await this.skuItemController.getItemByRFIDInternal(row.RFID, restockOrderId);
+            let product = new Products(result.SKUId, result.description, result.price, row.RFID);
+            totalProducts.push(product);
+        }
+
+        await this.dao.createReturnOrder(returnDate, restockOrderId, totalProducts);
+    }
+
+    async deleteReturnOrder(returnOrderID) {
+        await this.dao.deleteReturnOrder(returnOrderID);
+    }
+
+    // ################## Utilities
+
+    async buildReturnOrders(rows) {
         let returnOrders = [];
         if (rows.length > 0) {
             // Setup last as the first restockOrder
@@ -48,65 +83,6 @@ class ReturnOrderController {
         }
 
         return returnOrders;
-    }
-
-    // ################################ API
-    async getAllReturnOrders(req, res, next) {
-        try {
-            const rows = await this.dao.getAllReturnOrders();
-            const output = await this.buildReturnOrders(rows);
-            
-            return res.status(200).json(output);
-        } catch (err) {
-            return next(err);
-        }
-    }
-
-    async getReturnOrderByID(req, res, next) {
-        try {
-            const returnOrderID = req.params.id;
-
-            const rows = await this.dao.getReturnOrderByID(returnOrderID);
-            if (rows.length === 0)
-                throw ReturnOrderErrorFactory.newReturnOrderNotFound();
-
-            const output = await this.buildReturnOrders(rows);
-            return res.status(200).json(output);
-        } catch (err) {
-            return next(err);
-        }
-    }
-
-
-    async createReturnOrder(req, res, next) {
-        try {
-            const rawReturnOrder = req.body;
-            const restockOrderId = rawReturnOrder.restockOrderId;
-            
-            let products = [];
-            for (let row of rawReturnOrder.products) {
-                // Check if RestockOrder and SKUItem exist
-                let result = await this.skuItemController.getItemByRFIDInternal(row.RFID, restockOrderId);
-                let product = new Products(result.SKUId, result.description, result.price, row.RFID);
-                products.push(product);
-            }
-            
-            await this.dao.createReturnOrder(rawReturnOrder, products);
-            return res.status(201).send();
-        } catch (err) {
-            return next(err);
-        }
-    }
-    
-
-    async deleteReturnOrder(req, res, next) {
-        try {
-            const returnOrderID = req.params.id;
-            await this.dao.deleteReturnOrder(returnOrderID);
-            return res.status(204).send();
-        } catch (err) {
-            return next(err);
-        }
     }
 }
 

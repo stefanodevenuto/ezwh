@@ -10,50 +10,32 @@ class SkuController {
 
 	// ################################ API
 
-	async getAllSkus(req, res, next) {
-		try {
-			const rows = await this.dao.getAllSkus();
-			const skus = rows.map(record => new Sku(record.id, record.description, record.weight, record.volume, record.notes,
-				record.positionId, record.availableQuantity, record.price, record.testDescriptor));
-			return res.status(200).json(skus);
-		} catch (err) {
-			return next(err);
-		}
+	async getAllSkus() {
+		const rows = await this.dao.getAllSkus();
+		const skus = rows.map(record => new Sku(record.id, record.description, record.weight, record.volume, record.notes,
+			record.positionId, record.availableQuantity, record.price, record.testDescriptor));
+
+		return skus;
 	}
 
-	async getSkuByID(req, res, next) {
-		try {
-			const skuId = Number(req.params.id);
-			const sku = await this.getSkuByIDInternal(skuId);
-			return res.status(200).json(sku);
-		} catch (err) {
-			return next(err);
-		}
+	async getSkuByID(skuId) {
+		const sku = await this.getSkuByIDInternal(skuId);
+		return sku;
 	}
 
-	async createSku(req, res, next) {
-		try {
-			const rawSku = req.body;
-			await this.dao.createSku(rawSku);
-			return res.status(201).send();
-		} catch (err) {
-			return next(err);
-		}
+	async createSku(description, weight, volume, notes, price, availableQuantity) {
+		await this.dao.createSku(description, weight, volume, notes, price, availableQuantity);
 	}
 
-	async modifySku(req, res, next) {
+	async modifySku(skuId, newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity) {
 		try {
-			const skuId = req.params.id;
-			const rawSku = req.body;
+			const totalWeight = newAvailableQuantity * newWeight;
+			const totalVolume = newAvailableQuantity * newVolume;
 
-			const totalWeight = rawSku.newAvailableQuantity * rawSku.newWeight;
-			const totalVolume = rawSku.newAvailableQuantity * rawSku.newVolume;
-
-			const { changes } = await this.dao.modifySku(skuId, rawSku, totalWeight, totalVolume);
+			const { changes } = await this.dao.modifySku(skuId, newDescription, newWeight, newVolume, 
+				newNotes, newPrice, newAvailableQuantity, totalWeight, totalVolume);
 			if (changes === 0)
 				throw SkuErrorFactory.newSkuNotFound();
-
-			return res.status(200).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("occupiedWeight"))
@@ -62,20 +44,15 @@ class SkuController {
 					err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
 			}
 
-			return next(err);
+			throw err;
 		}
 	}
 
-	async addModifySkuPosition(req, res, next) {
+	async addModifySkuPosition(skuId, newPosition) {
 		try {
-			const skuId = Number(req.params.id);
-			const newPosition = req.body.position;
-
 			const totalChanges = await this.dao.addModifySkuPosition(skuId, newPosition);
 			if (totalChanges === 0)
 				throw SkuErrorFactory.newSkuNotFound();
-
-			return res.status(200).send();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("sku.positionId"))
@@ -87,22 +64,13 @@ class SkuController {
 				else if (err.message.includes("occupiedVolume"))
 					err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
 			}
-			return next(err);
+			
+			throw err;
 		}
 	}
 
-	async deleteSku(req, res, next) {
-		try {
-			const skuId = req.params.id;
-			await this.dao.deleteSku(skuId);
-			return res.status(204).send();
-		} catch (err) {
-			if (err.code === "SQLITE_CONSTRAINT") {
-				if (err.message.includes("FOREIGN KEY"))
-					err = SkuErrorFactory.newSkuWithAssociatedSkuItems();
-			}
-			return next(err);
-		}
+	async deleteSku(skuId) {
+		await this.dao.deleteSku(skuId);
 	}
 
 	// ################ Utilities

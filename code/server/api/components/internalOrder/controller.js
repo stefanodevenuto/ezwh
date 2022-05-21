@@ -1,19 +1,91 @@
 const InternalOrderDAO = require('./dao')
 const InternalOrder = require("./internalOrder");
-const SkuDAO = require('../sku/dao');
-const SkuController = require('../sku/controller')
 const Products = require('./products');
 const ProductsQ = require('./productsQ.js');
 const { InternalOrderErrorFactory } = require('./error');
-const Cache = require('lru-cache')
+const { UserErrorFactory } = require('../user/error');
+const { SKUItemErrorFactory } = require('../skuItem/error');
 
 class InternalOrderController {
-    constructor() {
+    constructor(skuController) {
         this.dao = new InternalOrderDAO();
-        this.sku = new SkuDAO();
-        this.SkuController = new SkuController();
+        this.skuController = skuController;
     }
-    
+
+    // ################################ API
+
+    async getAllInternalOrders() {
+        const rows = await this.dao.getAllInternalOrders();
+        const internalOrders = await this.buildInternalOrders(rows);
+
+        return internalOrders;
+    }
+
+    async getInternalOrdersAccepted(req, res, next) {
+        const rows = await this.dao.getInternalOrdersAccepted();
+        const acceptedInternalOrders = await this.buildInternalOrders(rows);
+
+        return acceptedInternalOrders;
+    }
+
+    async getInternalOrdersIssued(req, res, next) {
+        const rows = await this.dao.getInternalOrdersIssued();
+        const issuedInternalOrders = await this.buildInternalOrders(rows);
+
+        return issuedInternalOrders;
+    }
+
+    async getInternalOrderByID(internalOrderID) {
+        const internalOrder = await this.getInternalOrderByIDInternal(internalOrderID);
+        return internalOrder;
+    }
+
+
+    async createInternalOrder(issueDate, products, customerId) {
+        try {
+            let finalProducts = [];
+            for (let row of products) {
+                // Check if Sku exist and recover information
+                let sku = await this.skuController.getSkuByIDInternal(row.SKUId);
+                let product = new ProductsQ(sku.id, sku.description, sku.price, row.qty)
+                finalProducts.push(product);
+            }
+
+            await this.dao.createInternalOrder(issueDate, customerId, InternalOrder.ISSUED, finalProducts);
+        } catch (err) {
+            if (err.code === "SQLITE_CONSTRAINT") {
+                if (err.message.includes("FOREIGN"))
+                    err = UserErrorFactory.newCustomerNotFound();
+            }
+
+            throw err;
+        }
+    }
+
+    async modifyStateInternalOrder(internalOrderId, newState, products) {
+        let finalChanges = 0;
+        if (newState === InternalOrder.COMPLETED) {
+            const changes = await this.dao.modifyStateInternalOrder(internalOrderId,
+                InternalOrder.COMPLETED, products);
+            finalChanges = changes;
+        } else {
+            const changes = await this.dao.modifyStateInternalOrder(internalOrderId, newState);
+            finalChanges = changes;
+        }
+
+        if (finalChanges === 0)
+            throw InternalOrderErrorFactory.newInternalOrderNotFound();
+
+        if (finalChanges === 1)
+            throw SKUItemErrorFactory.newSKUItemNotFound();
+    }
+
+    async deleteInternalOrder(internalOrderID) {
+        await this.dao.deleteInternalOrder(internalOrderID);
+    }
+
+    // ################ Utilities
+
     async buildInternalOrders(rows) {
         let internalOrders = [];
         let product;
@@ -22,12 +94,12 @@ class InternalOrderController {
             let lastInternalOrder = rows[0];
 
             let products = [];
-            
+
             for (let row of rows) {
                 // If it's the same restockOrder, continue adding the related Skus
                 if (row.id == lastInternalOrder.id) {
-                    if(row.state !== "COMPLETED"){
-                    //let item = new Item(row.SKUId, row.description, row.price);
+                    if (row.state !== "COMPLETED") {
+                        //let item = new Item(row.SKUId, row.description, row.price);
                         product = new ProductsQ(row.SKUId, row.description, row.price, row.qty);
                     } else {
                         product = new Products(row.SKUId, row.description, row.price, row.RFID);
@@ -45,12 +117,12 @@ class InternalOrderController {
                     products = [];
 
                     // Don't lose the current Item!
-                    if(row.state !== "COMPLETED"){
+                    if (row.state !== "COMPLETED") {
                         //let item = new Item(row.SKUId, row.description, row.price);
-                            product = new ProductsQ(row.SKUId, row.description, row.price, row.qty);
-                        } else {
-                            product = new Products(row.SKUId, row.description, row.price, row.RFID);
-                        }
+                        product = new ProductsQ(row.SKUId, row.description, row.price, row.qty);
+                    } else {
+                        product = new Products(row.SKUId, row.description, row.price, row.RFID);
+                    }
                     products.push(product);
                 }
             }
@@ -69,121 +141,10 @@ class InternalOrderController {
 
         const rows = await this.dao.getInternalOrderByID(internalOrderId);
         if (rows.length === 0)
-            throw InternalOrderErrorFactory.newRestockOrderNotFound();
+            throw InternalOrderErrorFactory.newInternalOrderNotFound();
 
         const [internalOrder] = await this.buildInternalOrders(rows);
-
         return internalOrder;
-    }
-
-
-    // ################################ API
-    async getAllInternalOrders(req, res, next) {
-        try {
-            const rows = await this.dao.getAllInternalOrders();
-
-            const output = await this.buildInternalOrders(rows);
-
-            return res.status(200).json(output);
-        } catch (err) {
-            return next(err);
-        }
-    }
-
-    async getInternalOrdersIssued(req, res, next) {
-        try {
-            const rows = await this.dao.getInternalOrdersIssued();
-
-            const output = await this.buildInternalOrders(rows); 
-
-            return res.status(200).json(output);
-        } catch (err) {
-            return next(err);
-        }
-    }
-
-    async getInternalOrdersAccepted(req, res, next) {
-        try {
-            const rows = await this.dao.getInternalOrdersAccepted();
-
-            const output = await this.buildInternalOrders(rows); 
-
-            return res.status(200).json(output);
-        } catch (err) {
-            return next(err);
-        }
-    }
-
-    async getInternalOrderByID(req, res, next) {
-        try {
-            const internalOrderID = Number(req.params.id);
-
-            let internalOrder = await this.getInternalOrderByIDInternal(internalOrderID);
-
-            if (internalOrder === undefined)
-                throw PositionErrorFactory.newPositionNotFound();
-    
-
-            return res.status(200).json(internalOrder);
-        } catch (err) {
-            return next(err);
-        }
-    }
-
-
-    async createInternalOrder(req, res, next) {
-        try {
-            const rawInternalOrder = req.body;
-
-            let rawProducts = req.body.products;
-            rawProducts = rawProducts.map(record => new ProductsQ(record.SKUId, record.description,
-                record.price, record.qty));
-
-            
-            for(let row of rawProducts){
-               let sku = await this.sku.getSkuByID(row.SKUId);
-               if(sku === -1){
-                   return res.status(404).send();
-               }
-            }
-            
-            await this.dao.createInternalnOrder(rawInternalOrder, rawProducts);
-
-
-            return res.status(201).send();
-        } catch (err) {
-            return next(err);
-        }
-    }
-
-    
-
-
-    async modifyStateInternalOrder(req, res, next) {
-        try {
-            const internalOrderId = req.params.id;
-            const rawInternalOrder = req.body;
-           
-
-            const { changes } = await this.dao.modifyStateInternalOrder(internalOrderId, rawInternalOrder);
-
-          
-            return res.status(200).send();
-        } catch (err) {
-            
-            return next(err);
-        }
-    }
-
-    async deleteInternalOrder(req, res, next) {
-        try {
-            const internalOrderID = req.params.id;
-            await this.dao.deleteInternalOrder(internalOrderID);
-
-            return res.status(204).send();
-        } catch (err) {
-            return next(err);
-        }
     }
 }
 

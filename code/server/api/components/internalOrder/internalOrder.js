@@ -1,13 +1,11 @@
 class InternalOrder {
-    
     static ISSUED = "ISSUED";
-    static DELIVERY = "DELIVERY";
-    static DELIVERED = "DELIVERED";
-    static TESTED = "TESTED";
-    static COMPLETEDRETURN = "COMPLETEDRETURN";
+    static ACCEPTED = "ACCEPTED";
+    static REFUSED = "REFUSED";
+    static CANCELED = "CANCELED";
     static COMPLETED = "COMPLETED";
 
-    static STATES = [this.ISSUED, this.DELIVERY, this.DELIVERED, this.TESTED, this.COMPLETEDRETURN, this.COMPLETED]
+    static STATES = [this.ISSUED, this.ACCEPTED, this.REFUSED, this.CANCELED, this.COMPLETED]
 
     constructor(id = null, issueDate, state, products, customerId) {
         this.id = id;

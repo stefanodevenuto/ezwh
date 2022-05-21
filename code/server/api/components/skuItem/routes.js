@@ -16,24 +16,28 @@ class SKUItemRoutes {
 
         this.router.get(
 			'/',
-			/* this.authSerivce.isAuthorized(),
-			this.authSerivce.hasPermission(this.name, 'read'),*/
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getAllSKUItems(req, res, next)
+			(req, res, next) => this.controller.getAllSKUItems()
+				.then((SKUItems) => res.status(200).json(SKUItems))
+				.catch((err) => next(err))
 		);
 		
         this.router.get(
 			'/:rfid',
 			param('rfid').isString().withMessage("ERROR: RFID is not a string"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getSKUItemByRFID(req, res, next)
+			(req, res, next) => this.controller.getSKUItemByRFID(req.params.rfid)
+				.then((skuItem) => res.status(200).json(skuItem))
+				.catch((err) => next(err))
 		);
 
 		this.router.get(
 			'/sku/:id',
 			param('id').isNumeric().withMessage("ERROR: id is not a number"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getSKUItemBySKUID(req, res, next)
+			(req, res, next) => this.controller.getSKUItemBySKUID(req.params.id)
+				.then((SKUItems) => res.status(200).json(SKUItems))
+				.catch((err) => next(err))
 		);
 
 
@@ -43,7 +47,9 @@ class SKUItemRoutes {
 			body('SKUId').isNumeric(),
 			body('DateOfStock').isString(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.createSKUItem(req, res, next)
+			(req, res, next) => this.controller.createSKUItem(req.body.RFID, req.body.SKUId, req.body.DateOfStock)
+				.then(() => res.status(201).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.put(
@@ -53,14 +59,19 @@ class SKUItemRoutes {
 			body('newAvailable').isNumeric(),
 			body('newDateOfStock').isString(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifySKUItem(req, res, next)
+			(req, res, next) => this.controller.modifySKUItem(req.params.rfid, req.body.newRFID, 
+					req.body.newAvailable, req.body.newDateOfStock)
+				.then(() => res.status(200).send())
+				.catch((err) => next(err))
 		);
 
 		this.router.delete(
 			'/:rfid',
 			param('rfid').isString().isLength({min: 32, max: 32}).withMessage("ERROR: RFID is not a string or lenght is minor then 32"),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.deleteSKUItem(req, res, next)
+			(req, res, next) => this.controller.deleteSKUItem(req.params.rfid)
+				.then(() => res.status(204).send())
+				.catch((err) => next(err))
 		);
 	}
 }

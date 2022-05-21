@@ -22,17 +22,16 @@ class SKUItemDAO extends AppDAO{
         return await this.all(query, [SKUId, 1]);
     }
 
-    async createSKUItem(SKUItem) {
+    async createSKUItem(RFID, SKUId, DateOfStock) {
         const query = 'INSERT INTO skuItem(RFID, SKUId, Available, DateOfStock) VALUES (?, ?, 0, ?)'
-        let lastId = await this.run(query, [SKUItem.RFID, SKUItem.SKUId, SKUItem.DateOfStock]);
+        let lastId = await this.run(query, [RFID, SKUId, DateOfStock]);
         
         return lastId;
     }
 
-    async modifySKUItem(RFID, SKUItem) {
+    async modifySKUItem(RFID, newRFID, newAvailable, newDateOfStock) {
         const query = 'UPDATE skuItem SET RFID = ?, available = ?, dateOfStock = ? WHERE RFID = ?'
-        return await this.run(query, [SKUItem.newRFID, SKUItem.newAvailable,
-            SKUItem.newDateOfStock, RFID]);
+        return await this.run(query, [newRFID, newAvailable, newDateOfStock, RFID]);
     }
 
     async deleteSKUItem(RFID) {
