@@ -75,6 +75,7 @@ describe("Testing SKUItemDAO", () => {
 
 
         test("Delete SKUItem after create",async () => {
+            
             const { changes } = await skuItemDao.deleteSKUItem(testSKUItem.RFID);
             expect(changes).toStrictEqual(1);
 

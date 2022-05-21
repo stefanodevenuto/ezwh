@@ -8,7 +8,7 @@ class SKUItem {
     }
 
     static mockTestSkuItem() {
-        const skuItem = new SKUItem("12341234123412341234123412341234", 1, 0, "2022/02/02 09:30");
+        const skuItem = new SKUItem("12341234123412341234123412341234", 2889, 0, "2022/02/02 09:30");
         return skuItem;
     }
 }

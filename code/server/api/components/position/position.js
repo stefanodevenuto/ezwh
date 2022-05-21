@@ -9,6 +9,11 @@ class Position {
         this.occupiedWeight = occupiedWeight;
         this.occupiedVolume = occupiedVolume;
     }
+
+    static mockTestPosition() {
+        const position = new Position(800555324421, 8005, 5532, 4421, 14, 41);
+        return position;        
+    }
 }
 
 module.exports = Position;

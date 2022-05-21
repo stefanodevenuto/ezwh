@@ -106,6 +106,16 @@ class InternalOrderDAO extends AppDAO{
 
     }
 
+        // Test
+        async deleteAllInternalOrder() {
+
+            const queryS = 'DELETE FROM internalOrder_sku';
+            await this.run(queryS);
+
+            const query = 'DELETE FROM internalOrder';
+            return await this.run(query);
+        }
+
     
 }
 

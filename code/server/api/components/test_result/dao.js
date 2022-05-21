@@ -45,6 +45,13 @@ class TestResultDAO extends AppDAO {
         const query = 'SELECT COUNT(*) AS failedQuantity FROM testResult WHERE RFID = ? AND result = 0';
         return await this.get(query, [rfid]);
     }
+
+        // Test
+        async deleteAllTestResult() {
+            const query = 'DELETE FROM testResult';
+            return await this.run(query);
+        }
+    
 }
 
 module.exports = TestResultDAO;

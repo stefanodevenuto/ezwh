@@ -15,7 +15,7 @@ class SkuController {
 			const rows = await this.dao.getAllSkus();
 			const skus = rows.map(record => new Sku(record.id, record.description, record.weight, record.volume, record.notes,
 				record.positionId, record.availableQuantity, record.price, record.testDescriptor));
-			return res.status(200).json(skus);
+			return res.status(200).json(rows);
 		} catch (err) {
 			return next(err);
 		}

@@ -14,6 +14,11 @@ describe("Testing InternalOrderDao", () => {
 
 
     beforeAll(async () => {
+        await internalOrderDao.deleteAllInternalOrder();
+    });
+
+
+    beforeAll(async () => {
         try {
             for(row of testInternalOrder.products){
                 await skuDao.getSkuByID(row.SKUId);
@@ -27,7 +32,7 @@ describe("Testing InternalOrderDao", () => {
     beforeAll(async () => {
 
             let user = await userDao.getUserByID(testInternalOrder.customerId);
-            console.log(user)
+
             expect(testInternalOrder.customerId).toStrictEqual(user.id);
     });
 

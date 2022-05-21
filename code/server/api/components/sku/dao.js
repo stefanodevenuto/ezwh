@@ -59,6 +59,13 @@ class SkuDAO extends AppDAO {
         const query = 'DELETE FROM sku WHERE id = ?'
         return await this.run(query, [skuId]);
     }
+
+    // Test
+    async deleteAllSKU() {
+        const query = 'DELETE FROM sku';
+        return await this.run(query);
+    }
+    
 }
 
 module.exports = SkuDAO;
