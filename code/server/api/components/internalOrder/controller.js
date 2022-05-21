@@ -1,5 +1,6 @@
 const InternalOrderDAO = require('./dao')
 const InternalOrder = require("./internalOrder");
+const SkuController = require('../sku/controller');
 const Products = require('./products');
 const ProductsQ = require('./productsQ.js');
 const { InternalOrderErrorFactory } = require('./error');
@@ -7,9 +8,9 @@ const { UserErrorFactory } = require('../user/error');
 const { SKUItemErrorFactory } = require('../skuItem/error');
 
 class InternalOrderController {
-    constructor(skuController) {
+    constructor() {
         this.dao = new InternalOrderDAO();
-        this.skuController = skuController;
+        this.skuController = new SkuController();
     }
 
     // ################################ API
@@ -50,8 +51,8 @@ class InternalOrderController {
                 let product = new ProductsQ(sku.id, sku.description, sku.price, row.qty)
                 finalProducts.push(product);
             }
-
-            await this.dao.createInternalOrder(issueDate, customerId, InternalOrder.ISSUED, finalProducts);
+            console.log(finalProducts)
+            await this.dao.createInternalnOrder(issueDate, customerId, InternalOrder.ISSUED, finalProducts);
         } catch (err) {
             if (err.code === "SQLITE_CONSTRAINT") {
                 if (err.message.includes("FOREIGN"))
@@ -140,7 +141,7 @@ class InternalOrderController {
     async getInternalOrderByIDInternal(internalOrderId) {
 
         const rows = await this.dao.getInternalOrderByID(internalOrderId);
-        if (rows.length === 0)
+        if (rows === undefined)
             throw InternalOrderErrorFactory.newInternalOrderNotFound();
 
         const [internalOrder] = await this.buildInternalOrders(rows);

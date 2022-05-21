@@ -64,12 +64,12 @@ class InternalOrderDAO extends AppDAO{
     }
 
 
-    async createInternalnOrder(internalOrder, products) {
+    async createInternalnOrder(issueDate, customerId, state, finalProducts) {
         const query = 'INSERT INTO internalOrder(issueDate, state, customerId) VALUES (?, ?, ?)';
         const queryItem = 'INSERT INTO internalOrder_sku(internalOrderId, skuId, qty) VALUES (?, ?, ?)';
-        let lastId = await this.run(query, [internalOrder.issueDate, "ISSUED", internalOrder.customerId]);
-
-        for(let row of products){
+        let lastId = await this.run(query, [issueDate, state, customerId]);
+      
+        for(let row of finalProducts){
             await this.run(queryItem, [lastId.id, row.SKUId, row.qty]);
         }
         return lastId;

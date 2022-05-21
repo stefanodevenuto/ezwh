@@ -10,7 +10,7 @@ describe("Testing InternalOrderDao", () => {
     const skuDao = new SkuDAO();
     const userDao = new UserDAO();
 
-    let testInternalOrder = InternalOrder.mockTestInternalOrder();
+    let testInternalOrder = InternalOrder.mockTestInternalOrder2();
 
 
     beforeAll(async () => {
@@ -42,7 +42,7 @@ describe("Testing InternalOrderDao", () => {
         test("Create Internal Order after check SKUId", async () => {
 
             
-                let row = await internalOrderDao.createInternalnOrder(testInternalOrder, testInternalOrder.products);
+                let row = await internalOrderDao.createInternalnOrder(testInternalOrder.issueDate,testInternalOrder.customerId,  testInternalOrder.state, testInternalOrder.products);
                 testInternalOrder.id = row.id;
                 const result = await internalOrderDao.getInternalOrderByID(row.id);
 

@@ -20,7 +20,14 @@ class InternalOrder {
     }
 
     static mockTestInternalOrder() {
-        const internalOrder = new InternalOrder(null, "2022/11/04 05:30", this.ISSUED, 
+        const internalOrder = new InternalOrder(null, "2022/11/04 05:30", "ISSUED", 
+                            [{"SKUId":2889,"description":"a product","price":10.99,"qty":3},
+                            {"SKUId":2890,"description":"another product","price":11.99,"qty":3}], 1);
+        return internalOrder;
+    }
+
+    static mockTestInternalOrder2() {
+        const internalOrder = new InternalOrder(null, "2022/11/04 05:30", "ISSUED", 
                             [{"SKUId":2889,"description":"a product","price":10.99,"qty":3},
                             {"SKUId":2890,"description":"another product","price":11.99,"qty":3}], 1);
         return internalOrder;
