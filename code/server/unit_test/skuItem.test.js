@@ -10,16 +10,34 @@ describe("Testing SKUItemDAO", () => {
 
     let testSKUItem = SkuItem.mockTestSkuItem();
 
-    test("Create SKUItem", async () => {
+    describe("Create SKUItem", () => {
 
-        await skuItemDao.createSKUItem(testSKUItem);    
+        beforeEach(async () => {
+            try {
+                await skuDao.getSkuByID(testSKUItem.SKUId);
+            } catch(err) {
+                expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
+                expect(err.message).toMatch("id");
+            }
+        });
+
+        test("Create SKUItem after check SKUId", async () => {
+
+            try {
+                await skuItemDao.createSKUItem(testSKUItem);    
         
-        const result = await skuItemDao.getSKUItemByRFID(testSKUItem.RFID);
-
-
-        expect(result.SKUId).toStrictEqual(testSKUItem.SKUId);
-        expect(result.available).toStrictEqual(testSKUItem.available);
-        expect(result.dateOfStock).toStrictEqual(testSKUItem.dateOfStock);
+                const result = await skuItemDao.getSKUItemByRFID(testSKUItem.RFID);
+        
+                expect(result.SKUId).toStrictEqual(testSKUItem.SKUId);
+                expect(result.available).toStrictEqual(testSKUItem.available);
+                expect(result.dateOfStock).toStrictEqual(testSKUItem.dateOfStock);
+            } catch(err) {
+                expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
+            }
+            
+          
+        });
+      
     });
 
     beforeEach(async () => {
@@ -27,6 +45,81 @@ describe("Testing SKUItemDAO", () => {
     })
 
 
+    describe("Modify SKUItem", () => {
+
+        beforeEach(async () => {
+            try {
+                await skuDao.getSkuByID(testSKUItem.SKUId);
+            } catch(err) {
+                expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
+                expect(err.message).toMatch("id");
+            }
+        });
+
+        
+        beforeEach( async () => {
+            await skuItemDao.createSKUItem(testSKUItem);
+        });
+
+        test("Modify SKUItem after create", async () => {
+            let skuItem = {
+                newRFID: "12345678901234567890123456780005",
+                newAvailable:1,
+                newDateOfStock:"2022/11/28 05:30"
+            };
+
+
+                await skuItemDao.modifySKUItem(testSKUItem.RFID, skuItem);    
+
+                const result = await skuItemDao.getSKUItemByRFID(skuItem.newRFID);
+
+                expect(result.available).toStrictEqual(skuItem.newAvailable);
+                expect(result.dateOfStock).toStrictEqual(skuItem.newDateOfStock);
+
+            
+        });
+
+        test("Modify inexistent SKUItem", async () => {
+            const { changes } = await skuItemDao.modifySKUItem(-1, testSKUItem);
+            expect(changes).toStrictEqual(0);
+        });
+
+
+        afterEach(async () => {
+                await skuItemDao.deleteSKUItem(testSKUItem.RFID);
+        });
+      
+    });
+
+    describe("Delete SKUItem", () => {
+        beforeEach(async () => {
+            try {
+                await skuDao.getSkuByID(testSKUItem.SKUId);
+            } catch(err) {
+                expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
+                expect(err.message).toMatch("id");
+            }
+        });
+
+        
+        beforeEach( async () => {
+            await skuItemDao.createSKUItem(testSKUItem);
+        });
+
+        test("Delete inexistent SkuItem", async () => {
+            const { changes } = await skuItemDao.deleteSKUItem(-1);
+            expect(changes).toStrictEqual(0);
+        });
+
+
+        test("Delete SKUItem after create",async () => {
+            const { changes } = await skuItemDao.deleteSKUItem(testSKUItem.RFID);
+            expect(changes).toStrictEqual(1);
+
+        });
+        
+    
+    })
 
 
 
