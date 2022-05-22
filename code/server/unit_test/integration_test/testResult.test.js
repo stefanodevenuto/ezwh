@@ -104,11 +104,15 @@ describe("Test Result Controller suite", () => {
                 .not.toThrowError()
         });
 
-        test("Create Test Result with inexistent Test Descriptor", async () => {             
-            await expect(testResultController.createTestResult(testSkuItem.RFID, 
-                    -1, testTestResult.date, testTestResult.result))
-                .rejects
-                .toThrow(TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound())
+        test("Create Test Result with inexistent Test Descriptor", async () => {
+            try {
+                await testResultController.createTestResult(testSkuItem.RFID, 
+                    -1, testTestResult.date, testTestResult.result)
+            } catch(err) {
+                let error = TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
         });
 
         afterEach(async () => {            
@@ -140,24 +144,36 @@ describe("Test Result Controller suite", () => {
         });
 
         test("Modify inexistent Test Result", async () => {
-            await expect(testResultController.modifyTestResult(testSkuItem.RFID, -1, testTestDescriptor.id,
-                testTestResult.date, testTestResult.result))
-                .rejects
-                .toThrow(TestResultErrorFactory.newTestResultNotFound())
+            try {
+                await testResultController.modifyTestResult(testSkuItem.RFID, -1, testTestDescriptor.id,
+                    testTestResult.date, testTestResult.result)
+            } catch(err) {
+                let error = TestResultErrorFactory.newTestResultNotFound();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
         });
 
         test("Modify Test Result with inexistent Sku Item", async () => {
-            await expect(testResultController.modifyTestResult("-1", testTestResult.id, testTestDescriptor.id,
-                testTestResult.date, testTestResult.result))
-                .rejects
-                .toThrow(TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound())
+            try {
+                await testResultController.modifyTestResult("-1", testTestResult.id, testTestDescriptor.id,
+                    testTestResult.date, testTestResult.result)
+            } catch(err) {
+                let error = TestResultErrorFactory.newTestResultNotFound();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
         });
 
         test("Modify Test Result with inexistent Test Descriptor", async () => {
-            await expect(testResultController.modifyTestResult(testSkuItem.RFID, testTestResult.id, -1,
-                testTestResult.date, testTestResult.result))
-                .rejects
-                .toThrow(TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound())
+            try {
+                await testResultController.modifyTestResult(testSkuItem.RFID, testTestResult.id, -1,
+                    testTestResult.date, testTestResult.result)
+            } catch(err) {
+                let error = TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
         });
 
         test("Modify Test Result with all valid parameters", async () => {
