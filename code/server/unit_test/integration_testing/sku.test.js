@@ -9,7 +9,7 @@ const { SkuErrorFactory } = require('../../api/components/sku/error');
 
 describe("SKU Controller suite", () => {
 
-  /*  const skuController = new SkuController();
+    const skuController = new SkuController();
     const positionController = new PositionController();
 
     let testSku = Sku.mockTestSku();
@@ -17,7 +17,7 @@ describe("SKU Controller suite", () => {
 
 
             
-    /*beforeAll(async () => {
+    beforeAll(async () => {
         await skuController.dao.deleteAllSKU();
     });
 
@@ -25,7 +25,7 @@ describe("SKU Controller suite", () => {
     describe("Get SKUs", () => {
         beforeAll(async () => {
             
-            const { id: skuId } = await skuController.dao.createSku(testSku);
+            const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
                 testSku.id = skuId;
         });
 
@@ -55,7 +55,9 @@ describe("SKU Controller suite", () => {
             expect(result.availableQuantity).toStrictEqual(testSku.availableQuantity);
         });
 
-
+        afterAll(async () => {
+            await skuController.deleteSku(testSku.id);
+        });
 
     })
 
@@ -69,10 +71,19 @@ describe("SKU Controller suite", () => {
                 .not.toThrowError()
         });
 
+        afterAll(async () => {
+            await skuController.deleteSku(testSku.id);
+        });
+
 
     });
 
     describe("Modify SKU", () => {
+
+        beforeEach(async () => {
+            await skuController.createSku(testSku.description, testSku.weight,
+                testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity)
+        })
 
       
         test("Modify inexistent SKU", async () => {
@@ -84,16 +95,19 @@ describe("SKU Controller suite", () => {
 
         test("Add or modify position of a SKU", async () => {
             await expect(skuController.addModifySkuPosition(testSku.id, testPosition.positionID))
-                .rejects
-                .toThrow(SkuErrorFactory.newPositionAlreadyOccupied())
+                .resolves
+                
+                
         });
 
         test("Add or modify position that does not exist of a SKU", async () => {
-            await expect(skuController.addModifySkuPosition(testSku.id, "814895469874"))
+            await expect(skuController.addModifySkuPosition(testSku.id, "13451248512"))
                 .rejects
                 .toThrow(SkuErrorFactory.newPositionAlreadyOccupied())
         });
-
+        afterAll(async () => {
+            await skuController.deleteSku(testSku.id);
+        });
 
     });
 
@@ -114,6 +128,6 @@ describe("SKU Controller suite", () => {
         });
     })
 
-*/
+
 
 })

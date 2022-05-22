@@ -28,7 +28,7 @@ class SkuDAO extends AppDAO {
         const query_sku = 'UPDATE sku SET description = ?, weight = ?, volume = ?, notes = ?, price = ?, availableQuantity = ? WHERE id = ?';
         const query_position = 'UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE positionId = ?';
 
-        const { positionId } = await this.get(query_get_position, [skuId]);
+        const { id : positionId } = await this.get(query_get_position, [skuId]);
 
         return await this.serialize([query_sku, query_position], [
             [newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity, skuId],
