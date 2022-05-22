@@ -13,14 +13,14 @@ class SkuController {
 	async getAllSkus() {
 		const rows = await this.dao.getAllSkus();
 		const skus = rows.map(record => new Sku(record.id, record.description, record.weight, record.volume, record.notes,
-			record.positionId, record.availableQuantity, record.price, record.testDescriptor));
+			record.positionId, record.availableQuantity, record.price, record.testDescriptor).intoJson());
 
 		return skus;
 	}
 
 	async getSkuByID(skuId) {
 		const sku = await this.getSkuByIDInternal(skuId);
-		return sku;
+		return sku.intoJson(true);
 	}
 
 	async createSku(description, weight, volume, notes, price, availableQuantity) {
@@ -31,6 +31,7 @@ class SkuController {
 		try {
 			const totalWeight = newAvailableQuantity * newWeight;
 			const totalVolume = newAvailableQuantity * newVolume;
+			
 
 			const { changes } = await this.dao.modifySku(skuId, newDescription, newWeight, newVolume, 
 				newNotes, newPrice, newAvailableQuantity, totalWeight, totalVolume);
@@ -50,8 +51,8 @@ class SkuController {
 
 	async addModifySkuPosition(skuId, newPosition) {
 		try {
-			const { changes } = await this.dao.addModifySkuPosition(skuId, newPosition);
-			if (changes === 0)
+			const totalChanges = await this.dao.addModifySkuPosition(skuId, newPosition);
+			if (totalChanges === 0)
 				throw SkuErrorFactory.newSkuNotFound();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
@@ -70,26 +71,7 @@ class SkuController {
 	}
 
 	async deleteSku(skuId) {
-		try {
-			const { changes } = await this.dao.deleteSku(skuId);
-			if (changes === 0)
-				throw SkuErrorFactory.newSkuNotFound();
-			
-		} catch (err) {
-			if (err.code === "SQLITE_CONSTRAINT") {
-				if (err.message.includes("sku.positionId"))
-					err = SkuErrorFactory.newPositionAlreadyOccupied();
-				else if (err.message.includes("FOREIGN"))
-					err = PositionErrorFactory.newPositionNotFound();
-				else if (err.message.includes("occupiedWeight"))
-					err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
-				else if (err.message.includes("occupiedVolume"))
-					err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
-			}
-			
-				
-			throw err;
-		}
+		await this.dao.deleteSku(skuId);
 	}
 
 	// ################ Utilities

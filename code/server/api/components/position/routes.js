@@ -67,7 +67,7 @@ class PositionRoutes {
 
 		this.router.put(
 			'/:positionID/changeID',
-			param('positionID').isString().withMessage("ERROR: PositionId is not a String"),
+			param('positionID').isString().isLength({min: 12, max: 12}),
 			body("newPositionID").isString().isLength({min: 12, max: 12}),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.modifyPositionID(req.params.positionID, req.body.newPositionID)
@@ -77,7 +77,7 @@ class PositionRoutes {
 
 		this.router.delete(
 			'/:positionID',
-			param('positionID').isNumeric().withMessage("ERROR: PositionId is not a number"),
+			param('positionID').isNumeric().isLength({min: 12, max: 12}),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deletePosition(req.params.positionID)
 				.then(() => res.status(204).send())

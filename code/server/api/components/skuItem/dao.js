@@ -11,7 +11,7 @@ class SKUItemDAO extends AppDAO{
     }
 
     async getSKUItemByRFID(RFID) {
-        const query = 'SELECT RFID, skuId, available, dateOfStock FROM skuItem WHERE RFID = ?';
+        const query = 'SELECT * FROM skuItem WHERE RFID = ?';
         let row = await this.get(query, [RFID]);
 
         return row;
@@ -23,8 +23,8 @@ class SKUItemDAO extends AppDAO{
     }
 
     async createSKUItem(RFID, SKUId, DateOfStock) {
-        const query = 'INSERT INTO skuItem(RFID, SKUId, Available, DateOfStock) VALUES (?, ?, 0, ?)'
-        let lastId = await this.run(query, [RFID, SKUId, DateOfStock]);
+        const query = 'INSERT INTO skuItem(RFID, SKUId, Available, DateOfStock) VALUES (?, ?, ?, ?)'
+        let lastId = await this.run(query, [RFID, SKUId, 0, DateOfStock]);
         
         return lastId;
     }
@@ -39,10 +39,11 @@ class SKUItemDAO extends AppDAO{
         return await this.run(query, [RFID]);
     }
 
-    async deleteAllSKUItem(RFID) {
+    async deleteAllSKUItem() {
         const query = 'DELETE FROM skuItem'
         return await this.run(query);
     }
+
 
     // #################### Utilities
 

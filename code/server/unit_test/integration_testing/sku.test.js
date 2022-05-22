@@ -5,7 +5,7 @@ const Sku = require('../../api/components/sku/sku');
 const Position = require('../../api/components/position/position');
 
 const { SkuErrorFactory } = require('../../api/components/sku/error');
-
+const { mockTestPosition } = require('../../api/components/position/position');
 
 describe("SKU Controller suite", () => {
 
@@ -22,24 +22,29 @@ describe("SKU Controller suite", () => {
     });
 
 
-    describe("Get SKUs", () => {
-        beforeAll(async () => {
-            
-            const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
-                testSku.id = skuId;
-        });
+    beforeAll(async () => {
+        const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+        testSku.id = skuId;
+        
+    });
 
+    /*beforeAll(async () => {
+       await positionController.dao.createPosition(testPosition.positionID, testPosition.aisleID, testPosition.row, testPosition.col, testPosition.maxWeight, testPosition.maxVolume)
+    })*/
+
+
+    describe("Get SKUs", () => {
+       
         test("Get All SKUs", async () => {
             const result = await skuController.dao.getAllSkus();
-            expect(result).toHaveLength(2);
-            console.log(result[1]);
+            expect(result).toHaveLength(1);
 
-            expect(result[1].description).toStrictEqual(testSku.description);
-            expect(result[1].weight).toStrictEqual(testSku.weight);
-            expect(result[1].volume).toStrictEqual(testSku.volume);
-            expect(result[1].notes).toStrictEqual(testSku.notes);
-            expect(result[1].price).toStrictEqual(testSku.price);
-            expect(result[1].availableQuantity).toStrictEqual(testSku.availableQuantity);
+            expect(result[0].description).toStrictEqual(testSku.description);
+            expect(result[0].weight).toStrictEqual(testSku.weight);
+            expect(result[0].volume).toStrictEqual(testSku.volume);
+            expect(result[0].notes).toStrictEqual(testSku.notes);
+            expect(result[0].price).toStrictEqual(testSku.price);
+            expect(result[0].availableQuantity).toStrictEqual(testSku.availableQuantity);
         
         });
 
@@ -56,7 +61,7 @@ describe("SKU Controller suite", () => {
         });
 
         afterAll(async () => {
-            await skuController.deleteSku(testSku.id);
+            await skuController.dao.deleteAllSKU();
         });
 
     })
@@ -72,7 +77,7 @@ describe("SKU Controller suite", () => {
         });
 
         afterAll(async () => {
-            await skuController.deleteSku(testSku.id);
+            await skuController.dao.deleteAllSKU();
         });
 
 
@@ -80,19 +85,20 @@ describe("SKU Controller suite", () => {
 
     describe("Modify SKU", () => {
 
-        beforeEach(async () => {
-            await skuController.createSku(testSku.description, testSku.weight,
-                testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity)
-        })
 
-      
+        beforeAll(async () => {
+            const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+            testSku.id = skuId;
+            await skuController.dao.addModifySkuPosition(testSku.id, testPosition.positionID);
+        });
+
         test("Modify inexistent SKU", async () => {
             await expect(skuController.modifySku(-1, testSku.description, testSku.weight,
                 testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity))
                 .rejects
                 .toThrow(SkuErrorFactory.newSkuNotFound())
         });
-
+ 
         test("Add or modify position of a SKU", async () => {
             await expect(skuController.addModifySkuPosition(testSku.id, testPosition.positionID))
                 .resolves
@@ -105,15 +111,20 @@ describe("SKU Controller suite", () => {
                 .rejects
                 .toThrow(SkuErrorFactory.newPositionAlreadyOccupied())
         });
-        afterAll(async () => {
-            await skuController.deleteSku(testSku.id);
+
+        test("Add or modify position of a SKU that does not exist", async () => {
+            await expect(skuController.addModifySkuPosition(-1, testPosition.positionID))
+                .rejects
+                .toThrow(SkuErrorFactory.newPositionAlreadyOccupied())
         });
+
+        /*afterAll(async () => {
+            await skuController.dao.deleteAllSKU();
+        });*/
 
     });
 
     describe("Delete SKU", () => {
-
-        
 
         test("Delete inexistent SKU", async () => {
             await expect(skuController.deleteSku(-1))
@@ -127,6 +138,10 @@ describe("SKU Controller suite", () => {
                 
         });
     })
+
+    /*afterAll(async () => {
+        await positionController.deletePosition(mockTestPosition.positionID);
+    })*/
 
 
 

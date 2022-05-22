@@ -69,7 +69,7 @@ class AppDAO {
         this.transaction.onGoing = true;
 
         for (let i = 0; i < sqls.length; i++) {
-            console.log(sqls[i], params[i]);
+            //console.log(sqls[i], params[i]);
             let { changes } = await this.run(sqls[i], params[i]);
             totalChanges += changes;
         }

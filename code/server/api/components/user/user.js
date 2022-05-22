@@ -1,6 +1,7 @@
 var CryptoJS = require("crypto-js");
 
 class User {
+    static ADMINISTRATOR     = "administrator";
     static MANAGER           = "manager";
     static INTERNAL_CUSTOMER = "INTERNAL_CUSTOMER";
     static CUSTOMER          = "customer";

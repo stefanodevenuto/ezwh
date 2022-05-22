@@ -28,12 +28,16 @@ class SkuDAO extends AppDAO {
         const query_sku = 'UPDATE sku SET description = ?, weight = ?, volume = ?, notes = ?, price = ?, availableQuantity = ? WHERE id = ?';
         const query_position = 'UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE positionId = ?';
 
-        const { id : positionId } = await this.get(query_get_position, [skuId]);
+        const positionId = await this.get(query_get_position, [skuId]);
 
-        return await this.serialize([query_sku, query_position], [
+        const sku = await this.run(query_sku, [newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity, skuId]);
+        const position = await this.run(query_position, [totalWeight, totalVolume, positionId])
+
+        /*return await this.serialize([query_sku, query_position], [
             [newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity, skuId],
             [totalWeight, totalVolume, positionId]
-        ]);
+        ]);*/
+        return sku;
     }
 
     async addModifySkuPosition(skuId, newPosition) {
@@ -47,8 +51,13 @@ class SkuDAO extends AppDAO {
         const totalWeight = row.availableQuantity * row.weight;
         const totalVolume = row.availableQuantity * row.volume;
 
-        return await this.serialize([query_sku, query_update_position, query_update_position],
-            [[newPosition, skuId], [0, 0, row.positionId], [totalWeight, totalVolume, newPosition]]);
+        
+        const sku = await this.run(query_sku, [newPosition, skuId]);
+        let position = await this.run(query_update_position, [0, 0, row.positionId]);
+        position = await this.run(query_update_position, [totalWeight, totalVolume, newPosition]);
+
+
+        return sku;
     }
 
     async deleteSku(skuId) {
@@ -56,12 +65,13 @@ class SkuDAO extends AppDAO {
         return await this.run(query, [skuId]);
     }
 
+
     // Test
     async deleteAllSKU() {
         const query = 'DELETE FROM sku';
         return await this.run(query);
     }
-    
+
 }
 
 module.exports = SkuDAO;

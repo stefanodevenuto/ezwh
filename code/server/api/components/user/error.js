@@ -3,7 +3,7 @@ const USER_NOT_FOUND = "The username is not associated to any account";
 const WRONG_CREDENTIAL   = "The credential inserted are wrong";
 const INEXISTENT_TYPE    = "The given type doesn't exist";
 const USER_CONFLICT      = "A user with same mail and type already exists";
-const ATTEMPT_PRIVILEGED = "Can't create/modify/delete a privilged account!"
+const ATTEMPT_PRIVILEGED = "Can't create/modify/delete a privileged account!"
 
 class UserErrorFactory {
     static newCustomerNotFound() {

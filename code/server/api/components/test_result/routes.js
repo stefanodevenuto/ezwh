@@ -23,8 +23,8 @@ class TestResultRoutes {
 		
         this.router.get(
 			'/:rfid/testResults/:id',
-			param('rfid').isString().withMessage("ERROR: RFID is not a string"),
-			param('id').isNumeric().withMessage("ERROR: testResultId is not a number"),
+			param('rfid').isString().isLength({min: 32, max: 32}),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getTestResultByID(req.params.rfid, req.params.id)
 				.then((testResult) => res.status(200).json(testResult))

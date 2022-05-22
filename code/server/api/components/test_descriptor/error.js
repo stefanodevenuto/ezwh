@@ -13,7 +13,7 @@ class TestDescriptorErrorFactory {
 
     static newSKUAlreadyWithTestDescriptor() {
         let error = new Error();
-		error.customCode = 404;
+		error.customCode = 422;
         error.customMessage = SKU_NOT_UNIQUE;
 
 		return error;

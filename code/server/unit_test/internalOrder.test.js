@@ -6,7 +6,6 @@ const InternalOrder = require('../api/components/internalOrder/internalOrder');
 
 const InternalOrderController = require('../api/components/internalOrder/controller');
 
-
 describe("Testing InternalOrderDao", () => {
 
     const internalOrderDao = new InternalOrderDao();
@@ -74,11 +73,9 @@ describe("Testing InternalOrderDao", () => {
 
     describe("Modify Internal Order", () => {
 
-        beforeEach(async () => {
+        beforeAll(async () => {
             let row = await internalOrderDao.createInternalOrder(testInternalOrder.issueDate,testInternalOrder.customerId, testInternalOrder.state, testInternalOrder.products);
             testInternalOrder.id = row;
-            let row2 = await internalOrderDao.createInternalOrder(testInternalOrder2.issueDate,testInternalOrder2.customerId, testInternalOrder2.state, testInternalOrder2.products);
-            testInternalOrder2.id = row2;
          });
 
 
@@ -101,7 +98,7 @@ describe("Testing InternalOrderDao", () => {
     
                     let result = await internalOrderDao.getInternalOrderByID(testInternalOrder.id);
                     result = await internalOrderController.buildInternalOrders(result);
-
+                    console.log(result)
     
                     expect(result[0].state).toStrictEqual(internalOrderMod.newState);    
                 
@@ -109,30 +106,29 @@ describe("Testing InternalOrderDao", () => {
 
             test("Modify Internal Order COMPLETED", async () => {
     
-                let internalOrderMod2 = {
+                let internalOrderMod = {
                     newState: "COMPLETED",
                     products:   [{"SkuID":testInternalOrder2.products[0].SKUId,"RFID":"12345678901234567890123456789016"},
-                                {"SkuID":testInternalOrder2.products[0].SKUId,"RFID":"12345678901234567890123456789038"}]
+                                {"SkuID":testInternalOrder2.products[1].SKUId,"RFID":"12345678901234567890123456789038"}]
                 };
-              
-                    const changes = await internalOrderDao.modifyStateInternalOrder(testInternalOrder2.id, "COMPLETED", internalOrderMod2.products);    
-                    expect(changes).toStrictEqual(1);
+               
+                const changes = await internalOrderDao.modifyStateInternalOrder(testInternalOrder.id, internalOrderMod.newState, undefined);    
+                expect(changes).toStrictEqual(1);
 
-                    testInternalOrder2.state = internalOrderMod2.newState;
-                    console.log(testInternalOrder2.state)
-    
-                    let result2 = await internalOrderDao.getInternalOrderByID(testInternalOrder2.id);
-                    result2 = await internalOrderController.buildInternalOrders(result2);
-                    console.log(result2[0].state)
-    
-                    expect(result2.state).toStrictEqual(internalOrderMod2.newState);    
+                testInternalOrder.state = internalOrderMod.newState;
+
+                let result = await internalOrderDao.getInternalOrderByID(testInternalOrder.id);
+                result = await internalOrderController.buildInternalOrders(result);
+                console.log(result)
+
+                expect(result[0].state).toStrictEqual(internalOrderMod.newState);    
                 
             });
 
-            afterEach(async () => {
+            /*afterEach(async () => {
                 await internalOrderDao.deleteAllInternalOrder();
                 
-            });
+            });*/
           
         });
 

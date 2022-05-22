@@ -19,7 +19,7 @@ class InternalOrderDAO extends AppDAO{
 
     async getInternalOrderByID(internalOrderID) {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, sku.id AS SKUId,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id as SKUId,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
@@ -35,7 +35,7 @@ class InternalOrderDAO extends AppDAO{
 
     async getInternalOrdersAccepted() {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id AS SKUId,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
@@ -50,7 +50,7 @@ class InternalOrderDAO extends AppDAO{
 
     async getInternalOrdersIssued() {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id AS SKUId,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
@@ -80,7 +80,7 @@ class InternalOrderDAO extends AppDAO{
     async modifyStateInternalOrder(internalOrderId, newState, products = undefined) {
         const query = 'UPDATE internalOrder SET state = ? WHERE id = ?'
         const query_add_id_skuItem = 'UPDATE skuItem SET internalOrderId = ? WHERE RFID = ?';
-      
+        
         let finalChanges = 0;
         await this.startTransaction();
         
@@ -113,7 +113,8 @@ class InternalOrderDAO extends AppDAO{
         await this.run(queryS);
         const query = 'DELETE FROM internalOrder'
         return await this.run(query);
-    }    
+    }  
+
 }
 
 module.exports = InternalOrderDAO;

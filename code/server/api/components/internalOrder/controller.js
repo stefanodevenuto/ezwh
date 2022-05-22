@@ -1,8 +1,8 @@
 const InternalOrderDAO = require('./dao')
 const InternalOrder = require("./internalOrder");
-const SkuController = require('../sku/controller');
 const Products = require('./products');
 const ProductsQ = require('./productsQ.js');
+const SkuController = require('../sku/controller');
 const { InternalOrderErrorFactory } = require('./error');
 const { UserErrorFactory } = require('../user/error');
 const { SKUItemErrorFactory } = require('../skuItem/error');
@@ -17,20 +17,19 @@ class InternalOrderController {
 
     async getAllInternalOrders() {
         const rows = await this.dao.getAllInternalOrders();
-        console.log(rows)
         const internalOrders = await this.buildInternalOrders(rows);
 
         return internalOrders;
     }
 
-    async getInternalOrdersAccepted(req, res, next) {
+    async getInternalOrdersAccepted() {
         const rows = await this.dao.getInternalOrdersAccepted();
         const acceptedInternalOrders = await this.buildInternalOrders(rows);
 
         return acceptedInternalOrders;
     }
 
-    async getInternalOrdersIssued(req, res, next) {
+    async getInternalOrdersIssued() {
         const rows = await this.dao.getInternalOrdersIssued();
         const issuedInternalOrders = await this.buildInternalOrders(rows);
 
@@ -39,18 +38,8 @@ class InternalOrderController {
 
     async getInternalOrderByID(internalOrderID) {
         const internalOrder = await this.getInternalOrderByIDInternal(internalOrderID);
-        return internalOrder;
-    }
-
-    async getInternalOrderByIDInternal(internalOrderId) {
-        
-        const rows = await this.dao.getInternalOrderByID(internalOrderId);
-        if (rows === undefined)
-            throw InternalOrderErrorFactory.newInternalOrderNotFound();
-
-        const internalOrder = await this.buildInternalOrders(rows);
-
-        return internalOrder;
+        const internalOrderBuild = await this.buildInternalOrders(internalOrder);
+        return internalOrderBuild;
     }
 
 
@@ -63,7 +52,8 @@ class InternalOrderController {
                 let product = new ProductsQ(sku.id, sku.description, sku.price, row.qty)
                 finalProducts.push(product);
             }
-             await this.dao.createInternalOrder(issueDate, customerId, InternalOrder.ISSUED, finalProducts);
+
+            await this.dao.createInternalOrder(issueDate, customerId, InternalOrder.ISSUED, finalProducts);
         } catch (err) {
             if (err.code === "SQLITE_CONSTRAINT") {
                 if (err.message.includes("FOREIGN"))
@@ -149,8 +139,15 @@ class InternalOrderController {
         return internalOrders;
     }
 
+    async getInternalOrderByIDInternal(internalOrderId) {
 
-    
+        const rows = await this.dao.getInternalOrderByID(internalOrderId);
+        if (rows.length === 0)
+            throw InternalOrderErrorFactory.newInternalOrderNotFound();
+
+        const internalOrder = await this.buildInternalOrders(rows);
+        return internalOrder;
+    }
 }
 
 module.exports = InternalOrderController;

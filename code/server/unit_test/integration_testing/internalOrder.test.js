@@ -6,7 +6,6 @@ const InternalOrder = require('../../api/components/internalOrder/internalOrder'
 const Sku = require('../../api/components/sku/sku');
 
 
-
 describe("Internal Order Controller suite", () => {
 
     const skuController = new SkuController();
@@ -34,17 +33,15 @@ describe("Internal Order Controller suite", () => {
                                                                                                     testInternalOrder.state, testInternalOrder.products);
         testInternalOrder.id = internalOrderId;
 
-       
     });
 
    
 
     describe("Get Internal Orders", () => {
 
-       
-
         test("Get All Internal Orders", async () => {
             const result = await internalOrderController.dao.getAllInternalOrders();
+           
             expect(result).toHaveLength(2);
 
             expect(result[0].issueDate).toStrictEqual(testInternalOrder.issueDate);
@@ -55,9 +52,9 @@ describe("Internal Order Controller suite", () => {
 
         test("Get Internal Order by ID", async () => {
           
-            const result = await internalOrderController.getInternalOrderByID(testInternalOrder.id);
+            let result = await internalOrderController.getInternalOrderByIDInternal(testInternalOrder.id);
+           
             console.log(result)
-            
             //expect(result[0]).toMatchObject(testInternalOrder);
 
             expect(result[0].issueDate).toStrictEqual(testInternalOrder.issueDate);
@@ -106,7 +103,7 @@ describe("Internal Order Controller suite", () => {
         });
 
         afterAll(async () => {
-            await internalOrderController.deleteInternalOrder(testInternalOrder.id);
+            await internalOrderController.dao.deleteAllInternalOrder();
         });
 
 
@@ -133,6 +130,7 @@ describe("Internal Order Controller suite", () => {
             await expect(internalOrderController.modifyStateInternalOrder(testInternalOrder.id, internalOrderMod.newState, undefined))
                 .rejects
                 .toThrow()
+
         });
 
         test("Modify state Internal Order COMPLETED", async () => {
@@ -145,16 +143,16 @@ describe("Internal Order Controller suite", () => {
                 .toThrow()
         });
 
-        afterEach(async () => {
-            await internalOrderController.deleteInternalOrder(testInternalOrder.id);
-        });
+        /*afterEach(async () => {
+            await internalOrderController.dao.deleteAllInternalOrder();
+        });*/
 
 
     });
 
     describe("Delete internal Order", () => {
 
-        beforeEach(async () => {
+       beforeEach(async () => {
             await internalOrderController.createInternalOrder(testInternalOrder.issueDate, testInternalOrder.products, 
                 testInternalOrder.customerId)
         })
@@ -173,7 +171,7 @@ describe("Internal Order Controller suite", () => {
         });
 
         afterEach(async () => {
-            await internalOrderController.deleteInternalOrder(testInternalOrder.id);
+            await internalOrderController.dao.deleteAllInternalOrder();
         });
     })
 

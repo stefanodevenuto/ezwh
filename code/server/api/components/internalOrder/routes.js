@@ -40,7 +40,7 @@ class InternalOrderRoutes {
 
         this.router.get(
 			'/internalOrders/:id',
-			param('id').isString().withMessage("ERROR: InternalOrderId is not a String"),
+			param('id').isString(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getInternalOrderByID(req.params.id)
 				.then((internalOrder) => res.status(200).json(internalOrder))

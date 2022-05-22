@@ -23,7 +23,7 @@ class TestDescriptorRoutes {
         
         this.router.get(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getTestDescriptorByID(req.params.id)
 				.then((testDescriptor) => res.status(200).json(testDescriptor))
@@ -45,7 +45,7 @@ class TestDescriptorRoutes {
         
 		this.router.put(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			body('newName').isString(),
 			body('newProcedureDescription').isString(),
 			body('newIdSKU').isNumeric(),
@@ -58,7 +58,7 @@ class TestDescriptorRoutes {
 
 		this.router.delete(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteTestDescriptor(req.params.id)
 				.then(() => res.status(204).send())
