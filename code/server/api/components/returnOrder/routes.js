@@ -24,7 +24,7 @@ class ReturnOrderRoutes {
 
         this.router.get(
 			'/:id',
-			param('id').isString().withMessage("ERROR: ReturnOrderId is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getReturnOrderByID(req.params.id)
 				.then((returnOrder) => res.status(200).json(returnOrder))
@@ -45,7 +45,7 @@ class ReturnOrderRoutes {
 
 		this.router.delete(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: ReturnOrderId is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteReturnOrder(req.params.id)
 				.then(() => res.status(204).send())

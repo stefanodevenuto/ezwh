@@ -21,14 +21,14 @@ class InternalOrderController {
         return internalOrders;
     }
 
-    async getInternalOrdersAccepted(req, res, next) {
+    async getInternalOrdersAccepted() {
         const rows = await this.dao.getInternalOrdersAccepted();
         const acceptedInternalOrders = await this.buildInternalOrders(rows);
 
         return acceptedInternalOrders;
     }
 
-    async getInternalOrdersIssued(req, res, next) {
+    async getInternalOrdersIssued() {
         const rows = await this.dao.getInternalOrdersIssued();
         const issuedInternalOrders = await this.buildInternalOrders(rows);
 

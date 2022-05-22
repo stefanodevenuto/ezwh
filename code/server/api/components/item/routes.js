@@ -1,9 +1,9 @@
 const express = require('express');
 const { param, body } = require("express-validator")
-const ItemController = require('./controller');	//before: ./item
-const { ErrorHandler } = require("../../helper");	//ok
+const ItemController = require('./controller');
+const { ErrorHandler } = require("../../helper");
 
-class ItemRoutes {      // ok
+class ItemRoutes {
 	constructor() {
 		this.errorHandler = new ErrorHandler();
 		this.name = 'item';
@@ -12,9 +12,7 @@ class ItemRoutes {      // ok
 		this.initRoutes();
 	}
 
-
 	initRoutes() {
-
         this.router.get(
 			'/',
 			this.errorHandler.validateRequest,
@@ -48,7 +46,7 @@ class ItemRoutes {      // ok
 
 		this.router.put(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			body('newDescription').isString(),
 			body('newPrice').isDecimal(),
 			this.errorHandler.validateRequest,
@@ -60,7 +58,7 @@ class ItemRoutes {      // ok
 
 		this.router.delete(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteItem(req.params.id)
 				.then(() => res.status(204).send())

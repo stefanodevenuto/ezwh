@@ -36,7 +36,7 @@ class UserController {
 
 	async createUser(username, name, surname, password, type) {
 		try {
-			if (type === User.MANAGER)
+			if (type === User.MANAGER || type === User.ADMINISTRATOR)
 				throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
 
 			if (!User.isValidType(type))
@@ -95,6 +95,9 @@ class UserController {
 	}
 
 	async modifyRight(username, oldType, newType) {
+		if (oldType === User.MANAGER || oldType === User.ADMINISTRATOR)
+			throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
+
 		const user = await this.dao.getUserByEmailAndType(username, oldType);
 		if (user === undefined)
 			throw UserErrorFactory.newUserNotFound();
@@ -106,7 +109,7 @@ class UserController {
 	}
 
 	async deleteUser(username, type) {
-		if (type === User.MANAGER)
+		if (type === User.MANAGER || type === User.ADMINISTRATOR)
 			throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
 
 		await this.dao.deleteUser(username, type);

@@ -23,7 +23,7 @@ class SkuRoutes {
 		
         this.router.get(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: skuId is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getSkuByID(req.params.id)
 				.then((sku) => res.status(200).json(sku))
@@ -47,7 +47,7 @@ class SkuRoutes {
 
 		this.router.put(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			body('newDescription').isString(),
 			body('newWeight').isNumeric(),
 			body('newVolume').isNumeric(),
@@ -64,8 +64,8 @@ class SkuRoutes {
 
 		this.router.put(
 			'/:id/position',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
-			body('position').isString(),
+			param('id').isNumeric(),
+			body('position').isString().isLength({min: 12, max: 12}),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.addModifySkuPosition(req.params.id, req.body.position)
 				.then(() => res.status(200).send())
@@ -74,7 +74,7 @@ class SkuRoutes {
 
 		this.router.delete(
 			'/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteSku(req.params.id)
 				.then(() => res.status(204).send())

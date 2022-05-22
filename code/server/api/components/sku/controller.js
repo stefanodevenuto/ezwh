@@ -13,14 +13,14 @@ class SkuController {
 	async getAllSkus() {
 		const rows = await this.dao.getAllSkus();
 		const skus = rows.map(record => new Sku(record.id, record.description, record.weight, record.volume, record.notes,
-			record.positionId, record.availableQuantity, record.price, record.testDescriptor));
+			record.positionId, record.availableQuantity, record.price, record.testDescriptor).intoJson());
 
 		return skus;
 	}
 
 	async getSkuByID(skuId) {
 		const sku = await this.getSkuByIDInternal(skuId);
-		return sku;
+		return sku.intoJson(true);
 	}
 
 	async createSku(description, weight, volume, notes, price, availableQuantity) {

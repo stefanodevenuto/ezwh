@@ -32,7 +32,7 @@ class RestockOrderRoutes {
         
         this.router.get(
 			'/restockOrders/:id',
-			param('id').isString().withMessage("ERROR: Restock Order ID is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getRestockOrderByID(req.params.id)
 				.then((restockOrder) => res.status(200).json(restockOrder))
@@ -41,7 +41,7 @@ class RestockOrderRoutes {
 
 		this.router.get(
 			'/restockOrders/:id/returnItems',
-			param('id').isString().withMessage("ERROR: Restock Order ID is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getRestockOrderReturnItemsByID(req.params.id)
 				.then((returnItems) => res.status(200).json(returnItems))
@@ -62,7 +62,7 @@ class RestockOrderRoutes {
 
 		this.router.put(
 			'/restockOrder/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			body("newState").isString(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.modifyState(req.params.id, req.body.newState)
@@ -72,7 +72,7 @@ class RestockOrderRoutes {
 
 		this.router.put(
 			'/restockOrder/:id/skuItems',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			body("skuItems").isArray(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.modifyRestockOrderSkuItems(req.params.id, req.body.skuItems)
@@ -82,7 +82,7 @@ class RestockOrderRoutes {
 
 		this.router.put(
 			'/restockOrder/:id/transportNote',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			body("transportNote.deliveryDate").isDate(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.modifyTransportNote(req.params.id, req.body.transportNote.deliveryDate)
@@ -92,7 +92,7 @@ class RestockOrderRoutes {
 
 		this.router.delete(
 			'/restockOrder/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteRestockOrder(req.params.id)
 				.then(() => res.status(204).send())

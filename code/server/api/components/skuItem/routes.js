@@ -24,7 +24,7 @@ class SKUItemRoutes {
 		
         this.router.get(
 			'/:rfid',
-			param('rfid').isString().withMessage("ERROR: RFID is not a string"),
+			param('rfid').isString().isLength({min: 32, max: 32}).isLength({min: 32, max: 32}),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getSKUItemByRFID(req.params.rfid)
 				.then((skuItem) => res.status(200).json(skuItem))
@@ -33,7 +33,7 @@ class SKUItemRoutes {
 
 		this.router.get(
 			'/sku/:id',
-			param('id').isNumeric().withMessage("ERROR: id is not a number"),
+			param('id').isNumeric(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getSKUItemBySKUID(req.params.id)
 				.then((SKUItems) => res.status(200).json(SKUItems))
@@ -54,7 +54,7 @@ class SKUItemRoutes {
 
 		this.router.put(
 			'/:rfid',
-			param('rfid').isString().isLength({min: 32, max: 32}).withMessage("ERROR: RFID is not a string"),
+			param('rfid').isString().isLength({min: 32, max: 32}),
 			body('newRFID').isString().isLength({min: 32, max: 32}),
 			body('newAvailable').isNumeric(),
 			body('newDateOfStock').isString(),
@@ -67,7 +67,7 @@ class SKUItemRoutes {
 
 		this.router.delete(
 			'/:rfid',
-			param('rfid').isString().isLength({min: 32, max: 32}).withMessage("ERROR: RFID is not a string or lenght is minor then 32"),
+			param('rfid').isString().isLength({min: 32, max: 32}),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteSKUItem(req.params.rfid)
 				.then(() => res.status(204).send())

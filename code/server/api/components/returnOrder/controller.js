@@ -58,8 +58,13 @@ class ReturnOrderController {
             for (let row of rows) {
                 // If it's the same restockOrder, continue adding the related Skus
                 if (row.id == lastReturnOrder.id) {
-                    let product = await this.skuItemController.getSKUItemByRFIDInternal(row.RFID);
-                    products.push(product);
+                    let item = await this.skuItemController.getItemByRFIDInternal(row.RFID, row.restockOrderId);
+                    products.push({
+                        RFID: row.RFID,
+                        SKUId: item.SKUId,
+                        description: item.description,
+                        price: item.price
+                    });
                 } else {
                     // Otherwise, create the current restockOrder and clear the products array
                     const returnOrder = new ReturnOrder(lastReturnOrder.id, lastReturnOrder.returnDate, products, lastReturnOrder.restockOrderId);
@@ -69,16 +74,19 @@ class ReturnOrderController {
                     lastReturnOrder = row;
                     products = [];
 
-                    // Don't lose the current Item!
-                    let product = await this.skuItemController.getSKUItemByRFIDInternal(row.RFID);
-                    products.push(product);
+                    // Don't lose the current Sku Item!
+                    let item = await this.skuItemController.getItemByRFIDInternal(row.RFID, row.restockOrderId);
+                    products.push({
+                        RFID: row.RFID,
+                        SKUId: item.SKUId,
+                        description: item.description,
+                        price: item.price
+                    });
                 }
             }
 
             // Create the last restockOrder
             const returnOrder = new ReturnOrder(lastReturnOrder.id, lastReturnOrder.returnDate, products, lastReturnOrder.restockOrderId);
-
-            //returnOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache(restockOrder.id);
             returnOrders.push(returnOrder);
         }
 

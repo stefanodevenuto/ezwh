@@ -37,6 +37,9 @@ class ItemController {
 					err = ItemErrorFactory.newSkuOrSupplierNotFound();
 
 				// ASSUMPTION from open Git Issue: item.id unique globally
+				//
+				// Done this way because otherwise the entire Item API 
+				// (as written as is now) would not work
 				if (err.message.includes("item.id"))
 					err = ItemErrorFactory.itemAlreadySoldBySupplier();
 			}
