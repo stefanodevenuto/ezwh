@@ -5,7 +5,7 @@ class ReturnOrderDAO extends AppDAO{
     constructor() { super(); }
     
     async getAllReturnOrders() {
-        const query = 'SELECT RO.id, RO.returnDate, I.SKUId, I.description, I.price, SI.RFID \
+        const query = 'SELECT RO.id, RO.returnDate, I.SKUId, I.description, I.price, SI.RFID, RO.restockOrderId \
             FROM returnOrder RO  \
             JOIN restockOrder_item ROI ON ROI.restockOrderId = RO.restockOrderId \
             JOIN item I ON ROI.itemId = I.id \
@@ -17,7 +17,7 @@ class ReturnOrderDAO extends AppDAO{
     }
 
     async getReturnOrderByID(returnOrderID) {
-        const query = 'SELECT RO.id, RO.returnDate, I.SKUId, I.description, I.price, SI.RFID \
+        const query = 'SELECT RO.id, RO.returnDate, I.SKUId, I.description, I.price, SI.RFID, RO.restockOrderId \
             FROM returnOrder RO  \
             JOIN restockOrder_item ROI ON ROI.restockOrderId = RO.restockOrderId \
             JOIN item I ON ROI.itemId = I.id \

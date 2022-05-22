@@ -6,12 +6,12 @@ class SKUItemDAO extends AppDAO{
     constructor() { super(); }
     
     async getAllSKUItems() {
-        const query = 'SELECT RFID, skuId, available, dateOfStock FROM skuItem';
+        const query = 'SELECT * FROM skuItem';
         return await this.all(query);
     }
 
     async getSKUItemByRFID(RFID) {
-        const query = 'SELECT RFID, skuId, available, dateOfStock FROM skuItem WHERE RFID = ?';
+        const query = 'SELECT * FROM skuItem WHERE RFID = ?';
         let row = await this.get(query, [RFID]);
 
         return row;

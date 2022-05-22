@@ -6,7 +6,7 @@ class InternalOrderDAO extends AppDAO{
     constructor() { super(); }
     
     async getAllInternalOrders() {
-        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id AS SKUId,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
@@ -35,7 +35,7 @@ class InternalOrderDAO extends AppDAO{
 
     async getInternalOrdersAccepted() {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id AS SKUId,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
@@ -50,7 +50,7 @@ class InternalOrderDAO extends AppDAO{
 
     async getInternalOrdersIssued() {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id AS SKUId,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \

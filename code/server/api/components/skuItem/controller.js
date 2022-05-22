@@ -13,8 +13,9 @@ class SKUItemController {
 
 	async getAllSKUItems(req, res, next) {
 		const rows = await this.dao.getAllSKUItems();
-		const SKUItems = rows.map(record => new SKUItem(record.RFID, record.skuId,
-			record.available, record.dateOfStock, record.restockOrderId));
+		const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
+			record.available, record.dateOfStock, record.restockOrderId, 
+			record.returnOrderId, record.internalOrderId).intoJson());
 
 		return SKUItems;
 	}
@@ -26,14 +27,14 @@ class SKUItemController {
 
 		const rows = await this.dao.getSKUItemBySKUID(skuId);
 		const SKUItems = rows.map(record => new SKUItem(record.RFID, record.SKUId,
-			record.available, record.dateOfStock, record.restockOrderId));
+			record.available, record.dateOfStock, record.restockOrderId).intoJson(true));
 
 		return SKUItems;
 	}
 
 	async getSKUItemByRFID(SKUItemId) {
 		const skuItem = await this.getSKUItemByRFIDInternal(SKUItemId);
-		return skuItem;
+		return skuItem.intoJson();
 	}
 
 	async createSKUItem(RFID, SKUId, DateOfStock) {
@@ -80,7 +81,7 @@ class SKUItemController {
 		if (row === undefined)
 			throw SKUItemErrorFactory.newSKUItemNotFound();
 
-		const skuItem = new SKUItem(row.RFID, row.skuId, row.available, row.dateOfStock, row.restockOrderId);
+		const skuItem = new SKUItem(row.RFID, row.SKUId, row.available, row.dateOfStock, row.restockOrderId);
 		return skuItem;
 	}
 
