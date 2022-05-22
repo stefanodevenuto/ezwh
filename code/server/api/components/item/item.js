@@ -6,6 +6,11 @@ class Item {
         this.SKUId = SKUId;
         this.supplierId = supplierId;
     }
+    static mockItem() {
+        const item = new Item(1212, "a test item", 10.20, null, null);
+        return item;
+    }
+
 }
 
 module.exports = Item;
