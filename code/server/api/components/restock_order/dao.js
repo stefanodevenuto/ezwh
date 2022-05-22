@@ -64,14 +64,16 @@ class RestockOrderDAO extends AppDAO{
     async modifyRestockOrderSkuItems(restockOrderId, skuItems) {
         const query = 'UPDATE skuItem SET restockOrderId = ? WHERE RFID = ?'
 
-        let params = [];
-        let queries = [];
+        let totalChanges = 0;
+        await this.startTransaction();
+
         for (let skuItem of skuItems) {
-            params.push([restockOrderId, skuItem.rfid])
-            queries.push(query);
+            let { changes } = await this.run(query, [restockOrderId, skuItem.rfid])
+            totalChanges += changes;
         }
 
-        return await this.serialize(queries, params);
+        await this.commitTransaction();
+        return {changes: totalChanges};
     }
 
     async modifyTransportNote(restockOrderId, deliveryDate) {
@@ -82,6 +84,13 @@ class RestockOrderDAO extends AppDAO{
     async deleteRestockOrder(restockOrderId) {
         const query = 'DELETE FROM restockOrder WHERE id = ?'
         return await this.run(query, [restockOrderId]);
+    }
+
+    // Test
+
+    async deleteAllRestockOrder() {
+        const query = 'DELETE FROM restockOrder';
+        return await this.run(query);
     }
 }
 

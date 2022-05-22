@@ -76,10 +76,6 @@ describe("Test Result Controller suite", () => {
         });
 
         afterEach(async () => {
-            console.log(testSku)
-            console.log(testSkuItem)
-            console.log(testTestDescriptor)
-
             await skuController.dao.deleteSku(testSku.id);
             await skuItemController.dao.deleteSKUItem(testSkuItem.RFID);
             await testDescriptorController.dao.deleteTestDescriptor(testTestDescriptor.id);
@@ -115,9 +111,7 @@ describe("Test Result Controller suite", () => {
                 .toThrow(TestResultErrorFactory.newTestDescriptorOrSkuItemNotFound())
         });
 
-        afterEach(async () => {
-            console.log(testTestDescriptor)
-            
+        afterEach(async () => {            
             await testResultController.dao.deleteTestResult(testSkuItem.RFID, testTestResult.id);
             await skuItemController.dao.deleteSKUItem(testSkuItem.RFID);
             await testDescriptorController.dao.deleteTestDescriptor(testTestDescriptor.id);

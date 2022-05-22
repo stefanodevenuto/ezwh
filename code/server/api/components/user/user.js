@@ -37,6 +37,13 @@ class User {
             type: this.type
         }        
     }
+
+    static mockUser() {
+        const user = new User(null, "TestTest", "TestTest", "test@test.test",
+            "testtest", User.SUPPLIER);
+
+        return user;
+    }
 }
 
 module.exports = User;
