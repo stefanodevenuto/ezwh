@@ -31,7 +31,7 @@ describe("Test Result Controller suite", () => {
         beforeEach(async () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
                 testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
-            testSkuItem.SKUId = skuId;
+            testSku.id = skuId;
     
             await skuItemController.dao.createSKUItem( testSkuItem.RFID, 
                 testSkuItem.SKUId, testSkuItem.dateOfStock)
@@ -76,22 +76,26 @@ describe("Test Result Controller suite", () => {
         });
 
         afterEach(async () => {
+            console.log(testSku)
+            console.log(testSkuItem)
+            console.log(testTestDescriptor)
+
+            await skuController.dao.deleteSku(testSku.id);
             await skuItemController.dao.deleteSKUItem(testSkuItem.RFID);
             await testDescriptorController.dao.deleteTestDescriptor(testTestDescriptor.id);
-            await skuController.dao.deleteSku(testSku.id);
         });
     });
 
     describe("Create Test Result", () => {
-        beforeEach(async () => {
+        beforeAll(async () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
                 testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
-            testSkuItem.SKUId = skuId;
+            testSku.id = skuId;
     
             await skuItemController.dao.createSKUItem( testSkuItem.RFID, 
                 testSkuItem.SKUId, testSkuItem.dateOfStock)
     
-            const { id: testDescriptorId } = 
+            const testDescriptorId= 
                 await testDescriptorController.dao.createTestDescriptor(testTestDescriptor.name, 
                     testTestDescriptor.procedureDescription, testTestDescriptor.idSKU);
             testTestDescriptor.id = testDescriptorId;
@@ -112,6 +116,8 @@ describe("Test Result Controller suite", () => {
         });
 
         afterEach(async () => {
+            console.log(testTestDescriptor)
+            
             await testResultController.dao.deleteTestResult(testSkuItem.RFID, testTestResult.id);
             await skuItemController.dao.deleteSKUItem(testSkuItem.RFID);
             await testDescriptorController.dao.deleteTestDescriptor(testTestDescriptor.id);
@@ -123,7 +129,7 @@ describe("Test Result Controller suite", () => {
         beforeEach(async () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
                 testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
-            testSkuItem.SKUId = skuId;
+            testSku.id = skuId;
     
             await skuItemController.dao.createSKUItem( testSkuItem.RFID, 
                 testSkuItem.SKUId, testSkuItem.dateOfStock)
@@ -182,7 +188,7 @@ describe("Test Result Controller suite", () => {
         beforeEach(async () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
                 testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
-            testSkuItem.SKUId = skuId;
+            testSku.id = skuId;
     
             await skuItemController.dao.createSKUItem( testSkuItem.RFID, 
                 testSkuItem.SKUId, testSkuItem.dateOfStock)
