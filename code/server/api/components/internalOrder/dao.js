@@ -6,7 +6,7 @@ class InternalOrderDAO extends AppDAO{
     constructor() { super(); }
     
     async getAllInternalOrders() {
-        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id AS SKUId,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
@@ -19,7 +19,7 @@ class InternalOrderDAO extends AppDAO{
 
     async getInternalOrderByID(internalOrderID) {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id AS SKUId,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
@@ -27,7 +27,7 @@ class InternalOrderDAO extends AppDAO{
         LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
         WHERE internalOrder.id = ?';
         
-        let rows = await this.get(query, [internalOrderID]);
+        let rows = await this.all(query, [internalOrderID]);
 
         return rows;
     }
@@ -63,60 +63,57 @@ class InternalOrderDAO extends AppDAO{
         return rows;
     }
 
-
-    async createInternalnOrder(issueDate, customerId, state, finalProducts) {
+    async createInternalOrder(issueDate, customerId, state, products) {
         const query = 'INSERT INTO internalOrder(issueDate, state, customerId) VALUES (?, ?, ?)';
         const queryItem = 'INSERT INTO internalOrder_sku(internalOrderId, skuId, qty) VALUES (?, ?, ?)';
-        let lastId = await this.run(query, [issueDate, state, customerId]);
-      
-        for(let row of finalProducts){
-            await this.run(queryItem, [lastId.id, row.SKUId, row.qty]);
-        }
-        return lastId;
-    }
-
-    async modifyStateInternalOrder(internalOrderId, rawInternalOrder) {
-        
-        const query = 'UPDATE internalOrder SET state = ? WHERE id = ?'
-
-        const query_add_id_skuItem = 'UPDATE skuItem SET internalOrderId = ? WHERE RFID = ?';
 
         await this.startTransaction();
+        const { id } = await this.run(query, [issueDate, state, customerId]);
 
-        let { changes } = await this.run(query, [rawInternalOrder.newState, internalOrderId]);
-        if(rawInternalOrder.newState === "COMPLETED"){
-            for(let row of rawInternalOrder.products){
-                await this.run(query_add_id_skuItem, [internalOrderId, row.RFID]);
+        for(let row of products)
+            await this.run(queryItem, [id, row.SKUId, row.qty]);
+
+        await this.commitTransaction();
+        return id;
+    }
+
+    async modifyStateInternalOrder(internalOrderId, newState, products = undefined) {
+        const query = 'UPDATE internalOrder SET state = ? WHERE id = ?'
+        const query_add_id_skuItem = 'UPDATE skuItem SET internalOrderId = ? WHERE RFID = ?';
+      
+        let finalChanges = 0;
+        await this.startTransaction();
+        
+        let { changes } = await this.run(query, [newState, internalOrderId]);
+        finalChanges += changes;
+
+        if(products !== undefined){
+            for(let row of products){
+                let { changes } = await this.run(query_add_id_skuItem, [internalOrderId, row.RFID]);
+                finalChanges += changes;
             }
         }
-        await this.commitTransaction();
-
-        return changes;
-    }
-
-
-
-    async deleteInternalOrder(internalOrderID) {
-        
-        const queryPr = 'DELETE FROM internalOrder_sku WHERE internalOrderId = ?'
-        await this.run(queryPr, [internalOrderID]);
-
-        const query = 'DELETE FROM internalOrder WHERE id = ?'
-        return await this.run(query, [internalOrderID]);
-
-    }
-
-        // Test
-        async deleteAllInternalOrder() {
-
-            const queryS = 'DELETE FROM internalOrder_sku';
-            await this.run(queryS);
-
-            const query = 'DELETE FROM internalOrder';
-            return await this.run(query);
+        if(products !== undefined){
+            if (finalChanges === products.length + 1)
+                await this.commitTransaction();
+            else
+                await this.rollbackTransaction();
         }
 
-    
+        return finalChanges;
+    }
+
+    async deleteInternalOrder(internalOrderID) {
+        const query = 'DELETE FROM internalOrder WHERE id = ?'
+        return await this.run(query, [internalOrderID]);
+    }    
+
+    async deleteAllInternalOrder() {
+        const queryS = 'DELETE FROM internalOrder_sku'
+        await this.run(queryS);
+        const query = 'DELETE FROM internalOrder'
+        return await this.run(query);
+    }    
 }
 
 module.exports = InternalOrderDAO;

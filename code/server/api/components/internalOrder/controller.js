@@ -17,6 +17,7 @@ class InternalOrderController {
 
     async getAllInternalOrders() {
         const rows = await this.dao.getAllInternalOrders();
+        console.log(rows)
         const internalOrders = await this.buildInternalOrders(rows);
 
         return internalOrders;
@@ -41,6 +42,17 @@ class InternalOrderController {
         return internalOrder;
     }
 
+    async getInternalOrderByIDInternal(internalOrderId) {
+        
+        const rows = await this.dao.getInternalOrderByID(internalOrderId);
+        if (rows === undefined)
+            throw InternalOrderErrorFactory.newInternalOrderNotFound();
+
+        const internalOrder = await this.buildInternalOrders(rows);
+
+        return internalOrder;
+    }
+
 
     async createInternalOrder(issueDate, products, customerId) {
         try {
@@ -51,8 +63,7 @@ class InternalOrderController {
                 let product = new ProductsQ(sku.id, sku.description, sku.price, row.qty)
                 finalProducts.push(product);
             }
-            console.log(finalProducts)
-            await this.dao.createInternalnOrder(issueDate, customerId, InternalOrder.ISSUED, finalProducts);
+             await this.dao.createInternalOrder(issueDate, customerId, InternalOrder.ISSUED, finalProducts);
         } catch (err) {
             if (err.code === "SQLITE_CONSTRAINT") {
                 if (err.message.includes("FOREIGN"))
@@ -138,15 +149,8 @@ class InternalOrderController {
         return internalOrders;
     }
 
-    async getInternalOrderByIDInternal(internalOrderId) {
 
-        const rows = await this.dao.getInternalOrderByID(internalOrderId);
-        if (rows === undefined)
-            throw InternalOrderErrorFactory.newInternalOrderNotFound();
-
-        const [internalOrder] = await this.buildInternalOrders(rows);
-        return internalOrder;
-    }
+    
 }
 
 module.exports = InternalOrderController;

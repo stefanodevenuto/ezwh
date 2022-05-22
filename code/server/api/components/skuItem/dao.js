@@ -6,7 +6,7 @@ class SKUItemDAO extends AppDAO{
     constructor() { super(); }
     
     async getAllSKUItems() {
-        const query = 'SELECT RFID, skuId, available, dateOfStock FROM skuItem';
+        const query = 'SELECT * FROM skuItem';
         return await this.all(query);
     }
 
@@ -22,22 +22,26 @@ class SKUItemDAO extends AppDAO{
         return await this.all(query, [SKUId, 1]);
     }
 
-    async createSKUItem(SKUItem) {
-        const query = 'INSERT INTO skuItem(RFID, SKUId, available, dateOfStock) VALUES (?, ?, ?, ?)'
-        let lastId = await this.run(query, [SKUItem.RFID, SKUItem.SKUId, 0, SKUItem.dateOfStock]);
+    async createSKUItem(RFID, SKUId, DateOfStock) {
+        const query = 'INSERT INTO skuItem(RFID, SKUId, Available, DateOfStock) VALUES (?, ?, 0, ?)'
+        let lastId = await this.run(query, [RFID, SKUId, DateOfStock]);
         
         return lastId;
     }
 
-    async modifySKUItem(RFID, SKUItem) {
+    async modifySKUItem(RFID, newRFID, newAvailable, newDateOfStock) {
         const query = 'UPDATE skuItem SET RFID = ?, available = ?, dateOfStock = ? WHERE RFID = ?'
-        return await this.run(query, [SKUItem.newRFID, SKUItem.newAvailable,
-            SKUItem.newDateOfStock, RFID]);
+        return await this.run(query, [newRFID, newAvailable, newDateOfStock, RFID]);
     }
 
     async deleteSKUItem(RFID) {
         const query = 'DELETE FROM skuItem WHERE RFID = ?'
         return await this.run(query, [RFID]);
+    }
+
+    async deleteAllSKUItem(RFID) {
+        const query = 'DELETE FROM skuItem'
+        return await this.run(query);
     }
 
     // #################### Utilities

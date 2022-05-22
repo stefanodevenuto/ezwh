@@ -16,43 +16,54 @@ describe("Internal Order Controller suite", () => {
     let testSku = Sku.mockTestSku();
     let testInternalOrder = InternalOrder.mockTestInternalOrder();
 
-    beforeAll(async () => {
+   
             
-        const { id: internalOrderId } = await internalOrderController.dao.createInternalnOrder(testInternalOrder.issueDate,testInternalOrder.customerId,
-                                                                                                    testInternalOrder.state, testInternalOrder.products);
-        testInternalOrder.id = internalOrderId;
+    beforeAll(async () => {
+        await internalOrderController.dao.deleteAllInternalOrder();
+       
+        //await skuController.dao.deleteAllSKU();
     });
 
-            
-    /*beforeAll(async () => {
-        await skuController.dao.deleteAllSKU();
-    });*/
+    beforeAll(async () => {
+        for(let row of testInternalOrder.products){
+            let r = await skuController.dao.createSku(row);
+            row.SKUId = r.id;
+        }
+        
+        const internalOrderId = await internalOrderController.dao.createInternalOrder(testInternalOrder.issueDate,testInternalOrder.customerId,
+                                                                                                    testInternalOrder.state, testInternalOrder.products);
+        testInternalOrder.id = internalOrderId;
 
+       
+    });
+
+   
 
     describe("Get Internal Orders", () => {
+
        
 
         test("Get All Internal Orders", async () => {
             const result = await internalOrderController.dao.getAllInternalOrders();
             expect(result).toHaveLength(2);
 
+            expect(result[0].issueDate).toStrictEqual(testInternalOrder.issueDate);
+            expect(result[0].state).toStrictEqual(testInternalOrder.state);
+            //expect(result[0].products).toMatchObject(testInternalOrder.products);
+            expect(result[0].customerId).toStrictEqual(testInternalOrder.customerId);
+          });
+
+        test("Get Internal Order by ID", async () => {
+          
+            const result = await internalOrderController.getInternalOrderByID(testInternalOrder.id);
+            console.log(result)
+            
+            //expect(result[0]).toMatchObject(testInternalOrder);
 
             expect(result[0].issueDate).toStrictEqual(testInternalOrder.issueDate);
             expect(result[0].state).toStrictEqual(testInternalOrder.state);
             //expect(result[0].products).toStrictEqual(testInternalOrder.products);
             expect(result[0].customerId).toStrictEqual(testInternalOrder.customerId);
-          });
-
-        test("Get Internal Order by ID", async () => {
-            console.log(testInternalOrder)
-            testInternalOrder.id = testInternalOrder.id + 1;
-            const result = await internalOrderController.getInternalOrderByID(testInternalOrder.id)
-            expect(result).toStrictEqual(testInternalOrder);
-
-            expect(result.issueDate).toStrictEqual(testInternalOrder.issueDate);
-            expect(result.state).toStrictEqual(testInternalOrder.state);
-            //expect(result.products).toStrictEqual(testInternalOrder.products);
-            expect(result.customerId).toStrictEqual(testInternalOrder.customerId);
          });
 
         /* test("Get Internal Order ISSUED", async () => {
@@ -75,6 +86,11 @@ describe("Internal Order Controller suite", () => {
             expect(result.customerId).toStrictEqual(testInternalOrder.customerId);
          });*/
 
+         afterAll(async () => {
+            await internalOrderController.dao.deleteAllInternalOrder();
+            //for(let row of testInternalOrder.products)
+               // await skuController.dao.deleteSku(row.SkuID);
+        });
 
 
 
@@ -99,6 +115,10 @@ describe("Internal Order Controller suite", () => {
 
     describe("Modify Internal Order", () => {
 
+        beforeEach(async () => {
+            await internalOrderController.createInternalOrder(testInternalOrder.issueDate, testInternalOrder.products, 
+                testInternalOrder.customerId)
+        })
       
         test("Modify inexistent Internal Order", async () => {
             await expect(internalOrderController.modifyStateInternalOrder(-1, testInternalOrder.state, testInternalOrder.products))
@@ -125,12 +145,19 @@ describe("Internal Order Controller suite", () => {
                 .toThrow()
         });
 
+        afterEach(async () => {
+            await internalOrderController.deleteInternalOrder(testInternalOrder.id);
+        });
+
 
     });
 
     describe("Delete internal Order", () => {
 
-        
+        beforeEach(async () => {
+            await internalOrderController.createInternalOrder(testInternalOrder.issueDate, testInternalOrder.products, 
+                testInternalOrder.customerId)
+        })
 
         test("Delete inexistent internal Order", async () => {
             await expect(internalOrderController.deleteInternalOrder(-1))
@@ -143,6 +170,10 @@ describe("Internal Order Controller suite", () => {
                 .resolves
                 //.toThrow(InternalOrderErrorFactory.newInternalOrderNotFound())
                 
+        });
+
+        afterEach(async () => {
+            await internalOrderController.deleteInternalOrder(testInternalOrder.id);
         });
     })
 

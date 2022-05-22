@@ -16,28 +16,24 @@ class SkuDAO extends AppDAO {
         return row;
     }
 
-    async createSku(sku) {
+    async createSku(description, weight, volume, notes, price, availableQuantity) {
         const query = 'INSERT INTO sku(description, weight, volume, notes, price, availableQuantity) VALUES (?, ?, ?, ?, ?, ?)'
-        let lastId = await this.run(query, [sku.description, sku.weight, sku.volume, sku.notes, sku.price, sku.availableQuantity]);
+        let lastId = await this.run(query, [description, weight, volume, notes, price, availableQuantity]);
 
         return lastId;
     }
 
-    async modifySku(skuId, sku, totalWeight, totalVolume) {
+    async modifySku(skuId, newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity, totalWeight, totalVolume) {
         const query_get_position = 'SELECT positionId FROM sku WHERE id = ?';
         const query_sku = 'UPDATE sku SET description = ?, weight = ?, volume = ?, notes = ?, price = ?, availableQuantity = ? WHERE id = ?';
-        const query_position = 'UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE positionID = ?';
+        const query_position = 'UPDATE position SET occupiedWeight = ?, occupiedVolume = ? WHERE positionId = ?';
 
-        const result = await this.get(query_get_position, [skuId]);
-        if (result === undefined || result.positionId === null) {
-            return await this.run(query_sku, [sku.newDescription, sku.newWeight, sku.newVolume, sku.newNotes,
-                sku.newPrice, sku.newAvailableQuantity, skuId]);
-        } else {
-            return await this.serialize([query_sku, query_position], [
-                [sku.newDescription, sku.newWeight, sku.newVolume, sku.newNotes, sku.newPrice, sku.newAvailableQuantity, skuId],
-                [totalWeight, totalVolume, result.positionId]
-            ]);
-        } 
+        const { positionId } = await this.get(query_get_position, [skuId]);
+
+        return await this.serialize([query_sku, query_position], [
+            [newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity, skuId],
+            [totalWeight, totalVolume, positionId]
+        ]);
     }
 
     async addModifySkuPosition(skuId, newPosition) {
@@ -46,7 +42,7 @@ class SkuDAO extends AppDAO {
 
         let row = await this.getSkuByID(skuId);
         if (row === undefined)
-            return {changes: 0};
+            return 0;
 
         const totalWeight = row.availableQuantity * row.weight;
         const totalVolume = row.availableQuantity * row.volume;

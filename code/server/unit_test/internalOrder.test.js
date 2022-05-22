@@ -4,36 +4,47 @@ const UserDAO = require('../api/components/user/dao');
 
 const InternalOrder = require('../api/components/internalOrder/internalOrder');
 
+const InternalOrderController = require('../api/components/internalOrder/controller');
+
+
 describe("Testing InternalOrderDao", () => {
 
     const internalOrderDao = new InternalOrderDao();
     const skuDao = new SkuDAO();
     const userDao = new UserDAO();
 
-    let testInternalOrder = InternalOrder.mockTestInternalOrder2();
+    const internalOrderController = new InternalOrderController();
+
+    let testInternalOrder2 = InternalOrder.mockTestInternalOrder2();
+    let testInternalOrder = InternalOrder.mockTestInternalOrder();
 
 
     beforeAll(async () => {
         await internalOrderDao.deleteAllInternalOrder();
+        //await skuDao.deleteAllSKU();
+        await userDao.getUserByID(testInternalOrder.customerId);
+        await userDao.getUserByID(testInternalOrder2.customerId);
+
     });
 
-
     beforeAll(async () => {
-        try {
-            for(row of testInternalOrder.products){
-                await skuDao.getSkuByID(row.SKUId);
+        
+        for(let row of testInternalOrder.products){
+               let sku = await skuDao.getSkuByID(row.SKUId);
+               if(sku === undefined){
+                    sku = await skuDao.createSku(row);
+                    row.SKUId = sku.id;
+               }
             }
-        } catch(err) {
-            expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
-            expect(err.message).toMatch("id");
-        }
-    });
 
-    beforeAll(async () => {
-
-            let user = await userDao.getUserByID(testInternalOrder.customerId);
-
-            expect(testInternalOrder.customerId).toStrictEqual(user.id);
+            for(let row of testInternalOrder2.products){
+                let sku = await skuDao.getSkuByID(row.SKUId);
+                if(sku === undefined){
+                     sku = await skuDao.createSku(row);
+                     row.SKUId = sku.id;
+                }
+             }
+        
     });
 
     describe("Create Internal Order", () => {
@@ -42,14 +53,20 @@ describe("Testing InternalOrderDao", () => {
         test("Create Internal Order after check SKUId", async () => {
 
             
-                let row = await internalOrderDao.createInternalnOrder(testInternalOrder.issueDate,testInternalOrder.customerId,  testInternalOrder.state, testInternalOrder.products);
-                testInternalOrder.id = row.id;
-                const result = await internalOrderDao.getInternalOrderByID(row.id);
+                let row = await internalOrderDao.createInternalOrder(testInternalOrder.issueDate,testInternalOrder.customerId,  testInternalOrder.state, testInternalOrder.products);
+                testInternalOrder.id = row;
+                let result = await internalOrderDao.getInternalOrderByID(row);
+                result = await internalOrderController.buildInternalOrders(result);
 
-                expect(result.issueDate).toStrictEqual(testInternalOrder.issueDate);
-                expect(result.state).toStrictEqual(testInternalOrder.state);
+                expect(result[0].issueDate).toStrictEqual(testInternalOrder.issueDate);
+                expect(result[0].state).toStrictEqual(testInternalOrder.state);
                 //expect(result.products).toStrictEqual(testInternalOrder.products);
-                expect(result.customerId).toStrictEqual(testInternalOrder.customerId);
+                expect(result[0].customerId).toStrictEqual(testInternalOrder.customerId);
+        });
+
+        afterAll(async () => {
+            await internalOrderDao.deleteAllInternalOrder();
+           
         });
       
     });
@@ -57,9 +74,16 @@ describe("Testing InternalOrderDao", () => {
 
     describe("Modify Internal Order", () => {
 
+        beforeEach(async () => {
+            let row = await internalOrderDao.createInternalOrder(testInternalOrder.issueDate,testInternalOrder.customerId, testInternalOrder.state, testInternalOrder.products);
+            testInternalOrder.id = row;
+            let row2 = await internalOrderDao.createInternalOrder(testInternalOrder2.issueDate,testInternalOrder2.customerId, testInternalOrder2.state, testInternalOrder2.products);
+            testInternalOrder2.id = row2;
+         });
+
 
         test("Modify inexistent Internal Order", async () => {
-            const changes = await internalOrderDao.modifyStateInternalOrder(-1, testInternalOrder);
+            const changes = await internalOrderDao.modifyStateInternalOrder(-1, testInternalOrder.state, testInternalOrder.products);
 
             expect(changes).toStrictEqual(0);
         });
@@ -70,33 +94,43 @@ describe("Testing InternalOrderDao", () => {
                     newState: "ACCEPTED"
                 };
                 
-                    const changes = await internalOrderDao.modifyStateInternalOrder(testInternalOrder.id, internalOrderMod);    
+                    const changes = await internalOrderDao.modifyStateInternalOrder(testInternalOrder.id, internalOrderMod.newState, undefined);    
                     expect(changes).toStrictEqual(1);
 
                     testInternalOrder.state = internalOrderMod.newState;
     
-                    const result = await internalOrderDao.getInternalOrderByID(testInternalOrder.id);
+                    let result = await internalOrderDao.getInternalOrderByID(testInternalOrder.id);
+                    result = await internalOrderController.buildInternalOrders(result);
+
     
-                    expect(result.state).toStrictEqual(internalOrderMod.newState);    
+                    expect(result[0].state).toStrictEqual(internalOrderMod.newState);    
                 
             });
 
             test("Modify Internal Order COMPLETED", async () => {
     
-                let internalOrderMod = {
+                let internalOrderMod2 = {
                     newState: "COMPLETED",
-                    products:   [{"SkuID":1,"RFID":"12345678901234567890123456789016"},
-                                {"SkuID":1,"RFID":"12345678901234567890123456789038"}]
+                    products:   [{"SkuID":testInternalOrder2.products[0].SKUId,"RFID":"12345678901234567890123456789016"},
+                                {"SkuID":testInternalOrder2.products[0].SKUId,"RFID":"12345678901234567890123456789038"}]
                 };
-                
-                    const changes = await internalOrderDao.modifyStateInternalOrder(testInternalOrder.id, internalOrderMod);    
+              
+                    const changes = await internalOrderDao.modifyStateInternalOrder(testInternalOrder2.id, "COMPLETED", internalOrderMod2.products);    
                     expect(changes).toStrictEqual(1);
 
-                    testInternalOrder.state = internalOrderMod.newState;
+                    testInternalOrder2.state = internalOrderMod2.newState;
+                    console.log(testInternalOrder2.state)
     
-                    const result = await internalOrderDao.getInternalOrderByID(testInternalOrder.id);
+                    let result2 = await internalOrderDao.getInternalOrderByID(testInternalOrder2.id);
+                    result2 = await internalOrderController.buildInternalOrders(result2);
+                    console.log(result2[0].state)
     
-                    expect(result.state).toStrictEqual(internalOrderMod.newState);    
+                    expect(result2.state).toStrictEqual(internalOrderMod2.newState);    
+                
+            });
+
+            afterEach(async () => {
+                await internalOrderDao.deleteAllInternalOrder();
                 
             });
           
@@ -106,6 +140,11 @@ describe("Testing InternalOrderDao", () => {
 
     describe("Delete Internal Order", () => {
        
+        beforeEach(async () => {
+            let row = await internalOrderDao.createInternalOrder(testInternalOrder.issueDate,testInternalOrder.customerId,  testInternalOrder.state, testInternalOrder.products);
+            testInternalOrder.id = row;
+
+        });
 
         test("Delete inexistent Internal Order", async () => {
             const { changes } = await internalOrderDao.deleteInternalOrder(-1);

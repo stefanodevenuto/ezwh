@@ -11,20 +11,19 @@ describe("Testing SKUItemDAO", () => {
     let testSKUItem = SkuItem.mockTestSkuItem();
 
     beforeAll(async () => {
-        try {
-            await skuDao.getSkuByID(testSKUItem.SKUId);
-        } catch(err) {
-            expect(err.code).toStrictEqual("SQLITE_CONSTRAINT");
-            expect(err.message).toMatch("id");
-        }
+        await skuDao.deleteAllSKU();
+        await skuItemDao.deleteAllSKUItem();
     });
 
     test("Create SKUItem after check SKUId", async () => {
 
-            
-        await skuItemDao.createSKUItem(testSKUItem);    
+        const sku = await skuDao.createSku(undefined, undefined, undefined, undefined, undefined, undefined);
+        testSKUItem.SKUId = sku.id;
+        await skuItemDao.createSKUItem(testSKUItem.RFID, testSKUItem.SKUId, testSKUItem.dateOfStock);    
         
+
         const result = await skuItemDao.getSKUItemByRFID(testSKUItem.RFID);
+        console.log(result)
 
         expect(result.SKUId).toStrictEqual(testSKUItem.SKUId);
         expect(result.available).toStrictEqual(testSKUItem.available);
@@ -39,7 +38,7 @@ describe("Testing SKUItemDAO", () => {
 
 
     test("Modify inexistent SKUItem", async () => {
-        const { changes } = await skuItemDao.modifySKUItem(-1, testSKUItem);
+        const { changes } = await skuItemDao.modifySKUItem(-1, testSKUItem.newRFID, testSKUItem.newAvailable, testSKUItem.newDateOfStock);
         expect(changes).toStrictEqual(0);
     });
 
@@ -51,11 +50,12 @@ describe("Testing SKUItemDAO", () => {
                 newDateOfStock:"2022/11/28 05:30"
             };
             
-                const {changes} = await skuItemDao.modifySKUItem(testSKUItem.RFID, skuItemMod);    
+                const {changes} = await skuItemDao.modifySKUItem(testSKUItem.RFID, skuItemMod.newRFID, skuItemMod.newAvailable, skuItemMod.newDateOfStock);    
                 expect(changes).toStrictEqual(1);
 
                 testSKUItem.RFID = skuItemMod.newRFID;
                 const result = await skuItemDao.getSKUItemByRFID(skuItemMod.newRFID);
+                console.log(result)
 
                 expect(result.available).toStrictEqual(skuItemMod.newAvailable);
                 expect(result.dateOfStock).toStrictEqual(skuItemMod.newDateOfStock);
@@ -66,6 +66,11 @@ describe("Testing SKUItemDAO", () => {
     });
 
     describe("Delete SKUItem", () => {
+
+        beforeEach(async () => {
+            sku = await skuDao.createSku(undefined, undefined, undefined, undefined, undefined, undefined);
+            await skuItemDao.createSKUItem(testSKUItem.RFID, sku.id, testSKUItem.DateOfStock);
+        });
        
 
         test("Delete inexistent SkuItem", async () => {
