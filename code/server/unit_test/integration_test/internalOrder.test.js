@@ -56,15 +56,14 @@ describe("Internal Order Controller suite", () => {
 
         test("Get Internal Order by ID", async () => {
           
-            let result = await internalOrderController.getInternalOrderByIDInternal(testInternalOrder.id);
+            let result = await internalOrderController.getInternalOrderByID(testInternalOrder.id);
            
             console.log(result)
             //expect(result[0]).toMatchObject(testInternalOrder);
 
-            expect(result[0].issueDate).toStrictEqual(testInternalOrder.issueDate);
-            expect(result[0].state).toStrictEqual(testInternalOrder.state);
-            //expect(result[0].products).toStrictEqual(testInternalOrder.products);
-            expect(result[0].customerId).toStrictEqual(testInternalOrder.customerId);
+            expect(result.issueDate).toStrictEqual(testInternalOrder.issueDate);
+            expect(result.state).toStrictEqual(testInternalOrder.state);
+            expect(result.customerId).toStrictEqual(testInternalOrder.customerId);
          });
 
         /* test("Get Internal Order ISSUED", async () => {
