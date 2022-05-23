@@ -715,4 +715,67 @@ describe("Testing Scenarios", () => {
             await testResultDao.deleteAllTestResult();
         })
     });
+
+
+    describe("Scenario 12-1 / Scenario 12-2 / Scenario 12-3", () => {
+        beforeEach(async () => {
+            // Setup Skus
+            const { id: skuId } = await skuDao.createSku(testSku.description, testSku.weight,
+                testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+            testSku.id = skuId;
+        });
+
+        it("Create test description", async () => {
+            let testDescriptorToSend = {
+                name: testTestDescriptor.name,
+                procedureDescription: testTestDescriptor.procedureDescription,
+                idSKU: testSku.id
+            }
+
+            const response = await agent.post(`/api/testDescriptor/`)
+                .send(testDescriptorToSend)
+            response.should.have.status(201);
+        });
+
+        it("Update test description", async () => {
+            let testDescriptorToSend = {
+                name: testTestDescriptor.name,
+                procedureDescription: testTestDescriptor.procedureDescription,
+                idSKU: testSku.id
+            }
+
+            const response = await agent.post(`/api/testDescriptor/`)
+                .send(testDescriptorToSend)
+            response.should.have.status(201);
+
+            let newTestDescriptorToSend = {
+                newName: testTestDescriptor.name,
+                newProcedureDescription: "a new procedure description",
+                newIdSKU: testTestDescriptor.idSKU
+            }
+
+            const resUpdate = await agent.put(`/api/testDescriptor/${testTestDescriptor.id}`)
+                .send(newTestDescriptorToSend)
+            resUpdate.should.have.status(200);
+        });
+
+        it("Update test description", async () => {
+            let testDescriptorToSend = {
+                name: testTestDescriptor.name,
+                procedureDescription: testTestDescriptor.procedureDescription,
+                idSKU: testSku.id
+            }
+
+            const response = await agent.post(`/api/testDescriptor/`)
+                .send(testDescriptorToSend)
+            response.should.have.status(201);
+
+            const resUpdate = await agent.delete(`/api/testDescriptor/${testTestDescriptor.id}`);
+            resUpdate.should.have.status(204);
+        });
+
+        afterEach(async () => {
+            await testDescriptorDao.deleteTestDescriptor(testTestDescriptor.id);
+        });
+    });
 });
