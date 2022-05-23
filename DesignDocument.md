@@ -43,214 +43,247 @@ The design must satisfy the Official Requirements document, notably functional a
 
 ```plantuml
 @startuml HighLevelDesign
-package server {
-    package api {
-        package components
-    }
-    package db
-    package test
-    package unit_test
+package it.polito.ezwh {
+    package manager
+    package businesslogic
+    package exceptions
 }
-
-components -- db
-components -- test
-components -- unit_test
+manager -- businesslogic
+manager -- exceptions
 @enduml
 ```
 The architetural pattern choosed is MVC + 3 tier.<br>
+it.polito.ezwh.exceptions contains the exceptions used in the API.
+
 # Low level design
 
 ## Manager Package
 
 ```plantuml
 @startuml LowLevelDesign
-package api {
+package it.polito.ezwh.manager{
 
-    ' User management
-    Class UserController {
-        + UserDAO dao
+    note "The HashMap inside every Manager class acts \nhas a decentralized cache towards the database calls.\n In that way, all the query that selects one or more objects\n can directly be fulfilled by the Hashmaps,\n and so no connection with the database is needed" as hashmap_note
 
-        + List<User> getAllUsers()
-        + List<User> getAllSuppliers()
-        + User getUserInfo(String email)
-        + void deleteUser(String username, String type)
+    Class FacadeController {
+        /' Delegated to SKU Manager'/
+        + List<SKU> getAllSKUs()
+        + SKU getSKU(String SKUID)
+        + void deleteSKU(String SKUID)
 
-        + User login(String username, String password)
-        + void logout()
+        + SKU createSKU(String description, int weight, int volume, String notes, float price, int availableQuantity)
+        + void modifySKU(String SKUID, String newDescription, int newWeight, int newVolume, Sting newNotes, float newPrice, int newAvailableQuantity)
+        + void addModifySKUPosition(String SKUID, String positionID)
 
-        // TODO
+        /' Delegated to Restock Order Manager'/
+        + List<RestockOrder> getAllRestockOrders()
+        + List<RestockOrder> getAllIssuedRestockOrders()
+        + RestockOrder getRestockOrderByID(String ID)
+        + List<SKUItem> getRestockOrderItems(String ID)
+        + void deleteRestockOrder(int ID)
 
-        + User createUser(String username, String name, String surname, String password, String type)
-        + void modifyUserRights(String username, String oldType, String newType)
-    }
+        + RestockOrder createRestockOrder(String ID, Date issueDate, List<<Pair<SKU, int>> products, int supplierId)
+        + void modifyRestockOrderState(String ID, String newState)
+        + void addRestockOrderSKUItems(String ID, List<SKUItem> skuItems)
+        + void addRestockOrderTransportNote(String ID, Date transportNote)
 
-    Class SKUItemController {
-        - SKUItemDAO dao
-        - SkuController skuController
+        + List<TestDescriptor> getAllTestDescriptors()
+        + TestDescriptor getTestDescriptor(String ID)
+        + void deleteTestDescriptor(String ID)
 
+        + void createTestDescriptor(String ID, String name, String procedureDescription, String IdSKU)
+        + void modifyTestDescriptor(String ID, String newName, String newProcedureDescription, String newIdSKU)
+
+        /' Delegated to Internal Order Manager'/
+        + List<InternalOrder> getAllInternalOrders()
+        + List<InternalOrder> getAllIssuedInternalOrders()
+        + List<InternalOrder> getAllAcceptedInternalOrders()
+        + InternalOrder getInternalOrderByID(String ID)
+        + void deleteInternalOrder(String ID)
+
+        + InternalOrder createInternalOrder(Date issueDate, List<<Pair<SKU, int>> products)
+        + void modifyStateInternalOrder(String ID, String newState, List<String> RFIDs)
+
+        /' Delegated to Return Order Manager'/
+        + List<ReturnOrder> getAllReturnOrders()
+        + ReturnOrder getReturnOrderByID(String ID)
+        + void deleteReturnOrder(String ID)
+
+        + void createReturnOrder(String ID, Date returnDate, List<<Pair<SKU, SKUItem>> products, String restockOrderId)
+        + void modifyReturnOrderState(String ID, String newState)
+
+        /' Delegated to Warehouse Manager'/
+        + List<Position> getAllPositions()
+        + Position getPositionByID()
+        + void deletePosition(String positionID)
+
+        + void createPosition(String positionID, String aisleID, int row, int col, int maxWeight, int maxVolume)
+        + void modifyPosition(String positionID, String newAisleID, int newRow, int newCol, int newMaxWeight, int newMaxVolume, int newOccupiedWeight, int newOccupiedVolume)
+        + void modifyPositionID(String oldPositionID, String newPositionID)
+
+        /' Delegated to Item Manager'/
+        + List<Item> getAllItems()
+        + Item getItem(String ID)
+        + void deleteItem(String ID)
+
+        + void createItem(String description, float price, String SKUId, String supplierId)
+        + void modifyItem(String newDescription, float newPrice)
+
+        /' Delegated to SKU Item Manager'/
         + List<SKUItem> getAllSKUItems()
-        + List<SKUItem> getSKUItemBySKUID(String SKUID)
-        + List<SKUItem> getSKUItemByRFID(String RFID)
+        + List<SKUItem> getAllSKUItemsBySKUID(String SKUID)
+        + List<SKUItem> getSKUItem(String RFID)
 
         + void createSKUItem(String RFID, String SKUID, Date dateOfStock)
         + void modifySKUItem(String newRFID, boolean newAvailable, newDateOfStock)
         + void deleteSKUItem(String RFID)
 
-        - SKUItem getSKUItemByRFIDInternal(String RFID)
-        - RestockOrder getAllSkuItemsByRestockOrder(int restockOrderId)
-        - Sku getItemByRFIDInternal(String RFID, int restockOrderId)
-    }
-
-    Class SKUItemDAO extends AppDAO {
-        + Rows getAllSKUItems()
-        + Rows getSKUItemBySKUID(int SKUId)
-        + Rows createSKUItem(SKUItem SKUItem)
-        + Rows modifySKUItem(String RFID, SKUItem skuItem)
-        + Rows deleteSKUItem(String RFID)
-        + Rows getAllSkuItemsByRestockOrder(int restockOrderId)
-        + Rows getSupplierIdByRestockOrderId(int restockOrderId)
-    }
-
-    Class TestResultController {
-        - TestResultDAO dao
-        - SkuItemController skuItemController
-
+        /' Delegated to Test Result Manager'/
         + List<TestResult> getAllTestResults(String RFID)
-        + TestResult getTestResultByID(String RFID, String ID)
+        + TestResult getTestResult(String RFID, String ID)
 
         + TestResult createTestResult(String RFID, String ID, Date date, boolean result)
         + void modifyTestResult(String RFID, String ID, String newIdTestDescriptor, Date newDate, newResult)
         + void deleteTestResult(String RFID, String ID)
 
-        - boolean hasFailedTestResultsByRFID(String RFID)
+        /' Delegated to User Manager'/
+        + List<User> getAllUsers()
+        + List<User> getAllSuppliers()
+        + void deleteUser(String username, String type)
+
+        + User login(String username, String password)
+        + void logout()
+
+        + User createUser(String username, String name, String surname, String password, String type)
+        + void modifyUserRights(String username, String oldType, String newType)
     }
 
-    class TestResultDAO extends AppDAO {
-        + getAllTestResults(String RFID)
-        + getTestResultByID(String rfid, int id)
-        + createTestResult(TestResult testResult)
-        + modifyTestResult(int id, String rfid, TestResult testResult)
-        + deleteTestResult(String rfid, int id)
-        + hasFailedTestResultsByRFID(String rfid)
+    ' User management
+    Class UserManager {
+        + HashMap<User> users
+
+        + List<User> getAllUsers()
+        + List<User> getAllSuppliers()
+        + void deleteUser(String username, String type)
+
+        + User login(String username, String password)
+        + void logout()
+
+        + User createUser(String username, String name, String surname, String password, String type)
+        + void modifyUserRights(String username, String oldType, String newType)
     }
+
+    ' SKU Item & Test Result Management
+    Class SKUItemManager {
+        + HashMap<SKUItem> SKUItems
+        + HashMap<TestResult> testResults
+
+        + List<SKUItem> getAllSKUItems()
+        + List<SKUItem> getAllSKUItemsBySKUID(String SKUID)
+        + List<SKUItem> getSKUItem(String RFID)
+
+        + void createSKUItem(String RFID, String SKUID, Date dateOfStock)
+        + void modifySKUItem(String newRFID, boolean newAvailable, newDateOfStock)
+        + void deleteSKUItem(String RFID)
+        + void setNotAvailable(String RFID)
+
+        .. Test Result ..
+        + List<TestResult> getAllTestResults(String RFID)
+        + TestResult getTestResult(String RFID, String ID)
+
+        + TestResult createTestResult(String RFID, String ID, Date date, boolean result)
+        + void modifyTestResult(String RFID, String ID, String newIdTestDescriptor, Date newDate, newResult)
+        + void deleteTestResult(String RFID, String ID)
+    }
+
+    SKUItemManager .. hashmap_note
+    SKUItemManager .[hidden]. hashmap_note
 
     ' Item Management
-    Class ItemController {
-        - ItemDAO dao
+    Class ItemManager {
+        + HashMap<Item> items
 
         + List<Item> getAllItems()
-        + Item getItemByID(int ID)
-        + void createItem(int ID, String description, float price, String SKUId, String supplierId)
-        + void modifyItem(int ID, String newDescription, float newPrice)
-        + void deleteItem(int ID)
+        + Item getItem(String ID)
+        + void deleteItem(String ID)
 
-        - Item getItemBySkuIdAndSupplierId(int skuId, int supplierId)
-        - Item getItemByIDInternal(int itemId)
-    }
-
-    class ItemDAO extends AppDAO {
-        + getAllItems()
-        + getItemByID(int itemId)
-        + createItem(Item item)
-        + modifyItem(int itemId, Item item)
-        + deleteItem(int itemId)
-        + getItemBySkuIdAndSupplierId(int skuId, int supplierId)
+        + void createItem(String ID, String description, float price, String SKUId, String supplierId)
+        + void modifyItem(String ID, String newDescription, float newPrice)
     }
 
     ' Warehouse Management
-    Class PositionController {
-        - PositionDAO positionDAO
+    Class WarehouseManager {
+        + HashMap<Position> currentPositions
 
         + List<Position> getAllPositions()
         + Position getPositionByID()
+        + void deletePosition(String positionID)
+
         + void createPosition(String positionID, String aisleID, int row, int col, int maxWeight, int maxVolume)
         + void modifyPosition(String positionID, String newAisleID, int newRow, int newCol, int newMaxWeight, int newMaxVolume, int newOccupiedWeight, int newOccupiedVolume)
         + void modifyPositionID(String oldPositionID, String newPositionID)
-        + void deletePosition(String positionID)
-    }
-
-    class PositionDAO extends AppDAO {
-        + getAllPositions() 
-        + getPositionByID(String positionID)
-        + createPosition(Position position)
-        + modifyPosition(String oldPositionID, String newPositionID, Position position)
-        + modifyPositionID(String oldPositionID, String newPositionID, String newAisleId, String newRow, String newCol)
-        + deletePosition(positionID)
+        + increaseOccupation(String positionID, int qty)
     }
 
     ' Return Order Management
-    Class ReturnOrderController {
-        - ReturnOrderDAO returnOrderDAO
-        - SkuItemController skuItemController
+    Class ReturnOrderManager {
+        + HashMap<ReturnOrder> returnOrders
 
         + List<ReturnOrder> getAllReturnOrders()
         + ReturnOrder getReturnOrderByID(String ID)
-        + void createReturnOrder(String ID, Date returnDate, List<Product> products, String restockOrderId)
         + void deleteReturnOrder(String ID)
+
+        + void createReturnOrder(String ID, Date returnDate, List<<Pair<SKU, SKUItem>> products, String restockOrderId)
+        + void modifyReturnOrderState(String ID, String newState)
     }
 
     ' Internal Order Management
     Class InternalOrderManager {
-        - InternalOrderDAO dao
-        - SkuController skuController
+        + HashMap<InternalOrder> internalOrders
 
         + InternalOrder getInternalOrderByID(String ID)
         + List<InternalOrder> getAllInternalOrders()
-        + List<InternalOrder> getInternalOrdersIssued()
-        + List<InternalOrder> getInternalOrdersAccepted()
-        + InternalOrder createInternalOrder(String ID, Date issueDate, List<Product> products)
-        + void modifyStateInternalOrder(String ID, String newState, List<String> RFIDs)
+        + List<InternalOrder> getAllIssuedInternalOrders()
+        + List<InternalOrder> getAllAcceptedInternalOrders()
         + void deleteInternalOrder(String ID)
 
-        - List<InternalOrder> buildInternalOrders()
-        - InternalOrder getInternalOrderByIDInternal(int internalOrderId)
+        + InternalOrder createInternalOrder(String ID, Date issueDate, List<<Pair<SKU, int>> products)
+        + void modifyStateInternalOrder(String ID, String newState, List<String> RFIDs)
     }
 
-    Class RestockOrderController {
-        - RestockOrderDAO dao
-        - TestResultController testResultController
-        - SkuItemController skuItemController
-        - ItemController itemController
+    Class RestockOrderManager {
+        - HashMap<RestockOrder> restockOrders
+        - HashMap<TestDescriptor> testDescriptors
 
-        + List<RestockOrder> getAllRestockOrders()
-        + List<RestockOrder> getAllIssuedRestockOrders()
-        + RestockOrder getRestockOrderByID(String ID)
-        + List<SkuItem> getRestockOrderReturnItemsByID
+        + RestockOrder getRestockOrderByID(String ID)       /' If you have it in the list, return; otherwise contact DB handler'/
+        + List<RestockOrder> getAllRestockOrders()          /' Return from the hashmap '/
+        + List<RestockOrder> getAllIssuedRestockOrders()    /' Return from the hashmap '/
 
-        + RestockOrder createRestockOrder(Date issueDate, List<Product> products, int supplierId)
-        + void modifyState(int restockOrderId, String newState)
-        + void modifyRestockOrderSkuItems(int restockOrderId, List<SKUItem> skuItems)
-        + void modifyTransportNote(int restockOrderId, Date transportNote)
-        + void deleteRestockOrder(int restockOrderId)
+        + RestockOrder createRestockOrder(Date issueDate, List<<Pair<SKU, int>> products, int supplierId)
+        + void modifyRestockOrderState(RestockOrder restockOrder, String newState)
+        + void addRestockOrderSKUItems(RestockOrder restockOrder, List<SKUItem> skuItems)
+        + void addRestockOrderTransportNote(RestockOrder restockOrder, Date transportNote)
 
-        - List<RestockOrder> buildRestockOrders()
-        - RestockOrder getRestockOrderByIDInternal(in restockOrderId)
-    }
-
-    Class TestDescriptorController {
-        - TestDescriptorDAO dao
-
+        .. Test Descriptor ..
         + List<TestDescriptor> getAllTestDescriptors()
-        + TestDescriptor getTestDescriptorByID(int ID)
+        + TestDescriptor getTestDescriptor(String ID)
 
-        + void createTestDescriptor(int ID, String name, String procedureDescription, String IdSKU)
-        + void modifyTestDescriptor(int ID, String newName, String newProcedureDescription, String newIdSKU)
-        + void deleteTestDescriptor(int ID)
+        + void createTestDescriptor(String ID, String name, String procedureDescription, String IdSKU)
+        + void modifyTestDescriptor(String ID, String newName, String newProcedureDescription, String newIdSKU)
+        + void deleteTestDescriptor(String ID)
     }
 
     ' SKU Management
-    Class SkuController {
-        - SkuDAO dao
+    Class SKUManager {
+        - HashMap<SKU> skus 
 
-        + List<Sku> getAllSkus()
-        + Sku getSkuByID(int skuId)
+        + SKU getSKUByID(String SKUID)
+        + List<SKU> getAllSKUs()
+        + void deleteSKU(String SKUID)
 
-        + Sku createSku(String ID, String description, int weight, int volume, String notes, float price, int availableQuantity)
-        + void modifySku(int skuId, String newDescription, int newWeight, int newVolume, Sting newNotes, float newPrice, int newAvailableQuantity)
-        + void addModifySkuPosition(int skuId, String positionID)
-        + void deleteSKU(int skuId)
-
-        - Sku getSkuByIDInternal(int skuId)
+        + SKU createSKU(String ID, String description, int weight, int volume, String notes, float price, int availableQuantity)
+        + void modifySKU(SKU sku, String newDescription, int newWeight, int newVolume, Sting newNotes, float newPrice, int newAvailableQuantity)
+        + void addModifySKUPosition(SKU sku, String positionID)
     }
 
     ' Persistence Management

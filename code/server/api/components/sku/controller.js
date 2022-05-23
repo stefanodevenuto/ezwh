@@ -31,6 +31,7 @@ class SkuController {
 		try {
 			const totalWeight = newAvailableQuantity * newWeight;
 			const totalVolume = newAvailableQuantity * newVolume;
+			
 
 			const { changes } = await this.dao.modifySku(skuId, newDescription, newWeight, newVolume, 
 				newNotes, newPrice, newAvailableQuantity, totalWeight, totalVolume);
@@ -42,6 +43,8 @@ class SkuController {
 					err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
 				else if (err.message.includes("occupiedVolume"))
 					err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
+				else if (err.message.includes("FOREIGN"))
+					err = PositionErrorFactory.newPositionNotFound();
 			}
 
 			throw err;
@@ -55,8 +58,8 @@ class SkuController {
 				throw SkuErrorFactory.newSkuNotFound();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
-				if (err.message.includes("sku.positionId"))
-					err = SkuErrorFactory.newPositionAlreadyOccupied();
+				if (err.message.includes("No SKU associated to id"))
+					err = SkuErrorFactory.newSkuNotFound();
 				else if (err.message.includes("FOREIGN"))
 					err = PositionErrorFactory.newPositionNotFound();
 				else if (err.message.includes("occupiedWeight"))
@@ -70,7 +73,20 @@ class SkuController {
 	}
 
 	async deleteSku(skuId) {
-		await this.dao.deleteSku(skuId);
+		try {
+			const totalChanges = await this.dao.deleteSku(skuId);
+			
+			if (totalChanges.changes === 0)
+				throw SkuErrorFactory.newSkuNotFound();
+		} catch (err) {
+			console.log(err);
+			if (err.code === "SQLITE_CONSTRAINT") {
+				if (err.message.includes("sku.id"))
+					err = SkuErrorFactory.newSkuNotFound();
+			}
+		
+			throw err;
+		}
 	}
 
 	// ################ Utilities

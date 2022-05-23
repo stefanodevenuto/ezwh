@@ -2,14 +2,15 @@ const InternalOrderDAO = require('./dao')
 const InternalOrder = require("./internalOrder");
 const Products = require('./products');
 const ProductsQ = require('./productsQ.js');
+const SkuController = require('../sku/controller');
 const { InternalOrderErrorFactory } = require('./error');
 const { UserErrorFactory } = require('../user/error');
 const { SKUItemErrorFactory } = require('../skuItem/error');
 
 class InternalOrderController {
-    constructor(skuController) {
+    constructor() {
         this.dao = new InternalOrderDAO();
-        this.skuController = skuController;
+        this.skuController = new SkuController();
     }
 
     // ################################ API
@@ -37,7 +38,8 @@ class InternalOrderController {
 
     async getInternalOrderByID(internalOrderID) {
         const internalOrder = await this.getInternalOrderByIDInternal(internalOrderID);
-        return internalOrder;
+        const internalOrderBuild = await this.buildInternalOrders(internalOrder);
+        return internalOrderBuild;
     }
 
 
@@ -143,7 +145,7 @@ class InternalOrderController {
         if (rows.length === 0)
             throw InternalOrderErrorFactory.newInternalOrderNotFound();
 
-        const [internalOrder] = await this.buildInternalOrders(rows);
+        const internalOrder = await this.buildInternalOrders(rows);
         return internalOrder;
     }
 }

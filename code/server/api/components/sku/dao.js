@@ -52,14 +52,27 @@ class SkuDAO extends AppDAO {
         const totalWeight = row.availableQuantity * row.weight;
         const totalVolume = row.availableQuantity * row.volume;
 
-        return await this.serialize([query_sku, query_update_position, query_update_position],
-            [[newPosition, skuId], [0, 0, row.positionId], [totalWeight, totalVolume, newPosition]]);
+        
+        const sku = await this.run(query_sku, [newPosition, skuId]);
+        let position = await this.run(query_update_position, [0, 0, row.positionId]);
+        position = await this.run(query_update_position, [totalWeight, totalVolume, newPosition]);
+
+
+        return sku;
     }
 
     async deleteSku(skuId) {
         const query = 'DELETE FROM sku WHERE id = ?'
         return await this.run(query, [skuId]);
     }
+
+
+    // Test
+    async deleteAllSKU() {
+        const query = 'DELETE FROM sku';
+        return await this.run(query);
+    }
+
 }
 
 module.exports = SkuDAO;

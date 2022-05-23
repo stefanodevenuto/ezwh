@@ -19,7 +19,7 @@ class InternalOrderDAO extends AppDAO{
 
     async getInternalOrderByID(internalOrderID) {
 
-        const query = 'SELECT internalOrder.id, issueDate, state, sku.id,  \
+        const query = 'SELECT internalOrder.id, issueDate, state, sku.id as SKUId,  \
         description, price, qty, RFID, customerId\
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
@@ -93,11 +93,12 @@ class InternalOrderDAO extends AppDAO{
                 finalChanges += changes;
             }
         }
-
-        if (finalChanges === products.length + 1)
-            await this.commitTransaction();
-        else
-            await this.rollbackTransaction();
+        if(products !== undefined){
+            if (finalChanges === products.length + 1)
+                await this.commitTransaction();
+            else
+                await this.rollbackTransaction();
+        }
 
         return finalChanges;
     }
@@ -106,6 +107,14 @@ class InternalOrderDAO extends AppDAO{
         const query = 'DELETE FROM internalOrder WHERE id = ?'
         return await this.run(query, [internalOrderID]);
     }    
+
+    async deleteAllInternalOrder() {
+        const queryS = 'DELETE FROM internalOrder_sku'
+        await this.run(queryS);
+        const query = 'DELETE FROM internalOrder'
+        return await this.run(query);
+    }  
+
 }
 
 module.exports = InternalOrderDAO;
