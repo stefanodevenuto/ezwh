@@ -53,6 +53,13 @@ class UserDao extends AppDAO{
         const query = 'SELECT * FROM user WHERE email = ? AND type = ?';
         return await this.get(query, [email, type]);
     }
+
+    // ############# Test
+
+    async deleteAllUser() {
+        const query = 'DELETE FROM user'
+        await this.run(query);
+    }
 }
 
 module.exports = UserDao;

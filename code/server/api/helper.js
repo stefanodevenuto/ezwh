@@ -6,8 +6,9 @@ class ErrorHandler {
         const errors = validationResult(req);
     
         if (!errors.isEmpty()) {
-            return res.status(422)
-                .json({ error: "The parameters are not formatted properly"});
+            // return res.status(422)
+            //     .json({ error: "The parameters are not formatted properly"});
+            return res.status(422).json({ error: errors.array() });
         }
     
         return next();
