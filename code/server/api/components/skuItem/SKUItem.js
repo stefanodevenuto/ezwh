@@ -1,8 +1,4 @@
 class SKUItem {
-    static OUT_1 = 1;
-    static OUT_2 = 2;
-    static OUT_3 = 3;
-
     constructor(RFID, SKUId, available, dateOfStock, restockOrderId = null, returnOrderId = null, internalOrderId = null) {
         this.RFID = RFID;
         this.SKUId = SKUId;
@@ -27,6 +23,11 @@ class SKUItem {
         }
 
         return result;
+    }
+
+    static mockTestSkuItem() {
+        const skuItem = new SKUItem("12341234123412341234123412341234", 1, 0, "2022-02-02");
+        return skuItem;
     }
 }
 

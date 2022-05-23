@@ -51,6 +51,12 @@ class RestockOrder {
     static isValidState(state) {
         return this.STATES.some((s) => s === state);
     }
+
+    static mockRestockOrder() {
+        const restockOrder = new RestockOrder(null, "2022-02-02", RestockOrder.ISSUED,
+            null, null, [], []);
+        return restockOrder;
+    }
 }
 
 module.exports = RestockOrder;

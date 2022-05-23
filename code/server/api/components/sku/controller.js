@@ -50,8 +50,8 @@ class SkuController {
 
 	async addModifySkuPosition(skuId, newPosition) {
 		try {
-			const totalChanges = await this.dao.addModifySkuPosition(skuId, newPosition);
-			if (totalChanges === 0)
+			const { changes } = await this.dao.addModifySkuPosition(skuId, newPosition);
+			if (changes === 0)
 				throw SkuErrorFactory.newSkuNotFound();
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
