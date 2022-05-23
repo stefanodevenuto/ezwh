@@ -32,9 +32,10 @@ describe("Test Result Controller suite", () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
                 testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = skuId;
+            testSkuItem.SKUId = skuId;
     
             await skuItemController.dao.createSKUItem( testSkuItem.RFID, 
-                testSkuItem.SKUId, testSkuItem.dateOfStock)
+                testSku.id, testSkuItem.dateOfStock)
     
             const testDescriptorId = 
                 await testDescriptorController.dao.createTestDescriptor(testTestDescriptor.name, 
@@ -87,6 +88,7 @@ describe("Test Result Controller suite", () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
                 testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = skuId;
+            testSkuItem.SKUId = skuId;
     
             await skuItemController.dao.createSKUItem( testSkuItem.RFID, 
                 testSkuItem.SKUId, testSkuItem.dateOfStock)
@@ -128,6 +130,7 @@ describe("Test Result Controller suite", () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
                 testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = skuId;
+            testSkuItem.SKUId = skuId;
     
             await skuItemController.dao.createSKUItem( testSkuItem.RFID, 
                 testSkuItem.SKUId, testSkuItem.dateOfStock)
@@ -199,6 +202,7 @@ describe("Test Result Controller suite", () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
                 testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = skuId;
+            testSkuItem.SKUId = skuId;
     
             await skuItemController.dao.createSKUItem( testSkuItem.RFID, 
                 testSkuItem.SKUId, testSkuItem.dateOfStock)

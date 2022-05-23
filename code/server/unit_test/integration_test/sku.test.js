@@ -5,7 +5,6 @@ const Sku = require('../../api/components/sku/sku');
 const Position = require('../../api/components/position/position');
 
 const { SkuErrorFactory } = require('../../api/components/sku/error');
-const { mockTestPosition } = require('../../api/components/position/position');
 
 describe("SKU Controller suite", () => {
 
@@ -28,9 +27,11 @@ describe("SKU Controller suite", () => {
         
     });
 
-    /*beforeAll(async () => {
-       await positionController.dao.createPosition(testPosition.positionID, testPosition.aisleID, testPosition.row, testPosition.col, testPosition.maxWeight, testPosition.maxVolume)
-    })*/
+    beforeAll(async () => {
+        await positionController.dao.createPosition(testPosition.positionID, testPosition.aisleID, 
+            testPosition.row, testPosition.col, testPosition.maxWeight, testPosition.maxVolume);
+        
+    })
 
 
     describe("Get SKUs", () => {
@@ -89,7 +90,7 @@ describe("SKU Controller suite", () => {
         beforeAll(async () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = skuId;
-            await skuController.dao.addModifySkuPosition(testSku.id, testPosition.positionID);
+            //await skuController.dao.addModifySkuPosition(testSku.id, testPosition.positionID);
         });
 
         test("Modify inexistent SKU", async () => {
@@ -139,9 +140,9 @@ describe("SKU Controller suite", () => {
         });
     })
 
-    /*afterAll(async () => {
-        await positionController.deletePosition(mockTestPosition.positionID);
-    })*/
+    afterAll(async () => {
+        await positionController.deletePosition(testPosition.positionID);
+    })
 
 
 

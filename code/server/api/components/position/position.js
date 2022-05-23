@@ -12,7 +12,7 @@ class Position {
 
     static mockTestPosition() {
         const position = new Position("805512436321", "8055", "1243", "6321", 10000, 10000);
-        return position;        
+        return position;
     }
 
 }
