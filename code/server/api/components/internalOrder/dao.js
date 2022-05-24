@@ -84,7 +84,8 @@ class InternalOrderDAO extends AppDAO{
         let finalChanges = 0;
         await this.startTransaction();
         
-        await this.run(query, [newState, internalOrderId]);
+        let { changes } = await this.run(query, [newState, internalOrderId]);
+        finalChanges += changes;
 
         if(products !== undefined){
             for(let row of products){

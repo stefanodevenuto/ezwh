@@ -5,6 +5,7 @@ const TestDescriptor = require('../../api/components/test_descriptor/testDescrip
 const Sku = require('../../api/components/sku/sku');
 
 const { TestDescriptorErrorFactory } = require('../../api/components/test_descriptor/error');
+const { SkuErrorFactory } = require('../../api/components/sku/error');
 
 describe("Testing test descriptor controller", () => {
     const testDescriptorController = new TestDescriptorController();
@@ -73,6 +74,7 @@ describe("Testing test descriptor controller", () => {
         });
 
         test("Create a valid test descriptor", async() => {
+            
             await expect(testDescriptorController.createTestDescriptor(
                 testTestDescriptor.name,
                 testTestDescriptor.procedureDescription,
@@ -83,47 +85,163 @@ describe("Testing test descriptor controller", () => {
         });
 
         test("Create an invalid test descriptor (SKU not found)", async() => {
-            await expect(testDescriptorController.createTestDescriptor(
-                testTestDescriptor.name,
-                testTestDescriptor.procedureDescription,
-                -123
-            )).rejects.toThrow(SkuErrorFactory.newSkuNotFound());
-            // cannot delete the single entry because i don't have access to its id !!
+            try {
+                await testDescriptorController.createTestDescriptor(
+                    testTestDescriptor.name,
+                    testTestDescriptor.procedureDescription,
+                    -123
+                );    
+            } catch(err) {
+                let error = SkuErrorFactory.newSkuNotFound();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
         });
 
         test("Create an invalid test descriptor (provided SKU already assigned)", async() => {
-            // assuming 1:1 relation between sku and test descriptor
-            // define an association sku-testDescriptor (create sku first)
-            const {id: sku_id} = await skuController.dao.createSku(
-                testSku.description,
-                testSku.weight,
-                testSku.volume,
-                testSku.notes,
-                testSku.price,
-                testSku.availableQuantity);
-            console.log("DEBUG: " + sku_id);
-            const td_it = await testDescriptorController.dao.createTestDescriptor(
-                "test_name_1",
-                "test_procedure_description_1",
-                sku_id);
-            // now we try to create a test descriptor with the same SKU
-            await expect(testDescriptorController.createTestDescriptor(
-                testTestDescriptor.name,
-                testTestDescriptor.procedureDescription,
-                sku_id   // same skuid as before: error expected
-            )).rejects.toThrow(TestDescriptorErrorFactory.newSKUAlreadyWithTestDescriptor());
-            // deleting test_name_1
-            await skuController.dao.deleteSku(sku_id);
-            await testDescriptorController.dao.deleteTestDescriptor(td_it);
-            // remove sku (necessary?)
+            try {
+                const {id: sku_id} = await skuController.dao.createSku(
+                    testSku.description,
+                    testSku.weight,
+                    testSku.volume,
+                    testSku.notes,
+                    testSku.price,
+                    testSku.availableQuantity);
+                console.log("DEBUG: " + sku_id);
+                const td_it = await testDescriptorController.dao.createTestDescriptor(
+                    "test_name_1",
+                    "test_procedure_description_1",
+                    sku_id);
+                // now we try to create a test descriptor with the same SKU
+                await testDescriptorController.createTestDescriptor(
+                    testTestDescriptor.name,
+                    testTestDescriptor.procedureDescription,
+                    sku_id   // same skuid as before: error expected
+                )
+            } catch(err) {
+                let error = TestDescriptorErrorFactory.newSKUAlreadyWithTestDescriptor();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+                //await skuController.dao.deleteSku(sku_id);
+                //await testDescriptorController.dao.deleteTestDescriptor(td_it);
+            }
+
         });
     });
 
     describe("Modify test descriptor", () => {
 
+        beforeEach(async () => {
+            const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
+                testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+            testSku.id = skuId;
+
+            testTestDescriptor.idSKU = testSku.id;    
+            const testDescriptorId = 
+                await testDescriptorController.dao.createTestDescriptor(testTestDescriptor.name, 
+                    testTestDescriptor.procedureDescription, testTestDescriptor.idSKU);
+            testTestDescriptor.id = testDescriptorId;
+        });
+
+        test("Modify test descriptor with an invalid id", async() => {
+            try {
+                const {id: sku_id} = await skuController.dao.createSku(
+                    testSku.description,
+                    testSku.weight,
+                    testSku.volume,
+                    testSku.notes,
+                    testSku.price,
+                    testSku.availableQuantity);
+
+                let newTestDescriptor = {
+                    newName : "prova",
+                    newProcedureDescription :"this is a modified test",
+                    newIdSKU : sku_id
+                }
+                await testDescriptorController.modifyTestDescriptor(-1, newTestDescriptor.newName, newTestDescriptor.newProcedureDescription,
+                                newTestDescriptor.newIdSKU);
+
+            } catch(err) {
+                let error = TestDescriptorErrorFactory.newTestDescriptorNotFound();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
+        
+        });
+
+        test("Modify test descriptor with an invalid SKUId", async() => {
+            try {
+                
+                let newTestDescriptor = {
+                    newName : "prova",
+                    newProcedureDescription :"this is a modified test",
+                    newIdSKU : -1
+                }
+                await testDescriptorController.modifyTestDescriptor(testTestDescriptor.id, newTestDescriptor.newName, newTestDescriptor.newProcedureDescription,
+                                newTestDescriptor.newIdSKU);
+
+            } catch(err) {
+                let error = SkuErrorFactory.newSkuNotFound();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
+        
+        });
+
+        test("Modify test descriptor of a SKU that have already a Test Descriptor", async() => {
+            try {
+                
+                let newTestDescriptor = {
+                    newName : "prova",
+                    newProcedureDescription :"this is a modified test",
+                    newIdSKU : testTestDescriptor.idSKU
+                }
+                await testDescriptorController.modifyTestDescriptor(testTestDescriptor.id, newTestDescriptor.newName, newTestDescriptor.newProcedureDescription,
+                                newTestDescriptor.newIdSKU);
+
+            } catch(err) {
+                let error = SkuErrorFactory.newSKUAlreadyWithTestDescriptor();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
+        
+        });
+
     });
 
     describe("Delete test descriptor", () => {
 
+        
+        beforeEach(async () => {
+            const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight,
+                testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+            testSku.id = skuId;
+
+            testTestDescriptor.idSKU = testSku.id;    
+            const testDescriptorId = 
+                await testDescriptorController.dao.createTestDescriptor(testTestDescriptor.name, 
+                    testTestDescriptor.procedureDescription, testTestDescriptor.idSKU);
+            testTestDescriptor.id = testDescriptorId;
+        });
+        test("Delete inexistent test descriptor", async () => {
+            try{
+                await testDescriptorController.deleteTestDescriptor(-1)
+            } catch (err) {
+                let error = TestDescriptorErrorFactory.newTestDescriptorNotFound();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
+            
+        });
+
+        test("Delete test descriptor", async () => {
+            try{
+                await testDescriptorController.deleteTestDescriptor(testTestDescriptor.id)
+            } catch (err) {
+                let error = TestDescriptorErrorFactory.newTestDescriptorNotFound();
+                expect(err.customCode).toStrictEqual(error.customCode);
+                expect(err.customMessage).toMatch(error.customMessage);
+            }
+        });
     });
 });

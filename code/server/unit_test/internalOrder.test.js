@@ -97,7 +97,7 @@ describe("Testing InternalOrderDao", () => {
                     newState: "ACCEPTED"
                 };
                 
-                    const changes = await internalOrderDao.modifyStateInternalOrder(testInternalOrder.id, internalOrderMod.newState, undefined);    
+                    const changes = await internalOrderDao.modifyStateInternalOrder(testInternalOrder.id, internalOrderMod.newState);    
                     expect(changes).toStrictEqual(1);
 
                     testInternalOrder.state = internalOrderMod.newState;
