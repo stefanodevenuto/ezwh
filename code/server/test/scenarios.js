@@ -757,7 +757,6 @@ describe("Testing Scenarios", () => {
                 const internalOrder = gInt.body[0];
 
                 testInternalOrder.id = internalOrder.id;
-                console.log(internalOrder.products);
                 for (let skuProduct of internalOrder.products) {
                     const resGetSku = await agent.get(`/api/sku/${skuProduct.SKUId}`);
                     resGetSku.should.have.status(200);
@@ -1010,7 +1009,6 @@ describe("Testing Scenarios", () => {
             await testDescriptorDao.deleteAllTestDescriptor();
         });
     });
-
 
     describe("Scenario 12-2 / Scenario 12-3", () => {
         beforeEach(async () => {
