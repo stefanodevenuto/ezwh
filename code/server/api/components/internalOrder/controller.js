@@ -38,7 +38,8 @@ class InternalOrderController {
 
     async getInternalOrderByID(internalOrderID) {
         const internalOrder = await this.getInternalOrderByIDInternal(internalOrderID);
-        const internalOrderBuild = await this.buildInternalOrders(internalOrder);
+        const [internalOrderBuild] = await this.buildInternalOrders(internalOrder);
+
         return internalOrderBuild;
     }
 

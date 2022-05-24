@@ -3,6 +3,7 @@ const SkuDAO = require('../api/components/sku/dao');
 const UserDAO = require('../api/components/user/dao');
 
 const InternalOrder = require('../api/components/internalOrder/internalOrder');
+const User = require('../api/components/user/user');
 
 const InternalOrderController = require('../api/components/internalOrder/controller');
 
@@ -17,12 +18,18 @@ describe("Testing InternalOrderDao", () => {
     let testInternalOrder2 = InternalOrder.mockTestInternalOrder2();
     let testInternalOrder = InternalOrder.mockTestInternalOrder();
 
+    let testUser = User.mockUserCustomer();
 
     beforeAll(async () => {
         await internalOrderDao.deleteAllInternalOrder();
         //await skuDao.deleteAllSKU();
-        await userDao.getUserByID(testInternalOrder.customerId);
-        await userDao.getUserByID(testInternalOrder2.customerId);
+        //await userDao.getUserByID(testInternalOrder.customerId);
+        //await userDao.getUserByID(testInternalOrder2.customerId);
+        
+        const { id } = await userDao.createUser(testUser.email, testUser.name, 
+            testUser.surname, "PASSWORD", testUser.type)
+        testInternalOrder.customerId = id;
+        testInternalOrder2.customerId = id;
 
     });
 
@@ -65,7 +72,6 @@ describe("Testing InternalOrderDao", () => {
 
         afterAll(async () => {
             await internalOrderDao.deleteAllInternalOrder();
-           
         });
       
     });
@@ -158,7 +164,9 @@ describe("Testing InternalOrderDao", () => {
     })
 
 
-
+    afterAll(async () => {
+        await userDao.deleteAllUser();
+    });
 
 
 
