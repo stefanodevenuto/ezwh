@@ -35,20 +35,34 @@ class TestDescriptorDAO extends AppDAO {
 
         let row = await this.getTestDescriptorByID(newTestDescriptorId);
         if (row === undefined)
-            return 0;
+            return {changes: 0};
 
         const oldSkuId = row.idSKU;
 
-        return await this.serialize([query_test_descriptor, query_sku, query_sku], [
-            [newName, newProcedureDescription, newIdSKU, newTestDescriptorId],
-            [null, oldSkuId],
-            [newTestDescriptorId, newIdSKU]
-        ]);
+        let totalChanges = 0;
+        await this.startTransaction();
+
+        const { changes: testDesc} = await this.run(query_test_descriptor, [newName, newProcedureDescription, newIdSKU, newTestDescriptorId])
+        totalChanges += testDesc;
+        const { changes: firstSku} = await this.run(query_sku, [null, oldSkuId])
+        totalChanges += firstSku;
+        const { changes: secondSku} = await this.run(query_sku, [newTestDescriptorId, newIdSKU])
+        totalChanges += secondSku;
+
+        await this.commitTransaction();
+        return totalChanges;
     }
 
     async deleteTestDescriptor(testDescriptorId) {
         const query = 'DELETE FROM testDescriptor WHERE id = ?'
         return await this.run(query, [testDescriptorId]);
+    }
+
+    // ###### Test
+
+    async deleteAllTestDescriptor() {
+        const query = 'DELETE FROM testDescriptor'
+        return await this.run(query);
     }
 }
 
