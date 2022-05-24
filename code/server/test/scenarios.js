@@ -50,13 +50,14 @@ describe("Testing Scenarios", () => {
 
     let testSkuItem = SKUItem.mockTestSkuItem();
     let secondTestSkuItem = SKUItem.mockTestSkuItem();
-    secondTestSkuItem.RFID = testSkuItem.RFID.replace(/.$/,"2")
+    secondTestSkuItem.RFID = testSkuItem.RFID.replace(/.$/, "2")
 
     let testTestDescriptor = TestDescriptor.mockTestTestDescriptor();
     let testTestResult = TestResult.mockTestTestResult();
     let secondTestTestResult = TestResult.mockTestTestResult();
 
     let testRestockOrder = RestockOrder.mockRestockOrder();
+    let testInternalOrder = InternalOrder.mockTestInternalOrder();
 
     describe("Scenario 1-1", () => {
         it("Create Sku", async () => {
@@ -85,7 +86,7 @@ describe("Testing Scenarios", () => {
                 testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = id;
 
-            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID, 
+            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID,
                 testPosition.row, testPosition.col, testPosition.maxWeight, testPosition.maxVolume);
         });
 
@@ -98,7 +99,7 @@ describe("Testing Scenarios", () => {
 
             const positionId = resPosition.body[0].positionID;
             const resChangePos = await agent.put(`/api/sku/${testSku.id}/position/`)
-                .send({position: positionId})
+                .send({ position: positionId })
 
             resPosition.should.have.status(200);
         });
@@ -162,14 +163,14 @@ describe("Testing Scenarios", () => {
 
     describe("Scenario 2-2", () => {
         beforeEach(async () => {
-            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID, 
+            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID,
                 testPosition.row, testPosition.col, testPosition.maxWeight, testPosition.maxVolume);
         });
 
         it("Modify positionID of P", async () => {
-            const newPositionID = testPosition.positionID.replace(/.$/,"2");
+            const newPositionID = testPosition.positionID.replace(/.$/, "2");
             const resPosition = await agent.put(`/api/position/${testPosition.positionID}/changeID/`)
-                .send({newPositionID: newPositionID});
+                .send({ newPositionID: newPositionID });
             resPosition.should.have.status(200);
 
             testPosition.positionID = newPositionID;
@@ -182,7 +183,7 @@ describe("Testing Scenarios", () => {
 
     describe("Scenario 2-3", () => {
         beforeEach(async () => {
-            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID, 
+            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID,
                 testPosition.row, testPosition.col, testPosition.maxWeight, testPosition.maxVolume);
         });
 
@@ -193,7 +194,7 @@ describe("Testing Scenarios", () => {
                 newCol: testPosition.col,
                 newMaxWeight: 2000,
                 newMaxVolume: 2000,
-                newOccupiedWeight: testPosition.occupiedWeight, 
+                newOccupiedWeight: testPosition.occupiedWeight,
                 newOccupiedVolume: testPosition.occupiedVolume
             }
 
@@ -209,7 +210,7 @@ describe("Testing Scenarios", () => {
 
     describe("Scenario 2-4", () => {
         beforeEach(async () => {
-            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID, 
+            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID,
                 testPosition.row, testPosition.col, testPosition.maxWeight, testPosition.maxVolume);
         });
 
@@ -217,10 +218,10 @@ describe("Testing Scenarios", () => {
             let position = {
                 newAisleID: testPosition.aisleID,
                 newRow: testPosition.row,
-                newCol: testPosition.col.replace(/.$/,"2"),
+                newCol: testPosition.col.replace(/.$/, "2"),
                 newMaxWeight: testPosition.maxWeight,
                 newMaxVolume: testPosition.maxVolume,
-                newOccupiedWeight: testPosition.occupiedWeight, 
+                newOccupiedWeight: testPosition.occupiedWeight,
                 newOccupiedVolume: testPosition.occupiedVolume
             }
 
@@ -236,7 +237,7 @@ describe("Testing Scenarios", () => {
 
     describe("Scenario 2-5", () => {
         beforeEach(async () => {
-            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID, 
+            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID,
                 testPosition.row, testPosition.col, testPosition.maxWeight, testPosition.maxVolume);
         });
 
@@ -255,26 +256,26 @@ describe("Testing Scenarios", () => {
             testSku.id = skuId;
 
             // Setup User
-            const { id: userId } = await userDao.createUser(testUser.email, testUser.name, 
+            const { id: userId } = await userDao.createUser(testUser.email, testUser.name,
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
-    
+
             // Setup Items
-            await itemDao.createItem(testItem.id, testItem.description, testItem.price, 
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
                 testSku.id, testUser.id);
             testItem.SKUId = testSku.id;
             testItem.supplierId = testUser.id;
-    
+
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                {item: testItem, qty: 10},
-                {item: secondTestItem, qty: 10}
+                { item: testItem, qty: 10 },
+                { item: secondTestItem, qty: 10 }
             ];
         });
 
         it("Restock Order of SKU S issued by quantity / by supplier", async () => {
-            
+
             // This call should be "getItemBySupplierIdAndSku"
             const resItem = await agent.get(`/api/item/${testItem.id}`);
             resItem.should.have.status(200);
@@ -282,7 +283,7 @@ describe("Testing Scenarios", () => {
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                {item: resItem.body}
+                { item: resItem.body }
             ];
 
             let restockOrderToSend = {
@@ -384,20 +385,20 @@ describe("Testing Scenarios", () => {
             testSku.id = skuId;
 
             // Setup User
-            const { id: userId } = await userDao.createUser(testUser.email, testUser.name, 
+            const { id: userId } = await userDao.createUser(testUser.email, testUser.name,
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
-    
+
             // Setup Items
-            await itemDao.createItem(testItem.id, testItem.description, testItem.price, 
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
                 testSku.id, testUser.id);
             testItem.SKUId = testSku.id;
             testItem.supplierId = testUser.id;
-    
+
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                {item: testItem, qty: 10}
+                { item: testItem, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -413,7 +414,7 @@ describe("Testing Scenarios", () => {
 
         it("Record restock order arrival", async () => {
             const resRestock = await agent.put(`/api/restockOrder/${testRestockOrder.id}`)
-                .send({newState: RestockOrder.DELIVERED});
+                .send({ newState: RestockOrder.DELIVERED });
             resRestock.should.have.status(200);
 
             const resGetFirstSkuItem = await agent.get(`/api/skuitems/sku/${testItem.SKUId}`);
@@ -425,7 +426,7 @@ describe("Testing Scenarios", () => {
 
             const resSkuItem = await agent.put(`/api/restockOrder/${testRestockOrder.id}/skuItems`)
                 .send({
-                    skuItems: testRestockOrder.skuItems.map((s) => ({SKUId: s.SKUId, rfid: s.RFID}))
+                    skuItems: testRestockOrder.skuItems.map((s) => ({ SKUId: s.SKUId, rfid: s.RFID }))
                 });
             resSkuItem.should.have.status(200);
         })
@@ -448,20 +449,20 @@ describe("Testing Scenarios", () => {
             testTestDescriptor.idSKU = skuId;
 
             // Setup User
-            const { id: userId } = await userDao.createUser(testUser.email, testUser.name, 
+            const { id: userId } = await userDao.createUser(testUser.email, testUser.name,
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
-    
+
             // Setup Items
-            await itemDao.createItem(testItem.id, testItem.description, testItem.price, 
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
                 testSku.id, testUser.id);
             testItem.SKUId = testSku.id;
             testItem.supplierId = testUser.id;
-    
+
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                {item: testItem, qty: 10}
+                { item: testItem, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -475,11 +476,11 @@ describe("Testing Scenarios", () => {
             await skuItemDao.createSKUItem(secondTestSkuItem.RFID, secondTestSkuItem.SKUId, secondTestSkuItem.dateOfStock);
 
             await restockOrderDao.modifyRestockOrderSkuItems(testRestockOrder.id, [
-                {rfid: testSkuItem.RFID}, {rfid: secondTestSkuItem.RFID},
+                { rfid: testSkuItem.RFID }, { rfid: secondTestSkuItem.RFID },
             ])
 
-            const testDescriptorId = 
-                await testDescriptorDao.createTestDescriptor(testTestDescriptor.name, 
+            const testDescriptorId =
+                await testDescriptorDao.createTestDescriptor(testTestDescriptor.name,
                     testTestDescriptor.procedureDescription, testTestDescriptor.idSKU);
             testTestDescriptor.id = testDescriptorId;
             testTestResult.testDescriptorId = testDescriptorId;
@@ -501,7 +502,7 @@ describe("Testing Scenarios", () => {
             }
 
             const resState = await agent.put(`/api/restockOrder/${testRestockOrder.id}`)
-                .send({newState: RestockOrder.TESTED});
+                .send({ newState: RestockOrder.TESTED });
             resState.should.have.status(200);
         })
 
@@ -525,25 +526,25 @@ describe("Testing Scenarios", () => {
             testSku.id = skuId;
             testTestDescriptor.idSKU = skuId;
 
-            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID, 
+            await positionDao.createPosition(testPosition.positionID, testPosition.aisleID,
                 testPosition.row, testPosition.col, testPosition.maxWeight, testPosition.maxVolume);
             await skuDao.addModifySkuPosition(testSku.id, testPosition.positionID);
 
             // Setup User
-            const { id: userId } = await userDao.createUser(testUser.email, testUser.name, 
+            const { id: userId } = await userDao.createUser(testUser.email, testUser.name,
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
-    
+
             // Setup Items
-            await itemDao.createItem(testItem.id, testItem.description, testItem.price, 
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
                 testSku.id, testUser.id);
             testItem.SKUId = testSku.id;
             testItem.supplierId = testUser.id;
-    
+
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                {item: testItem, qty: 10}
+                { item: testItem, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -557,11 +558,11 @@ describe("Testing Scenarios", () => {
             await skuItemDao.createSKUItem(secondTestSkuItem.RFID, secondTestSkuItem.SKUId, secondTestSkuItem.dateOfStock);
 
             await restockOrderDao.modifyRestockOrderSkuItems(testRestockOrder.id, [
-                {rfid: testSkuItem.RFID}, {rfid: secondTestSkuItem.RFID},
+                { rfid: testSkuItem.RFID }, { rfid: secondTestSkuItem.RFID },
             ])
 
-            const testDescriptorId = 
-                await testDescriptorDao.createTestDescriptor(testTestDescriptor.name, 
+            const testDescriptorId =
+                await testDescriptorDao.createTestDescriptor(testTestDescriptor.name,
                     testTestDescriptor.procedureDescription, testTestDescriptor.idSKU);
             testTestDescriptor.id = testDescriptorId;
             testTestResult.testDescriptorId = testDescriptorId;
@@ -585,7 +586,7 @@ describe("Testing Scenarios", () => {
             }
 
             const resState = await agent.put(`/api/restockOrder/${testRestockOrder.id}`)
-                .send({newState: RestockOrder.COMPLETED});
+                .send({ newState: RestockOrder.COMPLETED });
             resState.should.have.status(200);
         })
 
@@ -609,20 +610,20 @@ describe("Testing Scenarios", () => {
             testTestDescriptor.idSKU = skuId;
 
             // Setup User
-            const { id: userId } = await userDao.createUser(testUser.email, testUser.name, 
+            const { id: userId } = await userDao.createUser(testUser.email, testUser.name,
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
-    
+
             // Setup Items
-            await itemDao.createItem(testItem.id, testItem.description, testItem.price, 
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
                 testSku.id, testUser.id);
             testItem.SKUId = testSku.id;
             testItem.supplierId = testUser.id;
-    
+
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                {item: testItem, qty: 10}
+                { item: testItem, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -636,15 +637,15 @@ describe("Testing Scenarios", () => {
             await skuItemDao.createSKUItem(secondTestSkuItem.RFID, secondTestSkuItem.SKUId, secondTestSkuItem.dateOfStock);
 
             await restockOrderDao.modifyRestockOrderSkuItems(testRestockOrder.id, [
-                {rfid: testSkuItem.RFID}, {rfid: secondTestSkuItem.RFID},
+                { rfid: testSkuItem.RFID }, { rfid: secondTestSkuItem.RFID },
             ])
 
-            const testDescriptorId = 
-                await testDescriptorDao.createTestDescriptor(testTestDescriptor.name, 
+            const testDescriptorId =
+                await testDescriptorDao.createTestDescriptor(testTestDescriptor.name,
                     testTestDescriptor.procedureDescription, testTestDescriptor.idSKU);
             testTestDescriptor.id = testDescriptorId;
             testTestResult.testDescriptorId = testDescriptorId;
-            
+
         });
 
         describe("Scenario 5-3-2", () => {
@@ -657,12 +658,12 @@ describe("Testing Scenarios", () => {
 
             it("Stock zero SKU items of a RO", async () => {
                 const resState = await agent.put(`/api/restockOrder/${testRestockOrder.id}`)
-                    .send({newState: RestockOrder.COMPLETEDRETURN});
+                    .send({ newState: RestockOrder.COMPLETEDRETURN });
                 resState.should.have.status(200);
 
                 const resReturnItems = await agent.get(`/api/restockOrders/${testRestockOrder.id}/returnItems`);
                 resReturnItems.should.have.status(200);
-    
+
                 resReturnItems.body.should.have.lengthOf(2);
             })
         })
@@ -677,7 +678,7 @@ describe("Testing Scenarios", () => {
 
             it("Stock some SKU items of a RO", async () => {
                 const resState = await agent.put(`/api/restockOrder/${testRestockOrder.id}`)
-                    .send({newState: RestockOrder.COMPLETEDRETURN});
+                    .send({ newState: RestockOrder.COMPLETEDRETURN });
                 resState.should.have.status(200);
 
                 const resReturnItems = await agent.get(`/api/restockOrders/${testRestockOrder.id}/returnItems`);
@@ -716,6 +717,275 @@ describe("Testing Scenarios", () => {
         })
     });
 
+    describe("Scenario 9", () => {
+        beforeEach(async () => {
+            // Setup Skus
+            const { id: skuId } = await skuDao.createSku(testSku.description, testSku.weight,
+                testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+            testSku.id = skuId;
+
+            const { id: secondSkuId } = await skuDao.createSku(secondTestSku.description, secondTestSku.weight,
+                secondTestSku.volume, secondTestSku.notes, secondTestSku.price, secondTestSku.availableQuantity);
+            secondTestSku.id = secondSkuId;
+
+            // Setup User
+            const { id: userId } = await userDao.createUser(testUser.email, testUser.name,
+                testUser.surname, testUser.password, testUser.type)
+            testUser.id = userId;
+
+            // Setup Internal Order
+            testInternalOrder.customerId = testUser.id;
+            testInternalOrder.products = [
+                { SKUId: testSku.id, description: testSku.description, price: testSku.price, qty: 10 },
+                { SKUId: secondTestSku.id, description: secondTestSku.description, price: secondTestSku.price, qty: 10 },
+            ];
+        })
+
+        describe("Scenario 9-1", () => {
+            it("Create Internal Order", async () => {
+                let internalOrderToSend = {
+                    issueDate: testInternalOrder.issueDate,
+                    customerId: testInternalOrder.customerId,
+                    products: testInternalOrder.products
+                }
+
+                const response_create = await agent.post(`/api/internalOrders/`).send(internalOrderToSend);
+                response_create.should.have.status(201);
+
+                // Manager
+                const gInt = await agent.get(`/api/internalOrders`)
+                const internalOrder = gInt.body[0];
+
+                testInternalOrder.id = internalOrder.id;
+                console.log(internalOrder.products);
+                for (let skuProduct of internalOrder.products) {
+                    const resGetSku = await agent.get(`/api/sku/${skuProduct.SKUId}`);
+                    resGetSku.should.have.status(200);
+
+                    const sku = resGetSku.body;
+
+                    const resSku = await agent.put(`/api/sku/${skuProduct.SKUId}/`)
+                        .send({
+                            newDescription: sku.description,
+                            newWeight: sku.weight,
+                            newVolume: sku.volume,
+                            newNotes: sku.notes,
+                            newPrice: sku.price,
+                            newAvailableQuantity: sku.availableQuantity - (sku.availableQuantity * 10)
+                        });
+                    resSku.should.have.status(200);
+                }
+
+                const refuseInternalOrder = await agent.put(`/api/internalOrders/${testInternalOrder.id}/`)
+                    .send({ newState: InternalOrder.COMPLETED })
+                refuseInternalOrder.should.have.status(200);
+            });
+        });
+
+        describe("Scenario 9-2", () => {
+            it("Create and Refuse Internal Order", async () => {
+                let internalOrderToSend = {
+                    issueDate: testInternalOrder.issueDate,
+                    customerId: testInternalOrder.customerId,
+                    products: testInternalOrder.products
+                }
+
+                // Customer
+                const response_create = await agent.post(`/api/internalOrders/`).send(internalOrderToSend);
+                response_create.should.have.status(201);
+
+                // Manager
+                const gInt = await agent.get(`/api/internalOrders`)
+                const internalOrder = gInt.body[0];
+
+                testInternalOrder.id = internalOrder.id;
+                const refuseInternalOrder = await agent.put(`/api/internalOrders/${testInternalOrder.id}/`)
+                    .send({ newState: InternalOrder.REFUSED })
+                refuseInternalOrder.should.have.status(200);
+            });
+        });
+
+        describe("Scenario 9-3", () => {
+            it("Create and Delete Internal Order", async () => {
+                let internalOrderToSend = {
+                    issueDate: testInternalOrder.issueDate,
+                    customerId: testInternalOrder.customerId,
+                    products: testInternalOrder.products
+                }
+
+                // Customer
+                const response_create = await agent.post(`/api/internalOrders/`).send(internalOrderToSend);
+                response_create.should.have.status(201);
+
+                // Manager
+                const gInt = await agent.get(`/api/internalOrders`)
+                const internalOrder = gInt.body[0];
+
+                testInternalOrder.id = internalOrder.id;
+
+                const refuseInternalOrder = await agent.put(`/api/internalOrders/${testInternalOrder.id}/`)
+                    .send({ newState: InternalOrder.CANCELED })
+                refuseInternalOrder.should.have.status(200);
+            });
+        });
+
+        afterEach(async () => {
+            await skuDao.deleteSku(testSku.id);
+            await userDao.deleteUser(testUser.email, testUser.type);
+            await itemDao.deleteItem(testItem.id);
+            await internalOrderDao.deleteAllInternalOrder();
+            await skuItemDao.deleteAllSKUItem();
+            await testDescriptorDao.deleteTestDescriptor(testTestDescriptor.id);
+            await testResultDao.deleteAllTestResult();
+        });
+    });
+
+    describe("Scenario 10", () => {
+        describe("Scenario 10-1", () => {
+            beforeEach(async () => {
+                // Setup Skus
+                const { id: skuId } = await skuDao.createSku(testSku.description, testSku.weight,
+                    testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+                testSku.id = skuId;
+
+                const { id: secondSkuId } = await skuDao.createSku(secondTestSku.description, secondTestSku.weight,
+                    secondTestSku.volume, secondTestSku.notes, secondTestSku.price, secondTestSku.availableQuantity);
+                secondTestSku.id = secondSkuId;
+
+                // Setup User
+                const { id: userId } = await userDao.createUser(testUser.email, testUser.name,
+                    testUser.surname, testUser.password, testUser.type)
+                testUser.id = userId;
+
+                // Setup Internal Order
+                testInternalOrder.customerId = testUser.id;
+                testInternalOrder.products = [
+                    { SKUId: testSku.id, description: testSku.description, price: testSku.price, qty: 10 },
+                    { SKUId: secondTestSku.id, description: secondTestSku.description, price: secondTestSku.price, qty: 10 },
+                ];
+
+                const internalOrderId = await internalOrderDao.createInternalOrder(testInternalOrder.issueDate, testInternalOrder.customerId,
+                    InternalOrder.ISSUED, testInternalOrder.products);
+                testInternalOrder.id = internalOrderId;
+
+                await skuItemDao.createSKUItem(testSkuItem.RFID, testSku.id, testSkuItem.dateOfStock);
+                await skuItemDao.createSKUItem(secondTestSkuItem.RFID, secondTestSku.id, secondTestSkuItem.dateOfStock);
+
+                testSkuItem.SKUId = testSku.id;
+                secondTestSkuItem.SKUId = secondTestSku.id;
+            })
+
+            it("Internal Order IO Completed", async () => {
+                const resGetInternal = await agent.get(`/api/internalOrders/${testInternalOrder.id}`);
+                resGetInternal.should.have.status(200);
+
+                // For each skuItem to be added in the Internal Order
+                let resSkuItem = await agent.put(`/api/skuitems/${testSkuItem.RFID}`)
+                    .send({
+                        newRFID: testSkuItem.RFID,
+                        newAvailable: 0,
+                        newDateOfStock: testSkuItem.dateOfStock
+                    });
+                resSkuItem.should.have.status(200);
+
+                resSkuItem = await agent.put(`/api/skuitems/${secondTestSkuItem.RFID}`)
+                    .send({
+                        newRFID: secondTestSkuItem.RFID,
+                        newAvailable: 0,
+                        newDateOfStock: secondTestSkuItem.dateOfStock
+                    });
+                resSkuItem.should.have.status(200);
+
+                // Change State
+                testInternalOrder.products = [
+                    {
+                        SkuID: testSkuItem.SKUId, description: testSku.description,
+                        price: testSku.price, RFID: testSkuItem.RFID
+                    },
+                    {
+                        SkuID: secondTestSkuItem.SKUId, description: secondTestSku.description,
+                        price: secondTestSku.price, RFID: secondTestSkuItem.RFID
+                    },
+                ];
+
+                const resPutInternal = await agent.put(`/api/internalOrders/${testInternalOrder.id}`)
+                    .send({newState: InternalOrder.COMPLETED, products: testInternalOrder.products});
+                resPutInternal.should.have.status(200);
+            })
+
+            afterEach(async () => {
+                await skuDao.deleteSku(testSku.id);
+                await userDao.deleteUser(testUser.email, testUser.type);
+                await itemDao.deleteItem(testItem.id);
+                await internalOrderDao.deleteAllInternalOrder();
+                await skuItemDao.deleteAllSKUItem();
+                await testDescriptorDao.deleteTestDescriptor(testTestDescriptor.id);
+                await testResultDao.deleteAllTestResult();
+            });
+        });
+    });
+
+    describe("Scenario 11-1", () => {
+        beforeEach(async () => {
+             // Setup User
+            const { id: userId } = await userDao.createUser(testUser.email, testUser.name, 
+                testUser.surname, testUser.password, User.SUPPLIER)
+            testUser.id = userId;
+
+            const { id: skuId } = await skuDao.createSku(testSku.description, testSku.weight,
+                testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+            testSku.id = skuId;
+
+            testItem.SKUId = testSku.id;
+            testItem.supplierId = testUser.id;
+        });
+
+        it("Create Item I", async () => {
+            const response = await agent.post(`/api/item/`).send(testItem);
+            response.should.have.status(201);
+        });
+
+        afterEach(async () => {
+            await skuDao.deleteAllSKU();
+            await userDao.deleteAllUser();
+            await itemDao.deleteAllItem();
+        });
+    });
+
+    describe("Scenario 11-2", () => {
+        beforeEach(async () => {
+             // Setup User
+            const { id: userId } = await userDao.createUser(testUser.email, testUser.name, 
+                testUser.surname, testUser.password, User.SUPPLIER)
+            testUser.id = userId;
+
+            const { id: skuId } = await skuDao.createSku(testSku.description, testSku.weight,
+                testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+            testSku.id = skuId;
+
+            // Setup Items
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price, 
+                testSku.id, testUser.id);
+            testItem.SKUId = testSku.id;
+            testItem.supplierId = testUser.id;
+        });
+
+        it("Modify Item description and price", async () => {
+            const resItem = await agent.get(`/api/item/${testItem.id}`);
+            resItem.should.have.status(200);
+
+            const resPut = await agent.put(`/api/item/${testItem.id}`)
+                .send({newDescription: "a new descripton", newPrice: 10.23});
+            resPut.should.have.status(200);
+        });
+
+        afterEach(async () => {
+            await skuDao.deleteAllSKU();
+            await userDao.deleteAllUser();
+            await internalOrderDao.deleteAllInternalOrder();
+        });
+    });
+
     describe("Scenario 12-1", () => {
         beforeEach(async () => {
             // Setup Skus
@@ -738,7 +1008,7 @@ describe("Testing Scenarios", () => {
 
         afterEach(async () => {
             await testDescriptorDao.deleteAllTestDescriptor();
-        });        
+        });
     });
 
 
