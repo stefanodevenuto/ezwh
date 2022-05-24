@@ -716,8 +716,7 @@ describe("Testing Scenarios", () => {
         })
     });
 
-
-    describe("Scenario 12-1 / Scenario 12-2 / Scenario 12-3", () => {
+    describe("Scenario 12-1", () => {
         beforeEach(async () => {
             // Setup Skus
             const { id: skuId } = await skuDao.createSku(testSku.description, testSku.weight,
@@ -737,17 +736,27 @@ describe("Testing Scenarios", () => {
             response.should.have.status(201);
         });
 
+        afterEach(async () => {
+            await testDescriptorDao.deleteAllTestDescriptor();
+        });        
+    });
+
+
+    describe("Scenario 12-2 / Scenario 12-3", () => {
+        beforeEach(async () => {
+            // Setup Skus
+            const { id: skuId } = await skuDao.createSku(testSku.description, testSku.weight,
+                testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+            testSku.id = skuId;
+
+            const testDescriptorId =
+                await testDescriptorDao.createTestDescriptor(testTestDescriptor.name,
+                    testTestDescriptor.procedureDescription, testSku.id);
+            testTestDescriptor.id = testDescriptorId;
+            testTestDescriptor.idSKU = testSku.id;
+        });
+
         it("Update test description", async () => {
-            let testDescriptorToSend = {
-                name: testTestDescriptor.name,
-                procedureDescription: testTestDescriptor.procedureDescription,
-                idSKU: testSku.id
-            }
-
-            const response = await agent.post(`/api/testDescriptor/`)
-                .send(testDescriptorToSend)
-            response.should.have.status(201);
-
             let newTestDescriptorToSend = {
                 newName: testTestDescriptor.name,
                 newProcedureDescription: "a new procedure description",
@@ -759,23 +768,14 @@ describe("Testing Scenarios", () => {
             resUpdate.should.have.status(200);
         });
 
-        it("Update test description", async () => {
-            let testDescriptorToSend = {
-                name: testTestDescriptor.name,
-                procedureDescription: testTestDescriptor.procedureDescription,
-                idSKU: testSku.id
-            }
-
-            const response = await agent.post(`/api/testDescriptor/`)
-                .send(testDescriptorToSend)
-            response.should.have.status(201);
-
+        it("Delete test description", async () => {
             const resUpdate = await agent.delete(`/api/testDescriptor/${testTestDescriptor.id}`);
             resUpdate.should.have.status(204);
         });
 
         afterEach(async () => {
             await testDescriptorDao.deleteTestDescriptor(testTestDescriptor.id);
+            await skuDao.deleteAllSKU();
         });
     });
 });

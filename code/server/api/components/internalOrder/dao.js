@@ -84,22 +84,22 @@ class InternalOrderDAO extends AppDAO{
         let finalChanges = 0;
         await this.startTransaction();
         
-        let { changes } = await this.run(query, [newState, internalOrderId]);
-        finalChanges += changes;
+        await this.run(query, [newState, internalOrderId]);
 
         if(products !== undefined){
             for(let row of products){
                 let { changes } = await this.run(query_add_id_skuItem, [internalOrderId, row.RFID]);
                 finalChanges += changes;
             }
-        }
-        if(products !== undefined){
+
             if (finalChanges === products.length + 1)
                 await this.commitTransaction();
             else
                 await this.rollbackTransaction();
+        } else {
+            await this.commitTransaction();
         }
-
+        
         return finalChanges;
     }
 

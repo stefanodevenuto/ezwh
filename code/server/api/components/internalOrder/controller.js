@@ -37,10 +37,8 @@ class InternalOrderController {
     }
 
     async getInternalOrderByID(internalOrderID) {
-        const internalOrder = await this.getInternalOrderByIDInternal(internalOrderID);
-        const [internalOrderBuild] = await this.buildInternalOrders(internalOrder);
-
-        return internalOrderBuild;
+        const [internalOrder] = await this.getInternalOrderByIDInternal(internalOrderID);
+        return internalOrder;
     }
 
 
@@ -66,21 +64,18 @@ class InternalOrderController {
     }
 
     async modifyStateInternalOrder(internalOrderId, newState, products) {
-        let finalChanges = 0;
+        // Check if exists
+        await this.getInternalOrderByID(internalOrderId);
+
         if (newState === InternalOrder.COMPLETED) {
             const changes = await this.dao.modifyStateInternalOrder(internalOrderId,
                 InternalOrder.COMPLETED, products);
-            finalChanges = changes;
+
+            if (changes === 1)
+                throw SKUItemErrorFactory.newSKUItemNotFound();
         } else {
-            const changes = await this.dao.modifyStateInternalOrder(internalOrderId, newState);
-            finalChanges = changes;
+            await this.dao.modifyStateInternalOrder(internalOrderId, newState);
         }
-
-        if (finalChanges === 0)
-            throw InternalOrderErrorFactory.newInternalOrderNotFound();
-
-        if (finalChanges === 1)
-            throw SKUItemErrorFactory.newSKUItemNotFound();
     }
 
     async deleteInternalOrder(internalOrderID) {
