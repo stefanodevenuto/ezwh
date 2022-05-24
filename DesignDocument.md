@@ -21,19 +21,30 @@ Version: 1.0
   - [Busines Logic Package](#busines-logic-package)
 - [Verification traceability matrix](#verification-traceability-matrix)
 - [Verification sequence diagrams](#verification-sequence-diagrams)
-  - [Scenario 1.1](#scenario-11)
-  - [Scenario 2.2](#scenario-22)
-  - [Scenario 3.1](#scenario-31)
-  - [Scenario 4.1](#scenario-41)
-  - [Scenario 5.1.1](#scenario-511)
-  - [Scenario 5.2.3](#scenario-523)
-  - [Scenario 5.3.1](#scenario-531)
-  - [Scenario 6.1](#scenario-61)
-  - [Scenario 7.1](#scenario-71)
-  - [Scenario 9.2](#scenario-92)
-  - [Scenario 10.1](#scenario-101)
-  - [Scenario 11.1](#scenario-111)
-  - [Scenario 12.3](#scenario-123)
+  - [UC1](#uc1)
+    - [Scenario 1.1](#scenario-11)
+  - [UC2](#uc2)
+    - [Scenario 2.2](#scenario-22)
+  - [UC3](#uc3)
+    - [Scenario 3.1](#scenario-31)
+  - [UC4](#uc4)
+    - [Scenario 4.1](#scenario-41)
+  - [UC5](#uc5)
+    - [Scenario 5.1.1](#scenario-511)
+    - [Scenario 5.2.3](#scenario-523)
+    - [Scenario 5.3.1](#scenario-531)
+  - [UC6](#uc6)
+    - [Scenario 6.1](#scenario-61)
+  - [UC7](#uc7)
+    - [Scenario 7.1](#scenario-71)
+  - [UC9](#uc9)
+    - [Scenario 9.2](#scenario-92)
+  - [UC10](#uc10)
+    - [Scenario 10.1](#scenario-101)
+  - [UC11](#uc11)
+    - [Scenario 11.1](#scenario-111)
+  - [UC12](#uc12)
+    - [Scenario 12.3](#scenario-123)
 
 # Instructions
 
@@ -48,13 +59,11 @@ package server {
         package components
     }
     package db
-    package test
-    package unit_test
+    package error
 }
 
 components -- db
-components -- test
-components -- unit_test
+components -- error
 @enduml
 ```
 The architetural pattern choosed is MVC + 3 tier.<br>
@@ -66,27 +75,480 @@ The architetural pattern choosed is MVC + 3 tier.<br>
 @startuml LowLevelDesign
 package api {
 
-    ' User management
-    Class UserController {
-        + UserDAO dao
+    Class AppDAO {
 
-        + getAllUsers()
-        + getAllSuppliers()
-        + getUserInfo(email)
-
-        + createUser(Stusername, name, surname, password, type)
-
-
-        + void deleteUser(String username, String type)
-
-        + User login(String username, String password)
-        + void logout()
-
-        // TODO
-
-        + User createUser(String username, String name, String surname, String password, String type)
-        + void modifyUserRights(String username, String oldType, String newType)
     }
+
+    package user {
+        Class UserRoutes {
+            - ErrorHandler errorHandler
+            - UserController controller
+
+            + UserRoutes()
+
+            + getAllUsers()
+            + getAllSuppliers()
+            + getUserInfo(email)
+
+            + newUSer(username, name, surname, password, type)
+            + managerSessions(username, password)
+            + customerSessions(username, password)
+            + supplierSessions(username, password)
+            + clerkSessions(username, password)
+            + qualityEmployeeSessions(username, password)
+            + deliveryEmployeeSessions(username, password)
+
+            + modifyRight(username, oldType, newType)
+            + deleteUser(username, type)
+        }
+
+        Class UserController {
+            + UserDAO dao
+
+            + UserController()
+
+            + getAllUsers()
+            + getAllSuppliers()
+            + getUserInfo(email)
+
+            + createUser(username, name, surname, password, type)
+            + loginManager(username, password)
+            + loginCustomer(username, password)
+            + loginSupplier(username, password)
+            + loginClerk(username, password)
+            + loginQualityEmployee(username, password)
+            + loginDeliveryEmployee(username, password)
+            + modifyRight(username, oldType, newType)
+            + deleteUser(username, type)
+
+            - login(username, password, type)
+        }
+
+        Class UserDAO extends AppDAO {
+            + UserDAO()
+
+            + getAllUsers() 
+            + getAllUsersByType(type) 
+            + getUserByID(id)
+
+            + createUser(username, name, surname, password, type) 
+            + checkUser(email, password) 
+            + modifyRight(username, oldType, newType) 
+            + deleteUser(userUsername, userType) 
+
+            - getUserByEmailAndType(email, type)
+            - deleteAllUser()
+        }
+
+        Class UserErrorFactory {
+            + {static} newCustomerNotFound
+            + {static} newUserNotFound
+            + {static} newWrongCredential
+            + {static} newTypeNotFound
+            + {static} newUserConflict
+            + {static} newAttemptCreationPrivilegedAccount
+        }
+
+        Class User {
+            - {static} ADMINISTRATOR     = "administrator";
+            - {static} MANAGER           = "manager";
+            - {static} INTERNAL_CUSTOMER = "INTERNAL_CUSTOMER";
+            - {static} CUSTOMER          = "customer";
+            - {static} SUPPLIER          = "supplier";
+            - {static} CLERK             = "clerk";
+            - {static} QUALITY_EMPLOYEE  = "qualityEmployee";
+            - {static} DELIVERY_EMPLOYEE = "deliveryEmployee";
+
+            - id
+            - name
+            - surname
+            - email
+            - password
+            - type
+
+            + User(id, name, surname, email, password, type)
+
+            - {static} isValidType(type)
+            - {static} mockUser()
+            - {static} mockUserCustomer()
+
+        }
+
+        UserRoutes -> UserController
+        UserController -> UserDAO
+        UserController -> UserErrorFactory
+    }
+
+
+package sku {
+        Class SkuRoutes {
+            - ErrorHandler errorHandler
+            - SkuController controller
+
+            + SkuRoutes()
+
+            + getAllSkus()
+            + getSkuByID(skuId)
+
+            + createSku(description, weight, volume, notes, price, availableQuantity)
+            + modifySku(skuId, newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity)
+            + addModifySkuPosition(skuId, newPosition)
+
+            + deleteSku(skuId)
+
+        }
+
+        Class SkuController {
+            + SkuDAO dao
+
+            + SkuController()
+
+            + SKURoutes()
+
+            + getAllSkus()
+            + getSkuByID(skuId)
+
+            + createSku(description, weight, volume, notes, price, availableQuantity)
+            + modifySku(skuId, newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity)
+            + addModifySkuPosition(skuId, newPosition)
+            
+            + deleteSku(skuId)
+            + getSkuByIDInternal(skuId) 
+        }
+
+        Class SkuDAO extends AppDAO {
+            + SkuDAO()
+
+            + getAllSkus()
+            + getSkuByID(skuId)
+
+            + createSku(description, weight, volume, notes, price, availableQuantity)
+            + modifySku(skuId, newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity)
+            + addModifySkuPosition(skuId, newPosition)
+            
+            + deleteSku(skuId)
+            + getSkuByIDInternal(skuId) 
+        }
+
+        Class SkuErrorFactory {
+            + {static} newSkuNotFound
+            + {static} newPositionNotCapable
+            + {static} newPositionAlreadyOccupied
+            + {static} newSkuWithAssociatedSkuItems
+        }
+
+        Class Sku {
+
+            - id
+            - description
+            - weight
+            - volume
+            - notes
+            - positionId
+            - availableQuantity
+            - price    
+            - testDescriptors
+
+            + Sku(id, description, weight, volume, notes, positionId, availableQuantity, price, testDescriptors)
+
+            - {static} intoJson(all)
+            - {static} mockTestSku()
+        }
+
+        SkuRoutes -> SkuController
+        SkuController -> SkuDAO
+        SkuController -> SkuErrorFactory
+    }
+    
+
+package skuItem {
+        Class SKUItemRoutes {
+            - ErrorHandler errorHandler
+            - SKUItemController controller
+
+            + SKUItemRoutes()
+
+            + getAllSKUItems()
+            + getSKUItemBySKUID(skuId)
+            + getSKUItemByRFID(SKUItemId)
+
+            + createSKUItem(RFID, SKUId, DateOfStock)
+            + modifySKUItem(SKUItemId, newRFID, newAvailable, newDateOfStock)
+            + deleteSKUItem(SKUItemId)
+
+        }
+
+        Class SkuItemController {
+            + SKUItemDAO dao
+
+            + skuController()
+
+            + getAllSKUItems()
+            + getSKUItemBySKUID(skuId)
+            + getSKUItemByRFID(SKUItemId)
+
+            + createSKUItem(RFID, SKUId, DateOfStock)
+            + modifySKUItem(SKUItemId, newRFID, newAvailable, newDateOfStock)
+            + deleteSKUItem(SKUItemId)
+
+            + getSKUItemByRFIDInternal(rfid) 
+            + getAllSkuItemsByRestockOrder(restockOrderId)
+            + getItemByRFIDInternal(RFID, restockOrderId)
+        }
+
+        Class SKUItemDAO extends AppDAO {
+            + SKUItemDAO()
+
+            + getAllSKUItems()
+            + getSKUItemBySKUID(skuId)
+            + getSKUItemByRFID(SKUItemId)
+
+            + createSKUItem(RFID, SKUId, DateOfStock)
+            + modifySKUItem(SKUItemId, newRFID, newAvailable, newDateOfStock)
+            + deleteSKUItem(SKUItemId)
+            + deleteAllSKUItem()
+
+            + getAllSkuItemsByRestockOrder(restockOrderId) 
+            + getSupplierIdByRestockOrderId(restockOrderId)
+            + getSkuAndSKUItemByRFIDInternal(rfid, supplierId)
+        }
+
+        Class SkuItemErrorFactory {
+            + {static} newSKUItemNotFound
+            + {static} newSKUItemRFIDNotUnique
+            + {static} newSKUItemRelatedToItemNotOwned
+        }
+
+        Class SkuItem {
+
+            - RFID
+            - SKUId
+            - available
+            - dateOfStock
+            - restockOrderId
+            - returnOrderId
+            - internalOrderId
+
+            + Sku(id , description, weight, volume, notes, positionId, availableQuantity, price, testDescriptors)
+
+            - {static} intoJson(all)
+            - {static} mockTestSkuItem()
+        }
+
+        SKUItemRoutes -> SkuItemController
+        SkuItemController -> SKUItemDAO
+        SkuItemController -> SkuItemErrorFactory
+    }
+
+
+package position {
+        Class PositionRoutes {
+            - ErrorHandler errorHandler
+            - PositionController controller
+
+            + PositionRoutes()
+
+            + getAllPositions()
+            + getPositionByID(id)
+
+            + createPosition(positionID, aisleID, row, col, maxWeight, maxVolume)
+            + modifyPosition(positionID, newAisleID, newRow, newCol, newMaxWeight, newMaxVolume,
+        newOccupiedWeight, newOccupiedVolume)
+            + modifyPositionID(oldPositionId, newPositionId)
+            + deletePosition(positionID)
+
+        }
+
+        Class PositionController {
+            + PositionDAO dao
+
+            
+            + getAllPositions()
+            + getPositionByID(id)
+
+            + createPosition(positionID, aisleID, row, col, maxWeight, maxVolume)
+            + modifyPosition(positionID, newAisleID, newRow, newCol, newMaxWeight, newMaxVolume,
+        newOccupiedWeight, newOccupiedVolume)
+            + modifyPositionID(oldPositionId, newPositionId)
+            + deletePosition(positionID)
+        }
+
+        Class PositionDAO extends AppDAO {
+            + PositionDAO()
+
+            + getAllPositions()
+            + getPositionByID(id)
+
+            + createPosition(positionID, aisleID, row, col, maxWeight, maxVolume)
+            + modifyPosition(positionID, newAisleID, newRow, newCol, newMaxWeight, newMaxVolume,
+        newOccupiedWeight, newOccupiedVolume)
+            + modifyPositionID(oldPositionId, newPositionId)
+            + deletePosition(positionID)
+            + deleteAllPosition()
+        }
+
+        Class PositionErrorFactory {
+            + {static} newPositionNotFound
+            + {static} newPositionIdNotSymmetric
+            + {static} newPositionIDNotUnique
+            + {static} newGreaterThanMaxWeightPosition
+            + {static} newGreaterThanMaxVolumePosition
+        }
+
+        Class Position {
+
+            - positionID
+            - aisleID
+            - row
+            - col
+            - maxWeight
+            - maxVolume
+            - occupiedWeight
+            - occupiedVolume
+
+            + Position(positionID, aisleID, row, col, maxWeight, maxVolume, occupiedWeight, occupiedVolume)
+
+            - {static} mockTestPosition()
+        }
+
+        PositionRoutes -> PositionController
+        PositionController -> PositionDAO
+        PositionController -> PositionErrorFactory
+    }
+
+    package testDescriptor {
+        Class TestDescriptorRoutes {
+            - ErrorHandler errorHandler
+            - TestDescriptorController controller
+
+            + TestDescriptorRoutes()
+
+            + getAllTestDescriptors()
+            + getTestDescriptorByID(testDescriptorId)
+
+            + createTestDescriptor(name, procedureDescription, idSKU)
+            + modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU)
+            + deleteTestDescriptor(testDescriptorId)
+
+        }
+
+        Class TestDescriptorController {
+            + TestDescriptorDAO dao
+
+            
+           
+            + getAllTestDescriptors()
+            + getTestDescriptorByID(testDescriptorId)
+
+            + createTestDescriptor(name, procedureDescription, idSKU)
+            + modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU)
+            + deleteTestDescriptor(testDescriptorId)
+        }
+
+        Class TestDescriptorDAO extends AppDAO {
+            + TestDescriptorDAO()
+
+            + getAllTestDescriptors()
+            + getTestDescriptorByID(testDescriptorId)
+
+            + createTestDescriptor(name, procedureDescription, idSKU)
+            + modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU)
+            + deleteTestDescriptor(testDescriptorId)
+            + deleteAllTestDescriptor()
+        }
+
+        Class TestDescriptorErrorFactory {
+            + {static} newTestDescriptorNotFound
+            + {static} newSKUAlreadyWithTestDescriptor
+            + {static} newTestDescriptorWithAssociatedTestResults
+        }
+
+        Class TestDescriptor {
+
+            - id
+            - name
+            - procedureDescription
+            - idSKU
+
+            + TestDescriptor(id, name, procedureDescription, idSKU)
+
+            - {static} mockTestTestDescriptor()
+        }
+
+        TestDescriptorRoutes -> TestDescriptorController
+        TestDescriptorController -> TestDescriptorDAO
+        TestDescriptorController -> TestDescriptorErrorFactory
+    }
+
+    package testResult {
+        Class TestResultRoutes {
+            - ErrorHandler errorHandler
+            - TestResultController controller
+
+            + TestResultRoutes()
+
+            + getAllTestResults(rfid)
+            + getTestResultByID(rfid, testResultId)
+
+            + createTestResult(rfid, idTestDescriptor, Date, Result)
+            + modifyTestResult(rfid, id, newIdTestDescriptor, newDate, newResult)
+            + deleteTestResult(rfid, id)
+
+        }
+
+        Class TestResultController {
+            + TestResultDAO dao
+
+            + skuItemController
+           
+            + getAllTestResults(rfid)
+            + getTestResultByID(rfid, testResultId)
+
+            + createTestResult(rfid, idTestDescriptor, Date, Result)
+            + modifyTestResult(rfid, id, newIdTestDescriptor, newDate, newResult)
+            + deleteTestResult(rfid, id)
+
+            + hasFailedTestResultsByRFID(RFID)
+        }
+
+        Class TestResultDAO extends AppDAO {
+            + TestResultDAO()
+
+           + getAllTestResults(rfid)
+            + getTestResultByID(rfid, testResultId)
+
+            + createTestResult(rfid, idTestDescriptor, Date, Result)
+            + modifyTestResult(rfid, id, newIdTestDescriptor, newDate, newResult)
+            + deleteTestResult(rfid, id)
+
+            + hasFailedTestResultsByRFID(RFID)
+        }
+
+        Class TestResultErrorFactory {
+            + {static} newTestResultNotFound
+            + {static} newTestDescriptorOrSkuItemNotFound
+        }
+
+        Class TestResult {
+
+            - id;
+            - date
+            - result
+            - testDescriptorId
+            - RFID
+
+            + TestResult(id, date, result, testDescriptorId, RFID)
+
+            - intoJson()
+            - {static} mockTestTestResult()
+        }
+
+        TestResultRoutes -> TestResultController
+        TestResultController -> TestResultDAO
+        TestResultController -> TestResultErrorFactory
+    }
+
+
 
     Class SKUItemController {
         - SKUItemDAO dao
