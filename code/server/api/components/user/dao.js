@@ -44,7 +44,7 @@ class UserDao extends AppDAO{
 
     async deleteUser(userUsername, userType) {
         const query = 'DELETE FROM user WHERE email = ? AND type = ?'
-        await this.run(query, [userUsername, userType]);
+        return await this.run(query, [userUsername, userType]);
     }
 
     // ############# Utilities
