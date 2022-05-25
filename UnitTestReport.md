@@ -353,17 +353,9 @@ Version: 1.0
 
 # White Box Unit Tests
 
-### Test cases definition
-
-| Unit name | Jest test case |
-|--|--|
-|||
-|||
-||||
-
 ### Code coverage report
 
-![](images/image.png)
+![](./images/coverage.png)
 
 ### Loop coverage analysis
 
