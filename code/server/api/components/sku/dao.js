@@ -34,10 +34,19 @@ class SkuDAO extends AppDAO {
                     newDescription, newWeight, newVolume, newNotes,newPrice, newAvailableQuantity, skuId
                 ]);
         } else {
-            return await this.serialize([query_sku, query_position], [
-                [newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity, skuId],
-                [totalWeight, totalVolume, result.positionId]
-            ]);
+            let totalChanges = 0;
+
+            await this.startTransaction();
+
+            const { changes: changeSku } = await this.run(query_sku, [newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity, skuId]);
+            totalChanges += changeSku;
+
+            const { changes: changePos } = await this.run(query_position, [totalWeight, totalVolume, result.positionId]);
+            totalChanges += changePos;
+
+            await this.commitTransaction();
+            
+            return {changes: totalChanges}
         }
     }
 

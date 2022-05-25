@@ -53,7 +53,7 @@ class RestockOrderController {
     }
 
     async createRestockOrder(issueDate, products, supplierId) {
-        if (!dayjs(deliveryDate).isValid())
+        if (!dayjs(issueDate).isValid())
             throw RestockOrderErrorFactory.newRestockOrderDateNotValid();
 
         let totalProducts = [];

@@ -62,23 +62,6 @@ class AppDAO {
         })
     }
 
-    async serialize(sqls, params = [[]]) {
-        let totalChanges = 0;
-
-        await this.run("BEGIN TRANSACTION");
-        this.transaction.onGoing = true;
-
-        for (let i = 0; i < sqls.length; i++) {
-            //console.log(sqls[i], params[i]);
-            let { changes } = await this.run(sqls[i], params[i]);
-            totalChanges += changes;
-        }
-
-        await this.run("COMMIT");
-
-        return {changes: totalChanges};
-    }
-
     async startTransaction() {
         if (this.transaction.onGoing === true)
             return;
