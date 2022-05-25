@@ -49,7 +49,6 @@ class RestockOrderRoutes {
 
 		this.router.post(
 			'/restockOrder',
-			body("issueDate").isString(),
 			body("products").isArray(),
 			body("supplierId").isNumeric(),
 			this.errorHandler.validateRequest,
@@ -82,7 +81,6 @@ class RestockOrderRoutes {
 		this.router.put(
 			'/restockOrder/:id/transportNote',
 			param('id').isNumeric(),
-			body("transportNote.deliveryDate").isDate(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.modifyTransportNote(req.params.id, req.body.transportNote.deliveryDate)
 				.then(() => res.status(200).send())

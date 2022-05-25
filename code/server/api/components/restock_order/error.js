@@ -1,4 +1,5 @@
 const RESTOCKORDER_NOT_FOUND_MESSAGE   = "No Restock Order associated to id";
+const RESTOCKORDER_INVALID_DATE = "Invalid date";
 const RESTOCKORDER_NOT_COMPLETEDRETURN = "Restock order is not in completed return";
 const RESTOCKORDER_NOT_DELIVERED = "Restock order is not delivered yet";
 const RESTOCKORDER_NOT_DELIVERY = "Restock order is not in delivery yet";
@@ -17,6 +18,14 @@ class RestockOrderErrorFactory {
         let error = new Error();
 		error.customCode = 422;
         error.customMessage = RESTOCKORDER_NOT_COMPLETEDRETURN;
+
+		return error;
+    }
+
+    static newRestockOrderDateNotValid() {
+        let error = new Error();
+		error.customCode = 422;
+        error.customMessage = RESTOCKORDER_INVALID_DATE;
 
 		return error;
     }

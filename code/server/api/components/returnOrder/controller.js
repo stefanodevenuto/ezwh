@@ -27,8 +27,10 @@ class ReturnOrderController {
         return returnOrder;
     }
 
-
     async createReturnOrder(returnDate, products, restockOrderId) {
+        if (!dayjs(deliveryDate).isValid())
+            throw ReturnOrderErrorFactory.newReturnOrderDateNotValid();
+
         let totalProducts = [];
         for (let row of products) {
             // Check if RestockOrder and SKUItem exist
