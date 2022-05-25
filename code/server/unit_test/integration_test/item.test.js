@@ -108,9 +108,9 @@ describe("Item Controller suite", () => {
         });
 
 
-        /*afterAll(async () => {
-            await skuController.dao.deleteAllSKU();
-        });*/
+        afterEach(async () => {
+            await itemController.dao.deleteAllItem();
+        });
 
 
     });
@@ -118,11 +118,11 @@ describe("Item Controller suite", () => {
     describe("Modify Item", () => {
 
 
-        /*beforeAll(async () => {
+        beforeEach(async () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = skuId;
             //await skuController.dao.addModifySkuPosition(testSku.id, testPosition.positionID);
-        });*/
+        });
 
         test("Modify inexistent Ite ", async () => {
             try {
@@ -138,9 +138,9 @@ describe("Item Controller suite", () => {
  
       
 
-        /*afterAll(async () => {
-            await skuController.dao.deleteAllSKU();
-        });*/
+        afterEach(async () => {
+            await itemController.dao.deleteAllItem();
+        });
 
     });
 

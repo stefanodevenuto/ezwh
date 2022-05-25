@@ -76,20 +76,7 @@ class SkuController {
 	}
 
 	async deleteSku(skuId) {
-		try {
-			const totalChanges = await this.dao.deleteSku(skuId);
-			
-			if (totalChanges.changes === 0)
-				throw SkuErrorFactory.newSkuNotFound();
-		} catch (err) {
-			console.log(err);
-			if (err.code === "SQLITE_CONSTRAINT") {
-				if (err.message.includes("sku.id"))
-					err = SkuErrorFactory.newSkuNotFound();
-			}
-		
-			throw err;
-		}
+		await this.dao.deleteSku(skuId);
 	}
 
 	// ################ Utilities
