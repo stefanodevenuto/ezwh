@@ -39,7 +39,8 @@ describe("Testing RestockOrderController", () => {
     let testRestockOrder = RestockOrder.mockRestockOrder();
 
     beforeAll(async () => {
-        //await restockOrderController.dao.deleteAllRestockOrder();
+        await restockOrderController.dao.deleteAllRestockOrder();
+        await userController.dao.deleteAllUser();
     });
 
     beforeEach(async () => {

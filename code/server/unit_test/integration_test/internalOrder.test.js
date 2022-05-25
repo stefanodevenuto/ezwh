@@ -6,14 +6,12 @@ const InternalOrder = require('../../api/components/internalOrder/internalOrder'
 const Sku = require('../../api/components/sku/sku');
 const User = require('../../api/components/user/user');
 
-
 describe("Internal Order Controller suite", () => {
 
     const skuController = new SkuController();
     const internalOrderController = new InternalOrderController(skuController);
     const userController = new UserController();
 
-    let testSku = Sku.mockTestSku();
     let testInternalOrder = InternalOrder.mockTestInternalOrder();
 
     let testUser = User.mockUserCustomer();   

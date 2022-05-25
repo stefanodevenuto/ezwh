@@ -52,6 +52,46 @@ class User {
         return user;
     }
 
+    static mockUserAdministrator() {
+        const user = new User(null, "TestTest", "TestTest", "test@test.test",
+            "testtest", User.ADMINISTRATOR);
+
+        return user;
+    }
+
+    static mockUserManager() {
+        const user = new User(null, "TestTest", "TestTest", "test@test.test",
+            "testtest", User.MANAGER);
+
+        return user;
+    }
+
+    static mockUserQualityEmployee() {
+        const user = new User(null, "TestTest", "TestTest", "test@test.test",
+            "testtest", User.QUALITY_EMPLOYEE);
+
+        return user;
+    }
+
+    static mockUserInternalCustomer() {
+        const user = new User(null, "TestTest", "TestTest", "test@test.test",
+            "testtest", User.INTERNAL_CUSTOMER);
+
+        return user;
+    }
+    static mockUserClerk() {
+        const user = new User(null, "TestTest", "TestTest", "test@test.test",
+            "testtest", User.CLERK);
+
+        return user;
+    }
+
+    static mockUserDeliveryEmployee() {
+        const user = new User(null, "TestTest", "TestTest", "test@test.test",
+            "testtest", User.DELIVERY_EMPLOYEE);
+
+        return user;
+    }
 }
 
 module.exports = User;

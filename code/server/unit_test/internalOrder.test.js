@@ -22,10 +22,11 @@ describe("Testing InternalOrderDao", () => {
 
     beforeAll(async () => {
         await internalOrderDao.deleteAllInternalOrder();
-        //await skuDao.deleteAllSKU();
-        //await userDao.getUserByID(testInternalOrder.customerId);
-        //await userDao.getUserByID(testInternalOrder2.customerId);
-        
+        await skuDao.deleteAllSKU();
+        await userDao.getUserByID(testInternalOrder.customerId);
+        await userDao.getUserByID(testInternalOrder2.customerId);
+        await userDao.deleteAllUser();
+
         const { id } = await userDao.createUser(testUser.email, testUser.name, 
             testUser.surname, "PASSWORD", testUser.type)
         testInternalOrder.customerId = id;
