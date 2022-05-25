@@ -78,6 +78,74 @@ describe("Testing RestockOrderController", () => {
         ];
     });
 
+    describe("Get Restock Orders", () => {
+        beforeEach(async () => {
+            const restockOrderId = await restockOrderController.dao.createRestockOrder(testRestockOrder.issueDate, 
+                testRestockOrder.supplierId, testRestockOrder.state, [
+                    {item: testItem, qty: 10},
+                    {item: secondTestItem, qty: 10}
+                ]);
+            testRestockOrder.id = restockOrderId;
+        });
+
+        test("Get All Restock Orders", async () => {
+            const result = await restockOrderController.getAllRestockOrders();
+            expect(result).toHaveLength(1);
+
+            expect(result[0].id).toStrictEqual(testRestockOrder.id);
+            expect(result[0].issueDate).toStrictEqual(testRestockOrder.issueDate);
+            expect(result[0].state).toStrictEqual(testRestockOrder.state);
+            expect(result[0].customerId).toStrictEqual(testRestockOrder.customerId);
+
+            const products = result[0].products;
+            for (let i = 0; i < products.length; i++) {
+                expect(products[i].SKUId).toStrictEqual(testRestockOrder.products[i].SKUId);
+                expect(products[i].description).toStrictEqual(testRestockOrder.products[i].description);
+                expect(products[i].price).toStrictEqual(testRestockOrder.products[i].price);
+                expect(products[i].qty).toStrictEqual(testRestockOrder.products[i].qty);
+            }
+        });
+
+        test("Get All ISSUED Restock Orders", async () => {
+            const result = await restockOrderController.getAllIssuedRestockOrders();
+            expect(result).toHaveLength(1);
+
+            expect(result[0].id).toStrictEqual(testRestockOrder.id);
+            expect(result[0].issueDate).toStrictEqual(testRestockOrder.issueDate);
+            expect(result[0].state).toStrictEqual(testRestockOrder.state);
+            expect(result[0].customerId).toStrictEqual(testRestockOrder.customerId);
+
+            const products = result[0].products;
+            for (let i = 0; i < products.length; i++) {
+                expect(products[i].SKUId).toStrictEqual(testRestockOrder.products[i].SKUId);
+                expect(products[i].description).toStrictEqual(testRestockOrder.products[i].description);
+                expect(products[i].price).toStrictEqual(testRestockOrder.products[i].price);
+                expect(products[i].qty).toStrictEqual(testRestockOrder.products[i].qty);
+            }
+        });
+
+        test("Get Restock Order by Id", async () => {
+            const result = await restockOrderController.getRestockOrderByID(testRestockOrder.id);
+            expect(result).toBeDefined();
+
+            expect(result.id).toStrictEqual(testRestockOrder.id);
+            expect(result.issueDate).toStrictEqual(testRestockOrder.issueDate);
+            expect(result.state).toStrictEqual(testRestockOrder.state);
+            expect(result.customerId).toStrictEqual(testRestockOrder.customerId);
+
+            const products = result.products;
+            for (let i = 0; i < products.length; i++) {
+                expect(products[i].SKUId).toStrictEqual(testRestockOrder.products[i].SKUId);
+                expect(products[i].description).toStrictEqual(testRestockOrder.products[i].description);
+                expect(products[i].price).toStrictEqual(testRestockOrder.products[i].price);
+                expect(products[i].qty).toStrictEqual(testRestockOrder.products[i].qty);
+            }
+        });
+
+        afterEach(async () => {
+            await restockOrderController.dao.deleteAllRestockOrder();
+        });
+    })
 
     describe("Create Restock Order", () => {
         test("Create Restock Order with invalid Item", async () => {

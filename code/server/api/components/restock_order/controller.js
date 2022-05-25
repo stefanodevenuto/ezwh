@@ -14,14 +14,14 @@ class RestockOrderController {
 
     // ################################ API
 
-    async getAllRestockOrders() {
+    async getAllRestockOrders(req, res, next) {
         const rows = await this.dao.getAllRestockOrders();
         const restockOrders = await this.buildRestockOrders(rows);
 
         return restockOrders.map((p) => p.intoJson());
     }
 
-    async getAllIssuedRestockOrders() {
+    async getAllIssuedRestockOrders(req, res, next) {
         const rows = await this.dao.getAllIssuedRestockOrders();
         const restockOrders = await this.buildRestockOrders(rows);
 

@@ -1,7 +1,5 @@
 const InternalOrderDAO = require('./dao')
 const InternalOrder = require("./internalOrder");
-const Products = require('./products');
-const ProductsQ = require('./productsQ.js');
 const { InternalOrderErrorFactory } = require('./error');
 const { UserErrorFactory } = require('../user/error');
 const { SKUItemErrorFactory } = require('../skuItem/error');
@@ -40,14 +38,19 @@ class InternalOrderController {
         return internalOrder;
     }
 
-
     async createInternalOrder(issueDate, products, customerId) {
         try {
             let finalProducts = [];
             for (let row of products) {
+
                 // Check if Sku exist and recover information
                 let sku = await this.skuController.getSkuByIDInternal(row.SKUId);
-                let product = new ProductsQ(sku.id, sku.description, sku.price, row.qty)
+                let product = {
+                    SKUId : sku.id,
+                    description : sku.description,
+                    price : sku.price,
+                    qty : row.qty
+                }
                 finalProducts.push(product);
             }
 
@@ -67,10 +70,13 @@ class InternalOrderController {
         await this.getInternalOrderByID(internalOrderId);
 
         if (newState === InternalOrder.COMPLETED) {
+            if (products === undefined)
+                throw InternalOrderErrorFactory.newInternalOrderWithNoProducts();
+
             const changes = await this.dao.modifyStateInternalOrder(internalOrderId,
                 InternalOrder.COMPLETED, products);
 
-            if (changes === 2)
+            if (changes < products.length)
                 throw SKUItemErrorFactory.newSKUItemNotFound();
         } else {
             await this.dao.modifyStateInternalOrder(internalOrderId, newState);
@@ -87,19 +93,29 @@ class InternalOrderController {
         let internalOrders = [];
         let product;
         if (rows.length > 0) {
-            // Setup last as the first restockOrder
+            // Setup last as the first internalOrder
             let lastInternalOrder = rows[0];
 
             let products = [];
 
             for (let row of rows) {
-                // If it's the same restockOrder, continue adding the related Skus
+                // If it's the same internalOrder, continue adding the related Skus
                 if (row.id == lastInternalOrder.id) {
                     if (row.state !== "COMPLETED") {
-                        //let item = new Item(row.SKUId, row.description, row.price);
-                        product = new ProductsQ(row.SKUId, row.description, row.price, row.qty);
+                        product = {
+                            SKUId : row.SKUId,
+                            description : row.description,
+                            price : row.price,
+                            qty : row.qty
+                        }
+
                     } else {
-                        product = new Products(row.SKUId, row.description, row.price, row.RFID);
+                        product = {
+                            SKUId : row.SKUId,
+                            description : row.description,
+                            price : row.price,
+                            RFID : row.RFID
+                        }
                     }
                     products.push(product);
                 } else {
@@ -113,12 +129,22 @@ class InternalOrderController {
                     lastInternalOrder = row;
                     products = [];
 
-                    // Don't lose the current Item!
+                    // Don't lose the current Sku!
                     if (row.state !== "COMPLETED") {
-                        //let item = new Item(row.SKUId, row.description, row.price);
-                        product = new ProductsQ(row.SKUId, row.description, row.price, row.qty);
+                        product = {
+                            SKUId : row.SKUId,
+                            description : row.description,
+                            price : row.price,
+                            qty : row.qty
+                        }
+    
                     } else {
-                        product = new Products(row.SKUId, row.description, row.price, row.RFID);
+                        product = {
+                            SKUId : row.SKUId,
+                            description : row.description,
+                            price : row.price,
+                            qty : row.qty
+                        } 
                     }
                     products.push(product);
                 }
