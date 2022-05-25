@@ -1,9 +1,6 @@
 const AppDAO = require("../../../db/AppDAO");
 
-class PositionDAO extends AppDAO{
-
-    constructor() { super(); }
-    
+class PositionDAO extends AppDAO{    
     async getAllPositions() {
         const query = 'SELECT positionID, aisleID, row, col, maxWeight, maxVolume, occupiedWeight, occupiedVolume FROM position';
         return await this.all(query);

@@ -1,10 +1,6 @@
-const sqlite3 = require("sqlite3");
 const AppDAO = require("../../../db/AppDAO.js");
 
-class SKUItemDAO extends AppDAO{
-
-    constructor() { super(); }
-    
+class SKUItemDAO extends AppDAO{    
     async getAllSKUItems() {
         const query = 'SELECT * FROM skuItem';
         return await this.all(query);

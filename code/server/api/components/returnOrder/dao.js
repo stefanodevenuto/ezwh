@@ -1,9 +1,6 @@
 const AppDAO = require("../../../db/AppDAO");
 
-class ReturnOrderDAO extends AppDAO{
-
-    constructor() { super(); }
-    
+class ReturnOrderDAO extends AppDAO{    
     async getAllReturnOrders() {
         const query = 'SELECT RO.id, RO.returnDate, I.SKUId, I.description, I.price, SI.RFID, RO.restockOrderId \
             FROM returnOrder RO  \

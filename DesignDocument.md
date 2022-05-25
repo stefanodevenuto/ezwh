@@ -83,7 +83,6 @@ package db {
         + run(sql, params = [])
         + get(sql, params = [])
         + all(sql, params = [])
-        + serialize(sqls, params = [[]])
         + startTransaction()
         + commitTransaction()
         + rollbackTransaction()
@@ -98,20 +97,7 @@ package api {
 
             + UserRoutes()
 
-            + getAllUsers()
-            + getAllSuppliers()
-            + getUserInfo(email)
-
-            + newUSer(username, name, surname, password, type)
-            + managerSessions(username, password)
-            + customerSessions(username, password)
-            + supplierSessions(username, password)
-            + clerkSessions(username, password)
-            + qualityEmployeeSessions(username, password)
-            + deliveryEmployeeSessions(username, password)
-
-            + modifyRight(username, oldType, newType)
-            + deleteUser(username, type)
+            + initRoutes()
         }
 
         Class UserController {
@@ -188,14 +174,7 @@ package api {
 
             + SkuRoutes()
 
-            + getAllSkus()
-            + getSkuByID(skuId)
-
-            + createSku(description, weight, volume, notes, price, availableQuantity)
-            + modifySku(skuId, newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity)
-            + addModifySkuPosition(skuId, newPosition)
-
-            + deleteSku(skuId)
+            + initRoutes()
 
         }
 
@@ -260,13 +239,7 @@ package api {
 
             + SKUItemRoutes()
 
-            + getAllSKUItems()
-            + getSKUItemBySKUID(skuId)
-            + getSKUItemByRFID(SKUItemId)
-
-            + createSKUItem(RFID, SKUId, DateOfStock)
-            + modifySKUItem(SKUItemId, newRFID, newAvailable, newDateOfStock)
-            + deleteSKUItem(SKUItemId)
+            + initRoutes()
 
         }
 
@@ -333,14 +306,7 @@ package api {
 
             + PositionRoutes()
 
-            + getAllPositions()
-            + getPositionByID(id)
-
-            + createPosition(positionID, aisleID, row, col, maxWeight, maxVolume)
-            + modifyPosition(positionID, newAisleID, newRow, newCol, newMaxWeight, newMaxVolume,
-        newOccupiedWeight, newOccupiedVolume)
-            + modifyPositionID(oldPositionId, newPositionId)
-            + deletePosition(positionID)
+            + initRoutes()
 
         }
 
@@ -399,12 +365,7 @@ package api {
 
             + TestDescriptorRoutes()
 
-            + getAllTestDescriptors()
-            + getTestDescriptorByID(testDescriptorId)
-
-            + createTestDescriptor(name, procedureDescription, idSKU)
-            + modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU)
-            + deleteTestDescriptor(testDescriptorId)
+            + initRoutes()
 
         }
 
@@ -456,12 +417,7 @@ package api {
 
             + TestResultRoutes()
 
-            + getAllTestResults(rfid)
-            + getTestResultByID(rfid, testResultId)
-
-            + createTestResult(rfid, idTestDescriptor, Date, Result)
-            + modifyTestResult(rfid, id, newIdTestDescriptor, newDate, newResult)
-            + deleteTestResult(rfid, id)
+            + initRoutes()
 
         }
 

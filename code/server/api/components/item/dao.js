@@ -1,10 +1,7 @@
 const sqlite3 = require("sqlite3");
 const AppDAO = require("../../../db/AppDAO");
 
-class ItemDAO extends AppDAO{
-
-    constructor() { super(); }
-    
+class ItemDAO extends AppDAO{    
     async getAllItems() {
         const query = 'SELECT * FROM item';
         return await this.all(query);

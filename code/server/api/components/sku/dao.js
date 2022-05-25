@@ -1,9 +1,6 @@
 const AppDAO = require("../../../db/AppDAO");
 
 class SkuDAO extends AppDAO {
-
-    constructor() { super(); }
-
     async getAllSkus() {
         const query = 'SELECT * FROM sku';
         return await this.all(query);

@@ -1,9 +1,6 @@
 const AppDAO = require("../../../db/AppDAO");
 
 class TestDescriptorDAO extends AppDAO {
-
-    constructor() { super(); }
-
     async getAllTestDescriptors() {
         const query = 'SELECT * FROM testDescriptor';
         return await this.all(query);

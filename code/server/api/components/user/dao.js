@@ -3,9 +3,6 @@ const AppDAO = require("../../../db/AppDAO.js");
 const User = require('./user');
 
 class UserDao extends AppDAO{
-
-    constructor() { super(); }
-
     async getAllUsers() {
         const query = 'SELECT id, name, surname, email, type FROM user WHERE type <> ?';
         return await this.all(query, User.MANAGER);

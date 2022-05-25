@@ -1,9 +1,6 @@
 const AppDAO = require("../../../db/AppDAO");
 
 class TestResultDAO extends AppDAO {
-
-    constructor() { super(); }
-
     async getAllTestResults(RFID) {
         const query = 'SELECT * FROM testResult WHERE RFID = ?';
         return await this.all(query, [RFID]);

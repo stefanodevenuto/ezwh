@@ -2,8 +2,6 @@ const { raw } = require("express");
 const AppDAO = require("../../../db/AppDAO");
 
 class InternalOrderDAO extends AppDAO{
-
-    constructor() { super(); }
     
     async getAllInternalOrders() {
         const query = 'SELECT internalOrder.id, issueDate, state, sku.id AS SKUId,  \

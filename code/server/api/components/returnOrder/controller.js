@@ -20,7 +20,6 @@ class ReturnOrderController {
 
     async getReturnOrderByID(returnOrderID) {
         const rows = await this.dao.getReturnOrderByID(returnOrderID);
-        console.log(rows)
         if (rows.length === 0)
             throw ReturnOrderErrorFactory.newReturnOrderNotFound();
 
