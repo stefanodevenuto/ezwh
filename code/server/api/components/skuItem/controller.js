@@ -3,7 +3,6 @@ const SKUItem = require("./SKUItem");
 const { SKUItemErrorFactory } = require('./error');
 const { SkuErrorFactory } = require('../sku/error');
 const { RestockOrderErrorFactory } = require('../restock_order/error');
-const SkuController = require('../sku/controller');
 
 class SKUItemController {
 	constructor(skuController) {
