@@ -3,6 +3,7 @@ const InternalOrder = require("./internalOrder");
 const { InternalOrderErrorFactory } = require('./error');
 const { UserErrorFactory } = require('../user/error');
 const { SKUItemErrorFactory } = require('../skuItem/error');
+const dayjs = require("dayjs")
 
 class InternalOrderController {
     constructor(skuController) {
@@ -146,7 +147,7 @@ class InternalOrderController {
                             SKUId : row.SKUId,
                             description : row.description,
                             price : row.price,
-                            qty : row.qty
+                            qty : row.RFID
                         } 
                     }
                     products.push(product);

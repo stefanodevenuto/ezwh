@@ -11,9 +11,10 @@ class InternalOrderDAO extends AppDAO{
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
         JOIN sku ON internalOrder_sku.skuId = sku.id\
-        LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
+        LEFT JOIN SKUItem ON internalOrder.id = SKUItem.internalOrderId AND sku.id = SKUItem.SKUId\
         GROUP BY internalOrder.id, sku.id, RFID';
-        return await this.all(query);
+        let row = await this.all(query);
+        return row;
     }
 
 
@@ -24,11 +25,10 @@ class InternalOrderDAO extends AppDAO{
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
         JOIN sku ON internalOrder_sku.skuId = sku.id\
-        LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
+        LEFT JOIN SKUItem ON internalOrder.id = SKUItem.internalOrderId AND sku.id = SKUItem.SKUId\
         WHERE internalOrder.id = ?';
-        
+       
         let rows = await this.all(query, [internalOrderID]);
-
         return rows;
     }
 
@@ -40,7 +40,7 @@ class InternalOrderDAO extends AppDAO{
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
         JOIN sku ON internalOrder_sku.skuId = sku.id\
-        LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
+        LEFT JOIN SKUItem ON internalOrder.id = SKUItem.internalOrderId AND sku.id = SKUItem.SKUId\
         WHERE internalOrder.state = ?';
         
         let rows = await this.all(query, ["ACCEPTED"]);
@@ -55,7 +55,7 @@ class InternalOrderDAO extends AppDAO{
         FROM internalOrder\
         JOIN internalOrder_sku ON internalOrder.id = internalOrder_sku.internalOrderId \
         JOIN sku ON internalOrder_sku.skuId = sku.id\
-        LEFT JOIN SKUItem ON sku.id = SKUItem.SKUId\
+        LEFT JOIN SKUItem ON internalOrder.id = SKUItem.internalOrderId AND sku.id = SKUItem.SKUId\
         WHERE internalOrder.state = ?';
         
         let rows = await this.all(query, ["ISSUED"]);
@@ -85,14 +85,15 @@ class InternalOrderDAO extends AppDAO{
         await this.startTransaction();
         
         let { changes } = await this.run(query, [newState, internalOrderId]);
+        console.log(changes)
         finalChanges += changes;
-
+        console.log(products)
         if(products !== undefined){
             for(let row of products){
                 let { changes } = await this.run(query_add_id_skuItem, [internalOrderId, row.RFID]);
                 finalChanges += changes;
             }
-
+           
             if (finalChanges === products.length + 1)
                 await this.commitTransaction();
             else
