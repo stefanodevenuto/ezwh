@@ -60,12 +60,15 @@ class SkuController {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("No SKU associated to id"))
 					err = SkuErrorFactory.newSkuNotFound();
+				else if (err.message.includes("sku.positionId"))
+					err = SkuErrorFactory.newPositionAlreadyOccupied();
 				else if (err.message.includes("FOREIGN"))
 					err = PositionErrorFactory.newPositionNotFound();
 				else if (err.message.includes("occupiedWeight"))
 					err = PositionErrorFactory.newGreaterThanMaxWeightPosition();
 				else if (err.message.includes("occupiedVolume"))
 					err = PositionErrorFactory.newGreaterThanMaxVolumePosition();
+				
 			}
 			
 			throw err;

@@ -30,7 +30,7 @@ class ItemErrorFactory {
 
     static newSkuOrSupplierNotFound() {
         let error = new Error();
-		error.customCode = 422;
+		error.customCode = 404;
         error.customMessage = SKU_OR_SUPPLIER_NOT_EXISTING;
 
 		return error;
