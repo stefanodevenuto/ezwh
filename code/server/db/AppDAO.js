@@ -222,12 +222,12 @@ function initDB() {
             PRIMARY KEY("internalOrderId","skuId")
         )`);
 
-        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('customer','customer','user1@ezwh.com','e70b06b490a4c970730c9a15b102a34a','customer')`);
-        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('qualityEmployee','qualityEmployee','qualityEmployee1@ezwh.com','e70b06b490a4c970730c9a15b102a34a','qualityEmployee')`);
-        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('clerk','clerk','clerk1@ezwh.com','e70b06b490a4c970730c9a15b102a34a','clerk')`);
-        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('deliveryEmployee','deliveryEmployee','deliveryEmployee1@ezwh.com','e70b06b490a4c970730c9a15b102a34a','deliveryEmployee')`);
-        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('supplier','supplier','supplier1@ezwh.com','e70b06b490a4c970730c9a15b102a34a','supplier')`);
-        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('manager','manager','manager1@ezwh.com','e70b06b490a4c970730c9a15b102a34a','manager')`);
+        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('customer','customer','user1@ezwh.com','e16b2ab8d12314bf4efbd6203906ea6c','customer')`);
+        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('qualityEmployee','qualityEmployee','qualityEmployee1@ezwh.com','e16b2ab8d12314bf4efbd6203906ea6c','qualityEmployee')`);
+        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('clerk','clerk','clerk1@ezwh.com','e16b2ab8d12314bf4efbd6203906ea6c','clerk')`);
+        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('deliveryEmployee','deliveryEmployee','deliveryEmployee1@ezwh.com','e16b2ab8d12314bf4efbd6203906ea6c','deliveryEmployee')`);
+        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('supplier','supplier','supplier1@ezwh.com','e16b2ab8d12314bf4efbd6203906ea6c','supplier')`);
+        this.run(`INSERT OR IGNORE INTO "user"(name, surname, email, password, type) VALUES ('manager','manager','manager1@ezwh.com','e16b2ab8d12314bf4efbd6203906ea6c','manager')`);
     })
 }
 
