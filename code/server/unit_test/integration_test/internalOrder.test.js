@@ -142,9 +142,6 @@ describe("Internal Order Controller suite", () => {
                     testInternalOrder.products.map((s) => s.SKUId = -1), testInternalOrder.customerId);
             } catch(err) {
                 let error = SkuErrorFactory.newSkuNotFound();
-
-                console.log(err);
-
                 expect(err.customCode).toStrictEqual(error.customCode);
                 expect(err.customMessage).toMatch(error.customMessage);
             }

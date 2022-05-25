@@ -72,7 +72,8 @@ describe("SKU Controller suite", () => {
 
     describe("Modify SKU", () => {
         beforeEach(async () => {
-            const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+            const { id: skuId } = await skuController.dao.createSku(testSku.description, 
+                testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = skuId;
 
             await positionController.dao.createPosition(testPosition.positionID, testPosition.aisleID,
@@ -94,7 +95,6 @@ describe("SKU Controller suite", () => {
             try {
                 await skuController.addModifySkuPosition(testSku.id, "432143214321")
             } catch (err) {
-                console.log(err)
                 let error = PositionErrorFactory.newPositionNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);
                 expect(err.customMessage).toMatch(error.customMessage);

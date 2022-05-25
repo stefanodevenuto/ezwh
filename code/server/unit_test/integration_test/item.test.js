@@ -116,12 +116,9 @@ describe("Item Controller suite", () => {
     });
 
     describe("Modify Item", () => {
-
-
         beforeEach(async () => {
             const { id: skuId } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
             testSku.id = skuId;
-            //await skuController.dao.addModifySkuPosition(testSku.id, testPosition.positionID);
         });
 
         test("Modify inexistent Ite ", async () => {
@@ -135,13 +132,10 @@ describe("Item Controller suite", () => {
                 expect(err.customMessage).toMatch(error.customMessage);
             }
         });
- 
-      
 
         afterEach(async () => {
             await itemController.dao.deleteAllItem();
         });
-
     });
 
     describe("Delete Item", () => {

@@ -74,14 +74,11 @@ describe("Testing test descriptor controller", () => {
         });
 
         test("Create a valid test descriptor", async() => {
-            
             await expect(testDescriptorController.createTestDescriptor(
                 testTestDescriptor.name,
                 testTestDescriptor.procedureDescription,
                 testTestDescriptor.idSKU))
             .resolves.not.toThrowError();
-            // cannot delete the single entry because i don't have access to its id !!
-            // await testDescriptorController.deleteTestDescriptor(    ); // ???
         });
 
         test("Create an invalid test descriptor (SKU not found)", async() => {
@@ -107,23 +104,19 @@ describe("Testing test descriptor controller", () => {
                     testSku.notes,
                     testSku.price,
                     testSku.availableQuantity);
-                console.log("DEBUG: " + sku_id);
                 const td_it = await testDescriptorController.dao.createTestDescriptor(
                     "test_name_1",
                     "test_procedure_description_1",
                     sku_id);
-                // now we try to create a test descriptor with the same SKU
                 await testDescriptorController.createTestDescriptor(
                     testTestDescriptor.name,
                     testTestDescriptor.procedureDescription,
-                    sku_id   // same skuid as before: error expected
+                    sku_id
                 )
             } catch(err) {
                 let error = TestDescriptorErrorFactory.newSKUAlreadyWithTestDescriptor();
                 expect(err.customCode).toStrictEqual(error.customCode);
                 expect(err.customMessage).toMatch(error.customMessage);
-                //await skuController.dao.deleteSku(sku_id);
-                //await testDescriptorController.dao.deleteTestDescriptor(td_it);
             }
 
         });

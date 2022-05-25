@@ -123,10 +123,9 @@ class InternalOrderController {
                     }
                     products.push(product);
                 } else {
-                    // Otherwise, create the current restockOrder and clear the products array
+                    // Otherwise, create the current internalOrder and clear the products array
                     const internalOrder = new InternalOrder(lastInternalOrder.id, lastInternalOrder.issueDate, lastInternalOrder.state, products, lastInternalOrder.customerId);
 
-                    //InternalOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache(InternalOrder.id);
                     internalOrders.push(internalOrder);
 
                     // Reset
@@ -154,10 +153,8 @@ class InternalOrderController {
                 }
             }
 
-            // Create the last restockOrder
+            // Create the last internalOrder
             const internalOrder = new InternalOrder(lastInternalOrder.id, lastInternalOrder.issueDate, lastInternalOrder.state, products, lastInternalOrder.customerId);
-
-            //InternalOrder.skuItems = await this.skuItemController.getAllSkuItemsByRestockOrderAndCache(restockOrder.id);
             internalOrders.push(internalOrder);
         }
 

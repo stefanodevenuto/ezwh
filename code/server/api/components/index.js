@@ -1,6 +1,3 @@
-// import { AuthRoutes } from './auth/routes';
-var express = require('express');
-
 var SkuRoutes = require('./sku/routes');
 var SkuItemRoutes = require('./skuItem/routes');
 var PositionRoutes = require('./position/routes');

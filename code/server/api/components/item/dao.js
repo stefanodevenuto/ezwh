@@ -1,5 +1,5 @@
 const sqlite3 = require("sqlite3");
-const AppDAO = require("../../../db/AppDAO");   //check
+const AppDAO = require("../../../db/AppDAO");
 
 class ItemDAO extends AppDAO{
 

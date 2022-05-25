@@ -85,9 +85,8 @@ class InternalOrderDAO extends AppDAO{
         await this.startTransaction();
         
         let { changes } = await this.run(query, [newState, internalOrderId]);
-        console.log(changes)
         finalChanges += changes;
-        console.log(products)
+
         if(products !== undefined){
             for(let row of products){
                 let { changes } = await this.run(query_add_id_skuItem, [internalOrderId, row.RFID]);

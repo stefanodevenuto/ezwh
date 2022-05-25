@@ -6,9 +6,8 @@ class ErrorHandler {
         const errors = validationResult(req);
     
         if (!errors.isEmpty()) {
-            // return res.status(422)
-            //     .json({ error: "The parameters are not formatted properly"});
-            return res.status(422).json({ error: errors.array() });
+            return res.status(422)
+                .json({ error: "The parameters are not formatted properly"});
         }
     
         return next();
@@ -17,7 +16,6 @@ class ErrorHandler {
 
 function registerErrorHandler(router) {
     router.use((err, req, res, next) => {
-        console.log(err)
 
         return res.status(err.customCode || 503).json({
             error: err.customMessage || "Internal Server Error",

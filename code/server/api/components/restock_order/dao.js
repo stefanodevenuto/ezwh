@@ -47,8 +47,6 @@ class RestockOrderDAO extends AppDAO{
 
         const { id } = await this.run(query_restockOrder, [issueDate, state, supplierId]);
 
-        // Se volessi dire che un Item sta in un ordine solo, si dovrebbe aggiungere restockOrder_item supplierId, in maniera da avere
-        // una VERA chiave primaria, e basterebbe poi mettere UNIQUE la coppia
         for (let product of products)
             await this.run(query_association, [product.item.id, id, product.qty]);
 
@@ -86,7 +84,7 @@ class RestockOrderDAO extends AppDAO{
         return await this.run(query, [restockOrderId]);
     }
 
-    // Test
+    // ####################### Test
 
     async deleteAllRestockOrder() {
         const query = 'DELETE FROM restockOrder';

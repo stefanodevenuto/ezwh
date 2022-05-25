@@ -1,4 +1,4 @@
-const ITEM_NOT_FOUND_MESSAGE = "No item associated to provided id!";           //item not found (while requesting)
+const ITEM_NOT_FOUND_MESSAGE = "No item associated to provided id!";
 const SUPPLIER_ALREADY_SELLING_SKU_MESSAGE  = "The supplier is already selling an item with the same SKUId!";
 const SUPPLIER_ALREADY_SELLING_ITEM_MESSAGE = "The supplier is already selling an item with this id!";
 const SKU_OR_SUPPLIER_NOT_EXISTING = "The supplier and/or the Sku Id indicated don't exist!";

@@ -128,8 +128,6 @@ describe("Testing testDescriptorDAO", () => {
         });
 
         test("Modify not existent test descriptor", async () => {
-            console.log()
-
             const { changes } = await testDescriptorDAO.modifyTestDescriptor(-1, "new name",
                 "new desc", testTestDescriptor.idSKU);
             expect(changes).toStrictEqual(0);

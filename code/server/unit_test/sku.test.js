@@ -143,11 +143,11 @@ describe("Testing SkuDAO", () => {
             testSku.id = id;
         });
 
-        /*test("Modify inexistent Sku", async () => {
+        test("Modify inexistent Sku", async () => {
             const { changes } = await skuDao.modifySku(-1, testSku.description, testSku.weight, testSku.volume,
                 testSku.notes, testSku.price, testSku.availableQuantity, 100, 100);
             expect(changes).toStrictEqual(0);
-        });*/
+        });
 
         test("Modify Sku with no related Position", async () => {
             let modifiedSku = {

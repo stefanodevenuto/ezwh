@@ -23,7 +23,6 @@ describe("Testing SKUItemDAO", () => {
         
 
         const result = await skuItemDao.getSKUItemByRFID(testSKUItem.RFID);
-        console.log(result)
 
         expect(result.SKUId).toStrictEqual(testSKUItem.SKUId);
         expect(result.available).toStrictEqual(testSKUItem.available);
@@ -54,7 +53,6 @@ describe("Testing SKUItemDAO", () => {
 
                 testSKUItem.RFID = skuItemMod.newRFID;
                 const result = await skuItemDao.getSKUItemByRFID(skuItemMod.newRFID);
-                console.log(result)
 
                 expect(result.available).toStrictEqual(skuItemMod.newAvailable);
                 expect(result.dateOfStock).toStrictEqual(skuItemMod.newDateOfStock);
