@@ -69,11 +69,12 @@ components -- error
 The architetural pattern choosed is MVC + 3 tier.<br>
 # Low level design
 
-## Manager Package
+To make the diagram more readable, every component will be presented separated from the rest.
 
 ```plantuml
 @startuml LowLevelDesign
 top to bottom direction
+allow_mixing
 
 package db {
     Class AppDAO {
@@ -90,6 +91,36 @@ package db {
 }
 
 package api {
+    package sku
+    package skuItem
+    package position
+    package test_descriptor
+    package test_result
+    package user
+    package restock_order
+    package return_order
+    package internal_order
+    package item
+}
+
+sku - AppDAO
+skuItem - AppDAO
+position - AppDAO
+test_descriptor - AppDAO
+test_result - AppDAO
+user - AppDAO
+restock_order - AppDAO
+return_order - AppDAO
+internal_order - AppDAO
+item - AppDAO
+
+@enduml
+```
+
+### User Component
+
+```plantuml
+@startuml 
     package user {
         Class UserRoutes {
             - ErrorHandler errorHandler
@@ -165,8 +196,15 @@ package api {
 
         UserRoutes -> UserController
         UserController -> UserDAO
+        UserController .> User : <<import>>
     }
-    
+@enduml
+```
+
+### Sku Component
+
+```plantuml
+@startuml 
     package sku {
         Class SkuRoutes {
             - ErrorHandler errorHandler
@@ -230,8 +268,15 @@ package api {
 
         SkuRoutes -> SkuController
         SkuController -> SkuDAO
+        SkuController .> Sku : <<import>>
     }
-    
+@enduml
+```
+
+### Sku Item Component
+
+```plantuml
+@startuml 
     package skuItem {
         Class SKUItemRoutes {
             - ErrorHandler errorHandler
@@ -296,9 +341,15 @@ package api {
 
         SKUItemRoutes -> SkuItemController
         SkuItemController -> SKUItemDAO
+        SkuItemController .> SkuItem : <<import>>
     }
+@enduml
+```
 
+### Position Component
 
+```plantuml
+@startuml 
     package position {
         Class PositionRoutes {
             - ErrorHandler errorHandler
@@ -356,8 +407,15 @@ package api {
 
         PositionRoutes -> PositionController
         PositionController -> PositionDAO
+        PositionController .> Position : <<import>>
     }
+@enduml
+```
 
+### Test Descriptor Component
+
+```plantuml
+@startuml 
     package testDescriptor {
         Class TestDescriptorRoutes {
             - ErrorHandler errorHandler
@@ -408,8 +466,15 @@ package api {
 
         TestDescriptorRoutes -> TestDescriptorController
         TestDescriptorController -> TestDescriptorDAO
-    }
+        TestDescriptorController .> TestDescriptor : <<import>>
 
+    }
+@enduml
+```
+
+### Test Result Component
+```plantuml
+@startuml 
     package testResult {
         Class TestResultRoutes {
             - ErrorHandler errorHandler
@@ -465,8 +530,15 @@ package api {
 
         TestResultRoutes -> TestResultController
         TestResultController -> TestResultDAO
+        TestResultController .> TestResult : <<import>>
     }
+@enduml
+```
 
+### Restock Order Component
+
+```plantuml
+@startuml 
     package restock_order {
         Class RestockOrderDAO extends AppDAO {
             + getAllRestockOrders()
@@ -546,7 +618,13 @@ package api {
         RestockOrderRoutes -> RestockOrderController
         RestockOrderController .> RestockOrder : <<import>>
     }
-    
+@enduml
+```
+
+### Return Order Component
+
+```plantuml
+@startuml 
     package return_order {
         Class ReturnOrderDAO extends AppDAO {
             + getAllReturnOrders()
@@ -602,6 +680,13 @@ package api {
         ReturnOrderController .> ReturnOrder : <<import>>
     }
 
+@enduml
+```
+
+### Internal Order Component
+
+```plantuml
+@startuml 
     package internal_order {
         Class InternalOrderDAO extends AppDAO {
             + getAllInternalOrders()
@@ -659,31 +744,16 @@ package api {
             + {static} mockTestInternalOrder2()
         }
 
-        Class Products {
-            + SKUId
-            + description
-            + price
-            + RFID
-
-            + Products(SKUId, description, price, RFID)
-        }
-
-        Class ProductsQ {
-            + SKUId
-            + description
-            + price
-            + RFID
-
-            + Products(SKUId, description, price, RFID)
-        }
-
-        InternalOrder - "*" Products
-        InternalOrder - "*" ProductsQ
         InternalOrderController -up-> InternalOrderDAO
         InternalOrderRoutes -> InternalOrderController
         InternalOrderController .> InternalOrder : <<import>>
     }
 
+@enduml
+```
+
+```plantuml
+@startuml 
     package item {
         Class ItemDAO extends AppDAO {
             + getAllItems()
@@ -735,7 +805,6 @@ package api {
         ItemRoutes -> ItemController
         ItemController .> Item : <<import>>
     }
-}
 @enduml
 ```
 To make the diagram more readable, we extrapolated the Error classes in the following diagram:
