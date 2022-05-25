@@ -776,7 +776,7 @@ describe("Testing Scenarios", () => {
                 }
 
                 const refuseInternalOrder = await agent.put(`/api/internalOrders/${testInternalOrder.id}/`)
-                    .send({ newState: InternalOrder.COMPLETED })
+                    .send({ newState: InternalOrder.ACCEPTED})
                 refuseInternalOrder.should.have.status(200);
             });
         });
