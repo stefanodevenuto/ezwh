@@ -53,14 +53,14 @@ class SkuDAO extends AppDAO {
         const totalVolume = row.availableQuantity * row.volume;
 
         await this.startTransaction();
-        
-        const sku = await this.run(query_sku, [newPosition, skuId]);
-        let position = await this.run(query_update_position, [0, 0, row.positionId]);
-        position = await this.run(query_update_position, [totalWeight, totalVolume, newPosition]);
+
+        const { changes } = await this.run(query_sku, [newPosition, skuId]);
+        await this.run(query_update_position, [0, 0, row.positionId]);
+        await this.run(query_update_position, [totalWeight, totalVolume, newPosition]);
 
         await this.commitTransaction();
 
-        return sku;
+        return changes;
     }
 
     async deleteSku(skuId) {

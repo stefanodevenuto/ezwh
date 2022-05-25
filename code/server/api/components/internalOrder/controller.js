@@ -39,6 +39,9 @@ class InternalOrderController {
     }
 
     async createInternalOrder(issueDate, products, customerId) {
+        if (!dayjs(issueDate).isValid())
+            throw InternalOrderErrorFactory.newRestockOrderDateNotValid();
+
         try {
             let finalProducts = [];
             for (let row of products) {

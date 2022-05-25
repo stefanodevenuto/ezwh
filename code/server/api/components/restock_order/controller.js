@@ -3,6 +3,7 @@ const RestockOrder = require("./restockOrder");
 const Product = require("./product");
 const { RestockOrderErrorFactory } = require('./error');
 const { SKUItemErrorFactory } = require('../skuItem/error');
+const dayjs = require('dayjs');
 
 class RestockOrderController {
     constructor(testResultController, skuItemController, itemController) {
@@ -52,6 +53,9 @@ class RestockOrderController {
     }
 
     async createRestockOrder(issueDate, products, supplierId) {
+        if (!dayjs(deliveryDate).isValid())
+            throw RestockOrderErrorFactory.newRestockOrderDateNotValid();
+
         let totalProducts = [];
         for (let rawItem of products) {
             let item = await this.itemController.getItemBySkuIdAndSupplierId(rawItem.SKUId, supplierId);
@@ -84,6 +88,9 @@ class RestockOrderController {
 
     async modifyTransportNote(restockOrderId, deliveryDate) {
         try {
+            if (!dayjs(deliveryDate).isValid())
+                throw RestockOrderErrorFactory.newRestockOrderDateNotValid();
+
             let restockOrder = await this.getRestockOrderByIDInternal(restockOrderId);
 
             if (restockOrder === undefined)
