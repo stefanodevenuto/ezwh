@@ -1,8 +1,8 @@
 # Integration and API Test Report
 
-Date:
+Date: 25/05/2022
 
-Version:
+Version: 1.0
 
 # Contents
 
@@ -29,29 +29,107 @@ Version:
 - [Coverage of scenarios and FR](#scenario-coverage)
 - [Coverage of non-functional requirements](#nfr-coverage)
 
-
-
 # Dependency graph 
 
-     <report the here the dependency graph of the classes in EzWH, using plantuml or other tool>
+```plantuml
+@startuml
+
+artifact server.js as server
+artifact routes.js as routes
+artifact index.js as index
+artifact "Sku routes.js" as skuroutes
+artifact "Skuitem routes.js" as skuitemroutes
+artifact "User routes.js" as userroutes
+artifact "Test_descriptor routes.js" as testdescriptorroutes
+artifact "Test_result routes.js" as testresultroutes
+artifact "Item routes.js" as itemroutes
+artifact "Position routes.js" as positionroutes
+artifact "returnOrder routes.js" as ReturnOrderroutes
+artifact "internalOrder routes.js" as InternalOrderroutes
+artifact "restock_order routes.js" as RestockOrderroutes
+artifact "Sku controller.js" as skucontroller
+artifact "Skuitem controller.js" as skuitemcontroller
+artifact "User controller.js" as usercontroller
+artifact  "Test_decriptor controller.js" as testdecriptorcontroller
+artifact "Test_result controller.js" as testresultcontroller
+artifact "Item controller.js" as itemcontroller
+artifact "Position controller.js" as positioncontroller
+artifact "returnOrder controller.js" as ReturnOrdercontroller
+artifact "internalOrder controller.js" as InternalOrdercontroller
+artifact "restock_order controller.js" as RestockOrdercontroller
+artifact "Sku dao.js" as skudao
+artifact "Skuitem dao.js" as skuitemdao
+artifact "User dao.js" as userdao
+artifact "Test_descriptor dao.js " as testdescriptordao
+artifact "Test_result dao.js" as testresultdao
+artifact "Item dao.js" as itemdao
+artifact "Position dao.js" as positiondao
+artifact "returnOrder dao.js" as ReturnOrderdao
+artifact "internalOrder dao.js" as InternalOrderdao
+artifact "restock_order dao.js " as RestockOrderdao
+
+
+'relations
+
+server --> routes 
+routes --> index
+index --> skuroutes
+index --> skuitemroutes
+index --> userroutes
+index --> testdescriptorroutes
+index --> testresultroutes
+index --> itemroutes
+index --> positionroutes
+index --> ReturnOrderroutes
+index --> InternalOrderroutes
+index --> RestockOrderroutes
+'Router to service relations
+skuroutes ---> skucontroller
+userroutes ---> usercontroller
+positionroutes ---> positioncontroller
+itemroutes ---> itemcontroller
+testdescriptorroutes ---> testdecriptorcontroller
+skuitemroutes ---> skuitemcontroller
+skuitemroutes ---> skucontroller
+testresultroutes ---> testresultcontroller
+testresultroutes ---> skuitemcontroller
+ReturnOrderroutes ---> ReturnOrdercontroller
+ReturnOrderroutes ---> skuitemcontroller
+InternalOrderroutes ---> InternalOrdercontroller
+InternalOrderroutes ---> skucontroller
+RestockOrderroutes ---> RestockOrdercontroller
+RestockOrderroutes ---> testresultcontroller
+RestockOrderroutes ---> skuitemcontroller
+RestockOrderroutes ---> itemcontroller
+'Service to DAO relations
+skucontroller ---> skudao
+usercontroller ---> userdao
+positioncontroller ---> positiondao
+itemcontroller ---> itemdao
+testdecriptorcontroller ---> testdescriptordao
+skuitemcontroller ---> skuitemdao
+testresultcontroller ---> testresultdao
+ReturnOrdercontroller ---> ReturnOrderdao
+InternalOrdercontroller ---> InternalOrderdao
+RestockOrdercontroller ----> RestockOrderdao
+
+@enduml
+```
      
 # Integration approach
 
-   The integration sequence we adopted is bottom-up. We started with unit-testing, where we tested leaf classes and their methods (Sku, Skuitem,user...), including the DB class (SQLiteDB). These test are documented in UnitTestReport.md. Then, we proceeded to test some middleware classes (such as InternalOrder,testdesciptor,testresult,...), followed by the API testing Which is based on testing some classes like internalOrderRouter,restockOrderRouter.
-
-    
-
+The integration sequence we adopted is bottom-up. We started with unit-testing, where we tested leaf classes and their methods (Sku, Skuitem,user...), including the DB class (SQLiteDB). These test are documented in UnitTestReport.md. Then, we proceeded to test some middleware classes (such as InternalOrder,testdesciptor,testresult,...), followed by the API testing Which is based on testing some classes like internalOrderRouter,restockOrderRouter.
 
 #  Integration Tests
 
-   <define below a table for each integration step. For each integration step report the group of classes under test, and the names of
-     Jest test cases applied to them, and the mock ups used, if any> Jest test cases should be here code/server/unit_test
+Jest test cases are in: code/server/unit_test
 
 ## Step 1
 | Classes  | mock up used |Jest test cases |
+|--|--|--|
 |Sku.dao|--|sku.test.js-->"Create Sku"|
 |--|--|sku.test.js-->"Add Position to a inexistent Sku"|
-|--|--|sku.test.js-->"Add inexistent Position to a Sku"|
+|          |              |sku.test.js-->"Add inexistent Position to a Sku"|
 |--|--|sku.test.js-->"Add a not occupied Position to Sku without a previous Position"|
 |--|--|sku.test.js-->"Add occupied Position to Sku without a previous Position"|
 |--|--|sku.test.js-->"Add Position to Sku with a previous Position"|
@@ -117,12 +195,6 @@ Version:
 |--|--|restockOrder.test.js --> "Modify with valid Transport Note"|
 |--|--|restockOrder.test.js --> "Delete Restock Order with inexistent id"|
 |--|--|restockOrder.test.js --> "Delete valid Restock Order"|
-|--|--|--|
-
-
-
-
-
 
 ## Step 2
 | Classes  | mock up used |Jest test cases |
@@ -234,31 +306,12 @@ Version:
 |--|--|position.test.js --> "Modify invalid Position ID"|
 |--|--|position.test.js --> "Delete SKU"|
 |--|--|position.test.js --> "Delete Position"|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-|--|--|--|
-
-
-
 
 
 ## Step 3 
 
-   
 | Classes  | mock up used |Chai test cases |
+|--|--|--|
 |internalorderRouter.js|--|"Get Internal Order by Id"|
 |--|--|"Create Internal Order"|
 |--|--|"Modify State of inexistent Internal Order"|
@@ -284,36 +337,9 @@ Version:
 |--|--|"Delete Restock Order"|
 |--|--|--|
 
-
-
-
-
 # API testing - Scenarios
 
-
-<If needed, define here additional scenarios for the application. Scenarios should be named
- referring the UC in the OfficialRequirements that they detail>
-
-## Scenario UCx.y
-
-| Scenario |  name |
-| ------------- |:-------------:| 
-|  Precondition     |  |
-|  Post condition     |   |
-| Step#        | Description  |
-|  1     |  ... |  
-|  2     |  ... |
-
-
-
 # Coverage of Scenarios and FR
-
-
-<Report in the following table the coverage of  scenarios (from official requirements and from above) vs FR. 
-Report also for each of the scenarios the (one or more) API Mocha tests that cover it. >  Mocha test cases should be here code/server/test
-
-
-
 
 | Scenario ID | Functional Requirements covered |   Test(s)      | 
 | ----------- | ------------------------------- | -----------         | 
@@ -346,18 +372,3 @@ Report also for each of the scenarios the (one or more) API Mocha tests that cov
 | 12-1        | FR3.2.1                                |"Create test description"             |
 | 12-2        | FR3.2.2                                |"Update test description"             |
 | 12-3        | FR3.2.3                                |"Delete test description"             |
-
-
-
-# Coverage of Non Functional Requirements
-
-
-<Report in the following table the coverage of the Non Functional Requirements of the application - only those that can be tested with automated testing frameworks.>
-
-
-### 
-
-| Non Functional Requirement | Test name |
-| -------------------------- | --------- |
-|                            |           |
-

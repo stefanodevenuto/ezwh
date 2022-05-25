@@ -18,7 +18,6 @@ Version: 1.0
 - [High level design](#high-level-design)
 - [Low level design](#low-level-design)
   - [Manager Package](#manager-package)
-  - [Busines Logic Package](#busines-logic-package)
 - [Verification traceability matrix](#verification-traceability-matrix)
 - [Verification sequence diagrams](#verification-sequence-diagrams)
   - [UC1](#uc1)
@@ -54,6 +53,7 @@ The design must satisfy the Official Requirements document, notably functional a
 
 ```plantuml
 @startuml HighLevelDesign
+
 package server {
     package api {
         package components
@@ -73,7 +73,7 @@ The architetural pattern choosed is MVC + 3 tier.<br>
 
 ```plantuml
 @startuml LowLevelDesign
-left to right direction
+top to bottom direction
 
 package db {
     Class AppDAO {
@@ -166,7 +166,7 @@ package api {
         UserRoutes -> UserController
         UserController -> UserDAO
     }
-
+    
     package sku {
         Class SkuRoutes {
             - ErrorHandler errorHandler
@@ -738,7 +738,7 @@ package api {
 }
 @enduml
 ```
-To make the diagram more readable, we exxtrapolated the Error classes in the following diagram:
+To make the diagram more readable, we extrapolated the Error classes in the following diagram:
 
 ```plantuml
 @startuml ErrorDiagram
