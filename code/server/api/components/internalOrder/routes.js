@@ -2,7 +2,6 @@ const express = require('express');
 const { param, body } = require("express-validator")
 const InternalOrderController = require('./controller');
 const { ErrorHandler } = require("../../helper");
-const InternalOrder = require("./internalOrder");
 
 class InternalOrderRoutes {
 	constructor(skuController) {

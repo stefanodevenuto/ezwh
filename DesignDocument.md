@@ -73,12 +73,15 @@ The architetural pattern choosed is MVC + 3 tier.<br>
 
 ```plantuml
 @startuml LowLevelDesign
-package api {
+left to right direction
 
+package db {
     Class AppDAO {
 
     }
+}
 
+package api {
     package user {
         Class UserRoutes {
             - ErrorHandler errorHandler
@@ -140,15 +143,6 @@ package api {
             - deleteAllUser()
         }
 
-        Class UserErrorFactory {
-            + {static} newCustomerNotFound
-            + {static} newUserNotFound
-            + {static} newWrongCredential
-            + {static} newTypeNotFound
-            + {static} newUserConflict
-            + {static} newAttemptCreationPrivilegedAccount
-        }
-
         Class User {
             - {static} ADMINISTRATOR     = "administrator";
             - {static} MANAGER           = "manager";
@@ -176,11 +170,9 @@ package api {
 
         UserRoutes -> UserController
         UserController -> UserDAO
-        UserController -> UserErrorFactory
     }
 
-
-package sku {
+    package sku {
         Class SkuRoutes {
             - ErrorHandler errorHandler
             - SkuController controller
@@ -230,13 +222,6 @@ package sku {
             + getSkuByIDInternal(skuId) 
         }
 
-        Class SkuErrorFactory {
-            + {static} newSkuNotFound
-            + {static} newPositionNotCapable
-            + {static} newPositionAlreadyOccupied
-            + {static} newSkuWithAssociatedSkuItems
-        }
-
         Class Sku {
 
             - id
@@ -257,11 +242,9 @@ package sku {
 
         SkuRoutes -> SkuController
         SkuController -> SkuDAO
-        SkuController -> SkuErrorFactory
     }
     
-
-package skuItem {
+    package skuItem {
         Class SKUItemRoutes {
             - ErrorHandler errorHandler
             - SKUItemController controller
@@ -313,12 +296,6 @@ package skuItem {
             + getSkuAndSKUItemByRFIDInternal(rfid, supplierId)
         }
 
-        Class SkuItemErrorFactory {
-            + {static} newSKUItemNotFound
-            + {static} newSKUItemRFIDNotUnique
-            + {static} newSKUItemRelatedToItemNotOwned
-        }
-
         Class SkuItem {
 
             - RFID
@@ -337,11 +314,10 @@ package skuItem {
 
         SKUItemRoutes -> SkuItemController
         SkuItemController -> SKUItemDAO
-        SkuItemController -> SkuItemErrorFactory
     }
 
 
-package position {
+    package position {
         Class PositionRoutes {
             - ErrorHandler errorHandler
             - PositionController controller
@@ -387,14 +363,6 @@ package position {
             + deleteAllPosition()
         }
 
-        Class PositionErrorFactory {
-            + {static} newPositionNotFound
-            + {static} newPositionIdNotSymmetric
-            + {static} newPositionIDNotUnique
-            + {static} newGreaterThanMaxWeightPosition
-            + {static} newGreaterThanMaxVolumePosition
-        }
-
         Class Position {
 
             - positionID
@@ -413,7 +381,6 @@ package position {
 
         PositionRoutes -> PositionController
         PositionController -> PositionDAO
-        PositionController -> PositionErrorFactory
     }
 
     package testDescriptor {
@@ -457,12 +424,6 @@ package position {
             + deleteAllTestDescriptor()
         }
 
-        Class TestDescriptorErrorFactory {
-            + {static} newTestDescriptorNotFound
-            + {static} newSKUAlreadyWithTestDescriptor
-            + {static} newTestDescriptorWithAssociatedTestResults
-        }
-
         Class TestDescriptor {
 
             - id
@@ -477,7 +438,6 @@ package position {
 
         TestDescriptorRoutes -> TestDescriptorController
         TestDescriptorController -> TestDescriptorDAO
-        TestDescriptorController -> TestDescriptorErrorFactory
     }
 
     package testResult {
@@ -524,11 +484,6 @@ package position {
             + hasFailedTestResultsByRFID(RFID)
         }
 
-        Class TestResultErrorFactory {
-            + {static} newTestResultNotFound
-            + {static} newTestDescriptorOrSkuItemNotFound
-        }
-
         Class TestResult {
 
             - id;
@@ -545,448 +500,385 @@ package position {
 
         TestResultRoutes -> TestResultController
         TestResultController -> TestResultDAO
-        TestResultController -> TestResultErrorFactory
     }
 
+    package restock_order {
+        Class RestockOrderDAO extends AppDAO {
+            + getAllRestockOrders()
+            + getAllIssuedRestockOrders()
+            + getRestockOrderByID(restockOrderId)
+            + createRestockOrder(issueDate, supplierId, state, products)
+            + modifyState(restockOrderId, newState)
+            + modifyRestockOrderSkuItems(restockOrderId, skuItems)
+            + modifyTransportNote(restockOrderId, deliveryDate)
+            + deleteRestockOrder(restockOrderId)
+            + deleteAllRestockOrder()
+        }
 
+        Class RestockOrderController {
+            - RestockOrderDAO dao
+            - TestResultController testResultController
+            - SkuItemController skuItemController
+            - ItemController itemController
 
-    Class SKUItemController {
-        - SKUItemDAO dao
-        - SkuController skuController
+            + RestockOrderController(testResultController, skuItemController, itemController)
 
-        + List<SKUItem> getAllSKUItems()
-        + List<SKUItem> getSKUItemBySKUID(String SKUID)
-        + List<SKUItem> getSKUItemByRFID(String RFID)
+            + getAllRestockOrders()
+            + getAllIssuedRestockOrders()
+            + getRestockOrderByID(restockOrderId)
+            + getRestockOrderReturnItemsByID(restockOrderId)
+            + createRestockOrder(issueDate, products, supplierId)
+            + modifyState(restockOrderId, newState)
+            + modifyRestockOrderSkuItems(restockOrderId, skuItems)
+            + modifyTransportNote(restockOrderId, deliveryDate)
+            + deleteRestockOrder(restockOrderId)
 
-        + void createSKUItem(String RFID, String SKUID, Date dateOfStock)
-        + void modifySKUItem(String newRFID, boolean newAvailable, newDateOfStock)
-        + void deleteSKUItem(String RFID)
+            - buildRestockOrders(rows)
+            - getRestockOrderByIDInternal(restockOrderId)
+        }
 
-        - SKUItem getSKUItemByRFIDInternal(String RFID)
-        - RestockOrder getAllSkuItemsByRestockOrder(int restockOrderId)
-        - Sku getItemByRFIDInternal(String RFID, int restockOrderId)
+        Class RestockOrderRoutes {
+            - ErrorHandler errorHandler
+            - RestockOrderController controller
+
+            + RestockOrderRoutes(testResultController, skuItemController, itemController)
+
+            + initRoutes()
+        }
+
+        Class RestockOrder {
+            {static} ISSUED = "ISSUED"
+            {static} DELIVERY = "DELIVERY"
+            {static} DELIVERED = "DELIVERED"
+            {static} TESTED = "TESTED"
+            {static} COMPLETEDRETURN = "COMPLETEDRETURN"
+            {static} COMPLETED = "COMPLETED"
+
+            + id
+            + issueDate
+            + state
+            + deliveryDate
+            + supplierId
+            + products
+            + skuItems
+
+            + RestockOrder(id, issueDate, state, deliveryDate, supplierId, products, skuItems = [])
+
+            + intoJson()
+            + {static} isVaidState()
+            + {static} mockRestockOrder()
+        }
+
+        Class Product {
+            + Item item
+            + qty
+
+            + Product(item, qty)
+        }
+
+        RestockOrder - "*" Product
+        RestockOrderController -up-> RestockOrderDAO
+        RestockOrderRoutes -> RestockOrderController
+        RestockOrderController .> RestockOrder : <<import>>
     }
-
-    Class SKUItemDAO extends AppDAO {
-        + Rows getAllSKUItems()
-        + Rows getSKUItemBySKUID(int SKUId)
-        + Rows createSKUItem(SKUItem SKUItem)
-        + Rows modifySKUItem(String RFID, SKUItem skuItem)
-        + Rows deleteSKUItem(String RFID)
-        + Rows getAllSkuItemsByRestockOrder(int restockOrderId)
-        + Rows getSupplierIdByRestockOrderId(int restockOrderId)
-    }
-
-    Class TestResultController {
-        - TestResultDAO dao
-        - SkuItemController skuItemController
-
-        + List<TestResult> getAllTestResults(String RFID)
-        + TestResult getTestResultByID(String RFID, String ID)
-
-        + TestResult createTestResult(String RFID, String ID, Date date, boolean result)
-        + void modifyTestResult(String RFID, String ID, String newIdTestDescriptor, Date newDate, newResult)
-        + void deleteTestResult(String RFID, String ID)
-
-        - boolean hasFailedTestResultsByRFID(String RFID)
-    }
-
-    class TestResultDAO extends AppDAO {
-        + getAllTestResults(String RFID)
-        + getTestResultByID(String rfid, int id)
-        + createTestResult(TestResult testResult)
-        + modifyTestResult(int id, String rfid, TestResult testResult)
-        + deleteTestResult(String rfid, int id)
-        + hasFailedTestResultsByRFID(String rfid)
-    }
-
-    ' Item Management
-    Class ItemController {
-        - ItemDAO dao
-
-        + List<Item> getAllItems()
-        + Item getItemByID(int ID)
-        + void createItem(int ID, String description, float price, String SKUId, String supplierId)
-        + void modifyItem(int ID, String newDescription, float newPrice)
-        + void deleteItem(int ID)
-
-        - Item getItemBySkuIdAndSupplierId(int skuId, int supplierId)
-        - Item getItemByIDInternal(int itemId)
-    }
-
-    class ItemDAO extends AppDAO {
-        + getAllItems()
-        + getItemByID(int itemId)
-        + createItem(Item item)
-        + modifyItem(int itemId, Item item)
-        + deleteItem(int itemId)
-        + getItemBySkuIdAndSupplierId(int skuId, int supplierId)
-    }
-
-    ' Warehouse Management
-    Class PositionController {
-        - PositionDAO positionDAO
-
-        + List<Position> getAllPositions()
-        + Position getPositionByID()
-        + void createPosition(String positionID, String aisleID, int row, int col, int maxWeight, int maxVolume)
-        + void modifyPosition(String positionID, String newAisleID, int newRow, int newCol, int newMaxWeight, int newMaxVolume, int newOccupiedWeight, int newOccupiedVolume)
-        + void modifyPositionID(String oldPositionID, String newPositionID)
-        + void deletePosition(String positionID)
-    }
-
-    class PositionDAO extends AppDAO {
-        + getAllPositions() 
-        + getPositionByID(String positionID)
-        + createPosition(Position position)
-        + modifyPosition(String oldPositionID, String newPositionID, Position position)
-        + modifyPositionID(String oldPositionID, String newPositionID, String newAisleId, String newRow, String newCol)
-        + deletePosition(positionID)
-    }
-
-    ' Return Order Management
-    Class ReturnOrderController {
-        - ReturnOrderDAO returnOrderDAO
-        - SkuItemController skuItemController
-
-        + List<ReturnOrder> getAllReturnOrders()
-        + ReturnOrder getReturnOrderByID(String ID)
-        + void createReturnOrder(String ID, Date returnDate, List<Product> products, String restockOrderId)
-        + void deleteReturnOrder(String ID)
-    }
-
-    ' Internal Order Management
-    Class InternalOrderManager {
-        - InternalOrderDAO dao
-        - SkuController skuController
-
-        + InternalOrder getInternalOrderByID(String ID)
-        + List<InternalOrder> getAllInternalOrders()
-        + List<InternalOrder> getInternalOrdersIssued()
-        + List<InternalOrder> getInternalOrdersAccepted()
-        + InternalOrder createInternalOrder(String ID, Date issueDate, List<Product> products)
-        + void modifyStateInternalOrder(String ID, String newState, List<String> RFIDs)
-        + void deleteInternalOrder(String ID)
-
-        - List<InternalOrder> buildInternalOrders()
-        - InternalOrder getInternalOrderByIDInternal(int internalOrderId)
-    }
-
-    Class RestockOrderController {
-        - RestockOrderDAO dao
-        - TestResultController testResultController
-        - SkuItemController skuItemController
-        - ItemController itemController
-
-        + List<RestockOrder> getAllRestockOrders()
-        + List<RestockOrder> getAllIssuedRestockOrders()
-        + RestockOrder getRestockOrderByID(String ID)
-        + List<SkuItem> getRestockOrderReturnItemsByID
-
-        + RestockOrder createRestockOrder(Date issueDate, List<Product> products, int supplierId)
-        + void modifyState(int restockOrderId, String newState)
-        + void modifyRestockOrderSkuItems(int restockOrderId, List<SKUItem> skuItems)
-        + void modifyTransportNote(int restockOrderId, Date transportNote)
-        + void deleteRestockOrder(int restockOrderId)
-
-        - List<RestockOrder> buildRestockOrders()
-        - RestockOrder getRestockOrderByIDInternal(in restockOrderId)
-    }
-
-    Class TestDescriptorController {
-        - TestDescriptorDAO dao
-
-        + List<TestDescriptor> getAllTestDescriptors()
-        + TestDescriptor getTestDescriptorByID(int ID)
-
-        + void createTestDescriptor(int ID, String name, String procedureDescription, String IdSKU)
-        + void modifyTestDescriptor(int ID, String newName, String newProcedureDescription, String newIdSKU)
-        + void deleteTestDescriptor(int ID)
-    }
-
-    ' SKU Management
-    Class SkuController {
-        - SkuDAO dao
-
-        + List<Sku> getAllSkus()
-        + Sku getSkuByID(int skuId)
-
-        + Sku createSku(String ID, String description, int weight, int volume, String notes, float price, int availableQuantity)
-        + void modifySku(int skuId, String newDescription, int newWeight, int newVolume, Sting newNotes, float newPrice, int newAvailableQuantity)
-        + void addModifySkuPosition(int skuId, String positionID)
-        + void deleteSKU(int skuId)
-
-        - Sku getSkuByIDInternal(int skuId)
-    }
-
-    ' Persistence Management
-    Class DBHandler {
-        + List<SKU> getAllSKUs()
-        + SKU getSKUByID(String SKUID)
-        + void saveSKU(SKU sku)
-        + void deleteSKU(String SKUID)
-
-        + List<User> getAllUsers()
-        + User login(String username, String password)
-        + User createUser(User user)
-        + void modifyUserRights(String username, String oldType, String newType)
-
-        + List<RestockOrder> getAllRestockOrders()
-        + RestockOrder getRestockOrderByID(String ID)
-        + void saveRestockOrder(RestockOrder restockOrder)
-        + void deleteRestockOrder(String ID)
-
-        + List<InternalOrder> getAllInternalOrders()
-        + InternalOrder getInternalOrderByID(String ID)
-        + void saveInternalOrder(InternalOrder internalOrder)
-        + void deleteInternalOrder(String ID)
-
-        + List<Position> getAllPositions()
-        + Position getPositionByID(String ID)
-        + void savePosition(Position position)
-        + void deletePosition(String ID)
-
-        + List<Position> getAllReturnOrders()
-        + ReturnOrder getReturnOrderByID(String ID)
-        + void saveReturnOrder(ReturnOrder returnOrder)
-        + void deleteReturnOrder(String ID)
-
-        + List<TestDescriptor> getAllTestDescriptors()
-        + TestDescriptor getTestDescriptorByID(String ID)
-        + void saveTestDescriptor(TestDescriptor testDescriptor)
-        + void deleteTestDescriptor(String ID)
-
-        + List<Item> getAllItems()
-        + Item getItemByID(String ID)
-        + void saveItem(Item item)
-        + void deleteItem(String ID)
-
-        + List<SKUItem> getAllSKUItem()
-        + SKUItem getSKUItemByID(String ID)
-        + void saveSKUItem(SKUItem SKUitem)
-        + void deleteSKUItem(String ID)
-
-        + List<TestResult> getAllTestResults()
-        + TestResult getTestResultByID(String ID)
-        + void saveTestResult(TestResult testResult)
-        + void deleteTestResult(String ID)
-    }
-
-    ' Database connections
-    DBHandler <-up- ItemManager
-    DBHandler <-up- SKUItemManager
-    DBHandler <-up- WarehouseManager
-    DBHandler <-up- ReturnOrderManager
-    DBHandler <-up- RestockOrderManager
-    DBHandler <-up- InternalOrderManager
-    DBHandler <-up- UserManager
-
-    ' FacadeController connections
-    FacadeController --> SKUManager
-    FacadeController --> RestockOrderManager
-    FacadeController --> InternalOrderManager
-    FacadeController --> ReturnOrderManager
-    FacadeController --> WarehouseManager
-    FacadeController --> ItemManager
-    FacadeController --> SKUItemManager
-    FacadeController --> UserManager
-
-    ' Managers' -- Managers' connections
-    SKUItemManager <-left- RestockOrderManager
-    SKUManager <-right- RestockOrderManager
-    SKUItemManager <-left- ReturnOrderManager
-    SKUManager <-right- ReturnOrderManager
-    SKUManager <-right- InternalOrderManager
-}
     
+    package return_order {
+        Class ReturnOrderDAO extends AppDAO {
+            + getAllReturnOrders()
+            + getReturnOrderByID(returnOrderID)
+            + createReturnOrder(returnDate, restockOrderId, products)
+            + deleteReturnOrder(returnOrderID)
+        }
+
+        Class ReturnOrderController {
+            + ReturnOrderDAO dao
+            + SkuItemController skuItemController
+
+            + ReturnOrderController(skuItemController)
+
+            + getAllReturnOrders()
+            + getReturnOrderByID(returnOrderID)
+            + createReturnOrder(returnDate, products, restockOrderId)
+            + deleteReturnOrder(returnOrderID)
+            
+            - buildReturnOrders(rows)
+        }
+
+        Class ReturnOrderRoutes {
+            - ErrorHandler errorHandler
+            - ReturnOrderController controller
+
+            + ReturnOrderRoutes(testResultController, skuItemController, itemController)
+
+            + initRoutes()
+        }
+
+        Class ReturnOrder {
+            + id
+            + returnDate
+            + products
+            + restockOrderId
+
+            + ReturnOrder(id = null, returnDate, products, restockOrderId)
+        }
+
+        Class Products {
+            + SKUId
+            + description
+            + price
+            + RFID
+            
+            + Products(SKUId, description, price, RFID)
+        }
+
+        ReturnOrder - "*" Products
+        ReturnOrderController -up-> ReturnOrderDAO
+        ReturnOrderRoutes -> ReturnOrderController
+        ReturnOrderController .> ReturnOrder : <<import>>
+    }
+
+    package internal_order {
+        Class InternalOrderDAO extends AppDAO {
+            + getAllInternalOrders()
+            + getInternalOrderByID(internalOrderID)
+            + getInternalOrdersAccepted()
+            + getInternalOrdersIssued()
+            + createInternalOrder(issueDate, customerId, state, products)
+            + modifyStateInternalOrder(internalOrderId, newState, products = undefined)
+            + deleteInternalOrder(internalOrderID)
+            + deleteAllInternalOrder()
+        }
+
+        Class InternalOrderController {
+            + InternalOrderDAO dao
+            + SkuController skuController
+
+            + getAllInternalOrders() {
+            + getInternalOrdersAccepted() {
+            + getInternalOrdersIssued() {
+            + getInternalOrderByID(internalOrderID) {
+            + createInternalOrder(issueDate, products, customerId) {
+            + modifyStateInternalOrder(internalOrderId, newState, products) {
+            + deleteInternalOrder(internalOrderID) {
+            
+            - buildInternalOrders(rows) {
+            - getInternalOrderByIDInternal(internalOrderId) {
+        }
+
+        Class InternalOrderRoutes {
+            - ErrorHandler errorHandler
+            - InternalOrderController controller
+
+            + InternalOrderRoutes(suController)
+
+            + initRoutes()
+        }
+
+        Class InternalOrder {
+            + {static} ISSUED = "ISSUED"
+            + {static} ACCEPTED = "ACCEPTED"
+            + {static} REFUSED = "REFUSED"
+            + {static} CANCELED = "CANCELED"
+            + {static} COMPLETED = "COMPLETED"
+
+            + id
+            + issueDate
+            + state
+            + products
+            + customerId
+
+            + InternalOrder(id = null, issueDate, state, products, customerId)
+
+            + {static} isValidState(state)
+            + {static} mockTestInternalOrder() 
+            + {static} mockTestInternalOrder2()
+        }
+
+        Class Products {
+            + SKUId
+            + description
+            + price
+            + RFID
+
+            + Products(SKUId, description, price, RFID)
+        }
+
+        Class ProductsQ {
+            + SKUId
+            + description
+            + price
+            + RFID
+
+            + Products(SKUId, description, price, RFID)
+        }
+
+        InternalOrder - "*" Products
+        InternalOrder - "*" ProductsQ
+        InternalOrderController -up-> InternalOrderDAO
+        InternalOrderRoutes -> InternalOrderController
+        InternalOrderController .> InternalOrder : <<import>>
+    }
+
+    package item {
+        Class ItemDAO extends AppDAO {
+            + getAllItems()
+            + getItemByID(itemId)
+            + createItem(id, description, price, SKUId, supplierId)
+            + modifyItem(id, description, price)
+            + deleteItem(id)
+            + getItemBySkuIdAndSupplierId(skuId, supplierId)
+            + deleteAllItem()
+        }
+
+        Class ItemController {
+            + ItemDAO dao
+
+            + ItemController()
+
+            + getAllItems()
+            + getItemByID(itemId)
+            + createItem(id, description, price, SKUId, supplierId)
+            + modifyItem(id, description, price)
+            + deleteItem(id)
+
+            - getItemBySkuIdAndSupplierId(skuId, supplierId)
+            - getItemByIDInternal(itemId)
+        }
+
+        Class ItemRoutes {
+            - ErrorHandler errorHandler
+            - ItemController controller
+
+            + ItemRoutes()
+
+            + initRoutes()
+        }
+
+        Class Item {
+            + id
+            + description
+            + price
+            + SKUId
+            + supplierId
+
+            + Item(id = null, description, price, SKUId, supplierId)
+
+            + {static} mockItem()
+        }
+
+        ItemController -up-> ItemDAO
+        ItemRoutes -> ItemController
+        ItemController .> Item : <<import>>
+    }
+}
 @enduml
 ```
-
-## Busines Logic Package
+To make the diagram more readable, we exxtrapolated the Error classes in the following diagram:
 
 ```plantuml
-@startuml LowLevelDesign
-top to bottom direction
-
-package it.polito.ezwh.businesslogic{
-    Class RestockOrderManager
-    Class InternalOrderManager
-    Class ReturnOrderManager
-    Class WarehouseManager
-    Class ItemManager
-    Class SKUItemManager
-    Class UserManager
-
-    note "The various Order classes contains a whole list of references to SKU and SKUItems to which are related, \nin order to make the overall application scalable. Despite the fact those verbose information are not needed now\n(only few attributes are mandatory), in the future the APIs can change, resulting in more fields needed." as more_info
-
-    Class User {
-        + id
-        + role
-        + username
-        + password
-        + type: [MANAGER, CUSTOMER, CLERK, QUALITY, SUPPLIER, DELIVERY]
-
-        + User(String username, String name, String surname, String password, String type)
-        + void modifyRights(String newType)
+@startuml ErrorDiagram
+package user {
+    Class UserErrorFactory {
+        + {static} newCustomerNotFound
+        + {static} newUserNotFound
+        + {static} newWrongCredential
+        + {static} newTypeNotFound
+        + {static} newUserConflict
+        + {static} newAttemptCreationPrivilegedAccount
     }
-
-    Class SKUItem {
-        + RFID (idSKUItem)
-        + SKUid
-        + boolean Available
-        + DateOfStock
-
-        + SKUItem(String RFID, String SKUID, Date dateOfStock)
-        + void modify(boolean newAvailable, newDateOfStock)
-    } 
-
-    Class TestResult {
-        + uniqueID
-        + id
-        + idTestDescriptor
-        + RFID (idSKUItem)
-        + date
-        + result
-
-        + TestResult(String RFID, String ID, Date date, boolean result)
-        + void modify(String newIdTestDescriptor, Date newDate, boolean newResult)
-    }
-
-    Class Item {
-        + id
-        + description
-        + price
-        + SKUId
-        + supplierId
-
-        + Item(String ID, String description, float price, String SKUId, String supplierId)
-        + void modify(String newDescription, float newPrice)
-    }
-
-    Class Position {
-        + id
-        + aisleID
-        + row
-        + col
-        + maxWeight
-        + maxVolume
-        + occupiedWeight
-        + occupiedVolume                                    
-        
-        + Position(String positionID, String aisleID, int row, int col, int maxWeight, int maxVolume);
-        + void modify(String newAisleID, int newRow, int newCol, int newMaxWeight, int newMaxVolume, int newOccupiedWeight, int newOccupiedVolume)
-        + void modifyID(String newPositionID)
-        + void increaseOccupation(int qty)
-    }
-
-    Class ReturnOrder {
-        + id
-        + returnDate
-        + List<Pair<SKU, int>>
-        + List<SKUItem>
-        + restockOrderId
-
-        + ReturnOrder(Date returnDate, List<<Pair<SKU, SKUItem>> products, String restockOrderId)
-        + void modifyState(String newState)
-    }
-
-    Class InternalOrder {
-        + id
-        + List<Pair<SKU, int>>
-        + state: [ISSUED, ACCEPTED, REFUSED, CANCELED, COMPLETED]
-
-        + InternalOrder(Date issueDate, List<<Pair<SKU, int>> products)
-        + void modifyState(String newState, List<String> RFIDs)
-    }
-
-    Class RestockOrder {
-        + id
-        + List<Pair<SKU, int>>
-        + List<SKUItem>
-        + issueDate
-        + transportNote
-        + state: [ISSUED, DELIVERY, DELIVERED, TESTED, COMPLETEDRETURN, COMPLETED]
-
-        + RestockOrder(Date issueDate, List<<Pair<SKU, int>> products, int supplierId)
-        + List<SKUItem> getItems()
-        + void modifyState(String newState)
-        + void addSKUItems(List<SKUItem> skuItems)
-        + void addTransportNote(Date transportNote)
-    }
-
-    RestockOrder .. more_info
-    RestockOrder .[hidden]. more_info
-
-    Class TestDescriptor {
-        + id
-        + name
-        + procedureDescription
-        + SKUId
-        
-        + TestDescriptor(String ID, String name, String procedureDescription, String IdSKU)
-        + void modify(String newName, String newProcedureDescription, String newIdSKU)
-    }
-
-    Class SKU {
-        + id
-        + description
-        + weight
-        + volume
-        + notes
-        + price
-        + availableQuantity
-        + List<TestDescriptor>
-
-        + SKU(String ID, String description, int weight, int volume, String notes, float price, int availableQuantity)
-        + void modify(String newDescription, int newWeight, int newVolume, Sting newNotes, float newPrice, int newAvailableQuantity)
-        + void addModifyPosition(String positionID)
-
-        + void addTestDescriptor(TestDescriptor testDescriptor)
-    }
-
-    ' Managers' -- Business Logic connections: 
-    SKUManager -- "*" SKU
-    RestockOrderManager -- "*" RestockOrder
-    RestockOrderManager -- "*" TestDescriptor
-    InternalOrderManager -- "*" InternalOrder
-    ReturnOrderManager -- "*" ReturnOrder
-    WarehouseManager -- "*" Position
-    ItemManager -- "*" Item
-    SKUItemManager -- "*" SKUItem
-    SKUItemManager -- "*" TestResult
-    UserManager -- User
-
-    ' Application Logic connections
-    SKU --right- TestDescriptor
 }
 
+package sku {
+    Class SkuErrorFactory {
+        + {static} newSkuNotFound
+        + {static} newPositionNotCapable
+        + {static} newPositionAlreadyOccupied
+        + {static} newSkuWithAssociatedSkuItems
+    }
+}
+
+package skuItem {
+    Class SkuItemErrorFactory {
+        + {static} newSKUItemNotFound
+        + {static} newSKUItemRFIDNotUnique
+        + {static} newSKUItemRelatedToItemNotOwned
+    }
+}
+
+package position {
+    Class PositionErrorFactory {
+        + {static} newPositionNotFound
+        + {static} newPositionIdNotSymmetric
+        + {static} newPositionIDNotUnique
+        + {static} newGreaterThanMaxWeightPosition
+        + {static} newGreaterThanMaxVolumePosition
+    }
+}
+
+package test_descriptor {
+    Class TestDescriptorErrorFactory {
+        + {static} newTestDescriptorNotFound
+        + {static} newSKUAlreadyWithTestDescriptor
+        + {static} newTestDescriptorWithAssociatedTestResults
+    }
+}
+
+package test_result {
+    Class TestResultErrorFactory {
+        + {static} newTestResultNotFound
+        + {static} newTestDescriptorOrSkuItemNotFound
+    }
+}
+ package restock_order {
+     Class RestockOrderErrorFactory {
+        + {static} newRestockOrderNotFound()
+        + {static} newRestockOrderNotReturned()
+        + {static} newRestockOrderNotDelivered()
+        + {static} newRestockOrderNotDelivery()
+        + {static} newRestockOrderDeliveryBeforeIssue()
+    }
+ }
+
+package return_order {
+    Class ReturnOrderErrorFactory {
+        + {static} newReturnOrderNotFound()
+    }
+}
+
+package item {
+    Class ItemErrorFactory {
+        + {static} itemNotFound()
+        + {static} skuAlreadyAssociatedForSupplier()
+        + {static} itemAlreadySoldBySupplier()
+        + {static} newSkuOrSupplierNotFound()
+    }
+}
 @enduml
 ```
-
 
 # Verification traceability matrix
 
-|       FR Code        |  FR1  |  FR2  |  FR3  |  FR4  |  FR5  |  FR6  |  FR7  |
-| :------------------: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-|         EZWH         |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-|     UserManager      |   X   |       |       |   X   |       |       |       |
-|         User         |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-|    SKUItemManager    |       |       |       |       |   X   |   X   |       |
-|       SKUItem        |       |       |       |       |   X   |   X   |       |
-|      TestResult      |       |       |       |       |   X   |       |       |
-|     ItemManager      |       |       |       |       |       |       |   X   |
-|         Item         |       |       |       |       |       |       |   X   |
-|   WarehouseManager   |       |       |   X   |       |       |       |       |
-|       Position       |       |       |   X   |       |       |       |       |
-|  ReturnOrderManager  |       |       |       |       |   X   |       |       |
-|     ReturnOrder      |       |       |       |       |   X   |       |       |
-| InternalOrderManager |       |       |       |       |       |   X   |       |
-|    InternalOrder     |       |       |       |       |       |   X   |       |
-| RestockOrderManager  |       |       |   X   |       |   X   |       |       |
-|     RestockOrder     |       |       |       |       |   X   |       |       |
-|    TestDescriptor    |       |       |   X   |       |       |       |       |
-|      SKUManager      |       |   X   |       |       |   X   |   X   |       |
-|         SKU          |       |   X   |       |       |   X   |   X   |       |
+|       FR Code           |  FR1  |  FR2  |  FR3  |  FR4  |  FR5  |  FR6  |  FR7  |
+| :------------------:    | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+|         EZWH            |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+|     UserController      |   X   |       |       |   X   |       |       |       |
+|         User            |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+|    SKUItemController    |       |       |       |       |   X   |   X   |       |
+|       SKUItem           |       |       |       |       |   X   |   X   |       |
+|      TestResult         |       |       |       |       |   X   |       |       |
+|     ItemController      |       |       |       |       |       |       |   X   |
+|         Item            |       |       |       |       |       |       |   X   |
+|   WarehouseController   |       |       |   X   |       |       |       |       |
+|       Position          |       |       |   X   |       |       |       |       |
+|  ReturnOrderController  |       |       |       |       |   X   |       |       |
+|     ReturnOrder         |       |       |       |       |   X   |       |       |
+| InternalOrderController |       |       |       |       |       |   X   |       |
+|    InternalOrder        |       |       |       |       |       |   X   |       |
+| RestockOrderController  |       |       |   X   |       |   X   |       |       |
+|     RestockOrder        |       |       |       |       |   X   |       |       |
+|    TestDescriptor       |       |       |   X   |       |       |       |       |
+|      SKUController      |       |   X   |       |       |   X   |   X   |       |
+|         SKU             |       |   X   |       |       |   X   |   X   |       |
 
 # Verification sequence diagrams
 

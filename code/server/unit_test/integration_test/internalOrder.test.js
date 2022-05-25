@@ -10,7 +10,7 @@ const User = require('../../api/components/user/user');
 describe("Internal Order Controller suite", () => {
 
     const skuController = new SkuController();
-    const internalOrderController = new InternalOrderController();
+    const internalOrderController = new InternalOrderController(skuController);
     const userController = new UserController();
 
     let testSku = Sku.mockTestSku();

@@ -1,7 +1,5 @@
 const ReturnOrderDAO = require('./dao')
 const ReturnOrder = require("./returnOrder");
-const SkuDAO = require('../sku/dao');
-const SkuController = require('../sku/controller')
 const Products = require('./products');
 const { ReturnOrderErrorFactory } = require('./error');
 

@@ -2,15 +2,14 @@ const InternalOrderDAO = require('./dao')
 const InternalOrder = require("./internalOrder");
 const Products = require('./products');
 const ProductsQ = require('./productsQ.js');
-const SkuController = require('../sku/controller');
 const { InternalOrderErrorFactory } = require('./error');
 const { UserErrorFactory } = require('../user/error');
 const { SKUItemErrorFactory } = require('../skuItem/error');
 
 class InternalOrderController {
-    constructor() {
+    constructor(skuController) {
         this.dao = new InternalOrderDAO();
-        this.skuController = new SkuController();
+        this.skuController = skuController;
     }
 
     // ################################ API

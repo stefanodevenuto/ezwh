@@ -1,8 +1,7 @@
 const express = require('express');
-const { param, body, checkSchema } = require("express-validator")
+const { param, body } = require("express-validator")
 const RestockOrderController = require('./controller');
 const { ErrorHandler } = require("../../helper");
-const RestockOrder = require("./restockOrder");
 
 class RestockOrderRoutes {
 	constructor(testResultController, skuItemController, itemController) {
