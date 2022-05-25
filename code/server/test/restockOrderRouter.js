@@ -241,7 +241,7 @@ describe("Testing Restock Order Route", () => {
             response_state.should.have.status(200);
 
             const response = await agent.put(`/api/restockOrder/${testRestockOrder.id}/transportNote`)
-                .send({transportNote: {deliveryDate: "2222-02-02"}});
+                .send({transportNote: {deliveryDate: "ciao"}});
             response.should.have.status(200);
         });
     });
