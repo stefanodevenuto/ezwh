@@ -77,7 +77,16 @@ left to right direction
 
 package db {
     Class AppDAO {
+        + Database db
+        + transaction
 
+        + run(sql, params = [])
+        + get(sql, params = [])
+        + all(sql, params = [])
+        + serialize(sqls, params = [[]])
+        + startTransaction()
+        + commitTransaction()
+        + rollbackTransaction()
     }
 }
 
