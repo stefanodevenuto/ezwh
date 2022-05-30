@@ -18,22 +18,32 @@ Version: 1.0
 - [High level design](#high-level-design)
 - [Low level design](#low-level-design)
   - [Manager Package](#manager-package)
-  - [Busines Logic Package](#busines-logic-package)
 - [Verification traceability matrix](#verification-traceability-matrix)
 - [Verification sequence diagrams](#verification-sequence-diagrams)
-  - [Scenario 1.1](#scenario-11)
-  - [Scenario 2.2](#scenario-22)
-  - [Scenario 3.1](#scenario-31)
-  - [Scenario 4.1](#scenario-41)
-  - [Scenario 5.1.1](#scenario-511)
-  - [Scenario 5.2.3](#scenario-523)
-  - [Scenario 5.3.1](#scenario-531)
-  - [Scenario 6.1](#scenario-61)
-  - [Scenario 7.1](#scenario-71)
-  - [Scenario 9.2](#scenario-92)
-  - [Scenario 10.1](#scenario-101)
-  - [Scenario 11.1](#scenario-111)
-  - [Scenario 12.3](#scenario-123)
+  - [UC1](#uc1)
+    - [Scenario 1.1](#scenario-11)
+  - [UC2](#uc2)
+    - [Scenario 2.2](#scenario-22)
+  - [UC3](#uc3)
+    - [Scenario 3.1](#scenario-31)
+  - [UC4](#uc4)
+    - [Scenario 4.1](#scenario-41)
+  - [UC5](#uc5)
+    - [Scenario 5.1.1](#scenario-511)
+    - [Scenario 5.2.3](#scenario-523)
+    - [Scenario 5.3.1](#scenario-531)
+  - [UC6](#uc6)
+    - [Scenario 6.1](#scenario-61)
+  - [UC7](#uc7)
+    - [Scenario 7.1](#scenario-71)
+  - [UC9](#uc9)
+    - [Scenario 9.2](#scenario-92)
+  - [UC10](#uc10)
+    - [Scenario 10.1](#scenario-101)
+  - [UC11](#uc11)
+    - [Scenario 11.1](#scenario-111)
+  - [UC12](#uc12)
+    - [Scenario 12.3](#scenario-123)
 
 # Instructions
 
@@ -43,517 +53,866 @@ The design must satisfy the Official Requirements document, notably functional a
 
 ```plantuml
 @startuml HighLevelDesign
-package it.polito.ezwh {
-    package manager
-    package businesslogic
-    package exceptions
+
+package server {
+    package api {
+        package components
+    }
+    package db
+    package error
 }
-manager -- businesslogic
-manager -- exceptions
+
+components -- db
+components -- error
 @enduml
 ```
 The architetural pattern choosed is MVC + 3 tier.<br>
-it.polito.ezwh.exceptions contains the exceptions used in the API.
-
 # Low level design
 
-## Manager Package
-
-```plantuml
-@startuml LowLevelDesign
-package it.polito.ezwh.manager{
-
-    note "The HashMap inside every Manager class acts \nhas a decentralized cache towards the database calls.\n In that way, all the query that selects one or more objects\n can directly be fulfilled by the Hashmaps,\n and so no connection with the database is needed" as hashmap_note
-
-    Class FacadeController {
-        /' Delegated to SKU Manager'/
-        + List<SKU> getAllSKUs()
-        + SKU getSKU(String SKUID)
-        + void deleteSKU(String SKUID)
-
-        + SKU createSKU(String description, int weight, int volume, String notes, float price, int availableQuantity)
-        + void modifySKU(String SKUID, String newDescription, int newWeight, int newVolume, Sting newNotes, float newPrice, int newAvailableQuantity)
-        + void addModifySKUPosition(String SKUID, String positionID)
-
-        /' Delegated to Restock Order Manager'/
-        + List<RestockOrder> getAllRestockOrders()
-        + List<RestockOrder> getAllIssuedRestockOrders()
-        + RestockOrder getRestockOrderByID(String ID)
-        + List<SKUItem> getRestockOrderItems(String ID)
-        + void deleteRestockOrder(int ID)
-
-        + RestockOrder createRestockOrder(String ID, Date issueDate, List<<Pair<SKU, int>> products, int supplierId)
-        + void modifyRestockOrderState(String ID, String newState)
-        + void addRestockOrderSKUItems(String ID, List<SKUItem> skuItems)
-        + void addRestockOrderTransportNote(String ID, Date transportNote)
-
-        + List<TestDescriptor> getAllTestDescriptors()
-        + TestDescriptor getTestDescriptor(String ID)
-        + void deleteTestDescriptor(String ID)
-
-        + void createTestDescriptor(String ID, String name, String procedureDescription, String IdSKU)
-        + void modifyTestDescriptor(String ID, String newName, String newProcedureDescription, String newIdSKU)
-
-        /' Delegated to Internal Order Manager'/
-        + List<InternalOrder> getAllInternalOrders()
-        + List<InternalOrder> getAllIssuedInternalOrders()
-        + List<InternalOrder> getAllAcceptedInternalOrders()
-        + InternalOrder getInternalOrderByID(String ID)
-        + void deleteInternalOrder(String ID)
-
-        + InternalOrder createInternalOrder(Date issueDate, List<<Pair<SKU, int>> products)
-        + void modifyStateInternalOrder(String ID, String newState, List<String> RFIDs)
-
-        /' Delegated to Return Order Manager'/
-        + List<ReturnOrder> getAllReturnOrders()
-        + ReturnOrder getReturnOrderByID(String ID)
-        + void deleteReturnOrder(String ID)
-
-        + void createReturnOrder(String ID, Date returnDate, List<<Pair<SKU, SKUItem>> products, String restockOrderId)
-        + void modifyReturnOrderState(String ID, String newState)
-
-        /' Delegated to Warehouse Manager'/
-        + List<Position> getAllPositions()
-        + Position getPositionByID()
-        + void deletePosition(String positionID)
-
-        + void createPosition(String positionID, String aisleID, int row, int col, int maxWeight, int maxVolume)
-        + void modifyPosition(String positionID, String newAisleID, int newRow, int newCol, int newMaxWeight, int newMaxVolume, int newOccupiedWeight, int newOccupiedVolume)
-        + void modifyPositionID(String oldPositionID, String newPositionID)
-
-        /' Delegated to Item Manager'/
-        + List<Item> getAllItems()
-        + Item getItem(String ID)
-        + void deleteItem(String ID)
-
-        + void createItem(String description, float price, String SKUId, String supplierId)
-        + void modifyItem(String newDescription, float newPrice)
-
-        /' Delegated to SKU Item Manager'/
-        + List<SKUItem> getAllSKUItems()
-        + List<SKUItem> getAllSKUItemsBySKUID(String SKUID)
-        + List<SKUItem> getSKUItem(String RFID)
-
-        + void createSKUItem(String RFID, String SKUID, Date dateOfStock)
-        + void modifySKUItem(String newRFID, boolean newAvailable, newDateOfStock)
-        + void deleteSKUItem(String RFID)
-
-        /' Delegated to Test Result Manager'/
-        + List<TestResult> getAllTestResults(String RFID)
-        + TestResult getTestResult(String RFID, String ID)
-
-        + TestResult createTestResult(String RFID, String ID, Date date, boolean result)
-        + void modifyTestResult(String RFID, String ID, String newIdTestDescriptor, Date newDate, newResult)
-        + void deleteTestResult(String RFID, String ID)
-
-        /' Delegated to User Manager'/
-        + List<User> getAllUsers()
-        + List<User> getAllSuppliers()
-        + void deleteUser(String username, String type)
-
-        + User login(String username, String password)
-        + void logout()
-
-        + User createUser(String username, String name, String surname, String password, String type)
-        + void modifyUserRights(String username, String oldType, String newType)
-    }
-
-    ' User management
-    Class UserManager {
-        + HashMap<User> users
-
-        + List<User> getAllUsers()
-        + List<User> getAllSuppliers()
-        + void deleteUser(String username, String type)
-
-        + User login(String username, String password)
-        + void logout()
-
-        + User createUser(String username, String name, String surname, String password, String type)
-        + void modifyUserRights(String username, String oldType, String newType)
-    }
-
-    ' SKU Item & Test Result Management
-    Class SKUItemManager {
-        + HashMap<SKUItem> SKUItems
-        + HashMap<TestResult> testResults
-
-        + List<SKUItem> getAllSKUItems()
-        + List<SKUItem> getAllSKUItemsBySKUID(String SKUID)
-        + List<SKUItem> getSKUItem(String RFID)
-
-        + void createSKUItem(String RFID, String SKUID, Date dateOfStock)
-        + void modifySKUItem(String newRFID, boolean newAvailable, newDateOfStock)
-        + void deleteSKUItem(String RFID)
-        + void setNotAvailable(String RFID)
-
-        .. Test Result ..
-        + List<TestResult> getAllTestResults(String RFID)
-        + TestResult getTestResult(String RFID, String ID)
-
-        + TestResult createTestResult(String RFID, String ID, Date date, boolean result)
-        + void modifyTestResult(String RFID, String ID, String newIdTestDescriptor, Date newDate, newResult)
-        + void deleteTestResult(String RFID, String ID)
-    }
-
-    SKUItemManager .. hashmap_note
-    SKUItemManager .[hidden]. hashmap_note
-
-    ' Item Management
-    Class ItemManager {
-        + HashMap<Item> items
-
-        + List<Item> getAllItems()
-        + Item getItem(String ID)
-        + void deleteItem(String ID)
-
-        + void createItem(String ID, String description, float price, String SKUId, String supplierId)
-        + void modifyItem(String ID, String newDescription, float newPrice)
-    }
-
-    ' Warehouse Management
-    Class WarehouseManager {
-        + HashMap<Position> currentPositions
-
-        + List<Position> getAllPositions()
-        + Position getPositionByID()
-        + void deletePosition(String positionID)
-
-        + void createPosition(String positionID, String aisleID, int row, int col, int maxWeight, int maxVolume)
-        + void modifyPosition(String positionID, String newAisleID, int newRow, int newCol, int newMaxWeight, int newMaxVolume, int newOccupiedWeight, int newOccupiedVolume)
-        + void modifyPositionID(String oldPositionID, String newPositionID)
-        + increaseOccupation(String positionID, int qty)
-    }
-
-    ' Return Order Management
-    Class ReturnOrderManager {
-        + HashMap<ReturnOrder> returnOrders
-
-        + List<ReturnOrder> getAllReturnOrders()
-        + ReturnOrder getReturnOrderByID(String ID)
-        + void deleteReturnOrder(String ID)
-
-        + void createReturnOrder(String ID, Date returnDate, List<<Pair<SKU, SKUItem>> products, String restockOrderId)
-        + void modifyReturnOrderState(String ID, String newState)
-    }
-
-    ' Internal Order Management
-    Class InternalOrderManager {
-        + HashMap<InternalOrder> internalOrders
-
-        + InternalOrder getInternalOrderByID(String ID)
-        + List<InternalOrder> getAllInternalOrders()
-        + List<InternalOrder> getAllIssuedInternalOrders()
-        + List<InternalOrder> getAllAcceptedInternalOrders()
-        + void deleteInternalOrder(String ID)
-
-        + InternalOrder createInternalOrder(String ID, Date issueDate, List<<Pair<SKU, int>> products)
-        + void modifyStateInternalOrder(String ID, String newState, List<String> RFIDs)
-    }
-
-    Class RestockOrderManager {
-        - HashMap<RestockOrder> restockOrders
-        - HashMap<TestDescriptor> testDescriptors
-
-        + RestockOrder getRestockOrderByID(String ID)       /' If you have it in the list, return; otherwise contact DB handler'/
-        + List<RestockOrder> getAllRestockOrders()          /' Return from the hashmap '/
-        + List<RestockOrder> getAllIssuedRestockOrders()    /' Return from the hashmap '/
-
-        + RestockOrder createRestockOrder(Date issueDate, List<<Pair<SKU, int>> products, int supplierId)
-        + void modifyRestockOrderState(RestockOrder restockOrder, String newState)
-        + void addRestockOrderSKUItems(RestockOrder restockOrder, List<SKUItem> skuItems)
-        + void addRestockOrderTransportNote(RestockOrder restockOrder, Date transportNote)
-
-        .. Test Descriptor ..
-        + List<TestDescriptor> getAllTestDescriptors()
-        + TestDescriptor getTestDescriptor(String ID)
-
-        + void createTestDescriptor(String ID, String name, String procedureDescription, String IdSKU)
-        + void modifyTestDescriptor(String ID, String newName, String newProcedureDescription, String newIdSKU)
-        + void deleteTestDescriptor(String ID)
-    }
-
-    ' SKU Management
-    Class SKUManager {
-        - HashMap<SKU> skus 
-
-        + SKU getSKUByID(String SKUID)
-        + List<SKU> getAllSKUs()
-        + void deleteSKU(String SKUID)
-
-        + SKU createSKU(String ID, String description, int weight, int volume, String notes, float price, int availableQuantity)
-        + void modifySKU(SKU sku, String newDescription, int newWeight, int newVolume, Sting newNotes, float newPrice, int newAvailableQuantity)
-        + void addModifySKUPosition(SKU sku, String positionID)
-    }
-
-    ' Persistence Management
-    Class DBHandler {
-        + List<SKU> getAllSKUs()
-        + SKU getSKUByID(String SKUID)
-        + void saveSKU(SKU sku)
-        + void deleteSKU(String SKUID)
-
-        + List<User> getAllUsers()
-        + User login(String username, String password)
-        + User createUser(User user)
-        + void modifyUserRights(String username, String oldType, String newType)
-
-        + List<RestockOrder> getAllRestockOrders()
-        + RestockOrder getRestockOrderByID(String ID)
-        + void saveRestockOrder(RestockOrder restockOrder)
-        + void deleteRestockOrder(String ID)
-
-        + List<InternalOrder> getAllInternalOrders()
-        + InternalOrder getInternalOrderByID(String ID)
-        + void saveInternalOrder(InternalOrder internalOrder)
-        + void deleteInternalOrder(String ID)
-
-        + List<Position> getAllPositions()
-        + Position getPositionByID(String ID)
-        + void savePosition(Position position)
-        + void deletePosition(String ID)
-
-        + List<Position> getAllReturnOrders()
-        + ReturnOrder getReturnOrderByID(String ID)
-        + void saveReturnOrder(ReturnOrder returnOrder)
-        + void deleteReturnOrder(String ID)
-
-        + List<TestDescriptor> getAllTestDescriptors()
-        + TestDescriptor getTestDescriptorByID(String ID)
-        + void saveTestDescriptor(TestDescriptor testDescriptor)
-        + void deleteTestDescriptor(String ID)
-
-        + List<Item> getAllItems()
-        + Item getItemByID(String ID)
-        + void saveItem(Item item)
-        + void deleteItem(String ID)
-
-        + List<SKUItem> getAllSKUItem()
-        + SKUItem getSKUItemByID(String ID)
-        + void saveSKUItem(SKUItem SKUitem)
-        + void deleteSKUItem(String ID)
-
-        + List<TestResult> getAllTestResults()
-        + TestResult getTestResultByID(String ID)
-        + void saveTestResult(TestResult testResult)
-        + void deleteTestResult(String ID)
-    }
-
-    ' Database connections
-    DBHandler <-up- ItemManager
-    DBHandler <-up- SKUItemManager
-    DBHandler <-up- WarehouseManager
-    DBHandler <-up- ReturnOrderManager
-    DBHandler <-up- RestockOrderManager
-    DBHandler <-up- InternalOrderManager
-    DBHandler <-up- UserManager
-
-    ' FacadeController connections
-    FacadeController --> SKUManager
-    FacadeController --> RestockOrderManager
-    FacadeController --> InternalOrderManager
-    FacadeController --> ReturnOrderManager
-    FacadeController --> WarehouseManager
-    FacadeController --> ItemManager
-    FacadeController --> SKUItemManager
-    FacadeController --> UserManager
-
-    ' Managers' -- Managers' connections
-    SKUItemManager <-left- RestockOrderManager
-    SKUManager <-right- RestockOrderManager
-    SKUItemManager <-left- ReturnOrderManager
-    SKUManager <-right- ReturnOrderManager
-    SKUManager <-right- InternalOrderManager
-}
-    
-@enduml
-```
-
-## Busines Logic Package
+To make the diagram more readable, every component will be presented separated from the rest.
 
 ```plantuml
 @startuml LowLevelDesign
 top to bottom direction
+allow_mixing
 
-package it.polito.ezwh.businesslogic{
-    Class RestockOrderManager
-    Class InternalOrderManager
-    Class ReturnOrderManager
-    Class WarehouseManager
-    Class ItemManager
-    Class SKUItemManager
-    Class UserManager
+package db {
+    Class AppDAO {
+        + Database db
+        + transaction
 
-    note "The various Order classes contains a whole list of references to SKU and SKUItems to which are related, \nin order to make the overall application scalable. Despite the fact those verbose information are not needed now\n(only few attributes are mandatory), in the future the APIs can change, resulting in more fields needed." as more_info
-
-    Class User {
-        + id
-        + role
-        + username
-        + password
-        + type: [MANAGER, CUSTOMER, CLERK, QUALITY, SUPPLIER, DELIVERY]
-
-        + User(String username, String name, String surname, String password, String type)
-        + void modifyRights(String newType)
+        + run(sql, params = [])
+        + get(sql, params = [])
+        + all(sql, params = [])
+        + startTransaction()
+        + commitTransaction()
+        + rollbackTransaction()
     }
-
-    Class SKUItem {
-        + RFID (idSKUItem)
-        + SKUid
-        + boolean Available
-        + DateOfStock
-
-        + SKUItem(String RFID, String SKUID, Date dateOfStock)
-        + void modify(boolean newAvailable, newDateOfStock)
-    } 
-
-    Class TestResult {
-        + uniqueID
-        + id
-        + idTestDescriptor
-        + RFID (idSKUItem)
-        + date
-        + result
-
-        + TestResult(String RFID, String ID, Date date, boolean result)
-        + void modify(String newIdTestDescriptor, Date newDate, boolean newResult)
-    }
-
-    Class Item {
-        + id
-        + description
-        + price
-        + SKUId
-        + supplierId
-
-        + Item(String ID, String description, float price, String SKUId, String supplierId)
-        + void modify(String newDescription, float newPrice)
-    }
-
-    Class Position {
-        + id
-        + aisleID
-        + row
-        + col
-        + maxWeight
-        + maxVolume
-        + occupiedWeight
-        + occupiedVolume                                    
-        
-        + Position(String positionID, String aisleID, int row, int col, int maxWeight, int maxVolume);
-        + void modify(String newAisleID, int newRow, int newCol, int newMaxWeight, int newMaxVolume, int newOccupiedWeight, int newOccupiedVolume)
-        + void modifyID(String newPositionID)
-        + void increaseOccupation(int qty)
-    }
-
-    Class ReturnOrder {
-        + id
-        + returnDate
-        + List<Pair<SKU, int>>
-        + List<SKUItem>
-        + restockOrderId
-
-        + ReturnOrder(Date returnDate, List<<Pair<SKU, SKUItem>> products, String restockOrderId)
-        + void modifyState(String newState)
-    }
-
-    Class InternalOrder {
-        + id
-        + List<Pair<SKU, int>>
-        + state: [ISSUED, ACCEPTED, REFUSED, CANCELED, COMPLETED]
-
-        + InternalOrder(Date issueDate, List<<Pair<SKU, int>> products)
-        + void modifyState(String newState, List<String> RFIDs)
-    }
-
-    Class RestockOrder {
-        + id
-        + List<Pair<SKU, int>>
-        + List<SKUItem>
-        + issueDate
-        + transportNote
-        + state: [ISSUED, DELIVERY, DELIVERED, TESTED, COMPLETEDRETURN, COMPLETED]
-
-        + RestockOrder(Date issueDate, List<<Pair<SKU, int>> products, int supplierId)
-        + List<SKUItem> getItems()
-        + void modifyState(String newState)
-        + void addSKUItems(List<SKUItem> skuItems)
-        + void addTransportNote(Date transportNote)
-    }
-
-    RestockOrder .. more_info
-    RestockOrder .[hidden]. more_info
-
-    Class TestDescriptor {
-        + id
-        + name
-        + procedureDescription
-        + SKUId
-        
-        + TestDescriptor(String ID, String name, String procedureDescription, String IdSKU)
-        + void modify(String newName, String newProcedureDescription, String newIdSKU)
-    }
-
-    Class SKU {
-        + id
-        + description
-        + weight
-        + volume
-        + notes
-        + price
-        + availableQuantity
-        + List<TestDescriptor>
-
-        + SKU(String ID, String description, int weight, int volume, String notes, float price, int availableQuantity)
-        + void modify(String newDescription, int newWeight, int newVolume, Sting newNotes, float newPrice, int newAvailableQuantity)
-        + void addModifyPosition(String positionID)
-
-        + void addTestDescriptor(TestDescriptor testDescriptor)
-    }
-
-    ' Managers' -- Business Logic connections: 
-    SKUManager -- "*" SKU
-    RestockOrderManager -- "*" RestockOrder
-    RestockOrderManager -- "*" TestDescriptor
-    InternalOrderManager -- "*" InternalOrder
-    ReturnOrderManager -- "*" ReturnOrder
-    WarehouseManager -- "*" Position
-    ItemManager -- "*" Item
-    SKUItemManager -- "*" SKUItem
-    SKUItemManager -- "*" TestResult
-    UserManager -- User
-
-    ' Application Logic connections
-    SKU --right- TestDescriptor
 }
+
+package api {
+    package sku
+    package skuItem
+    package position
+    package test_descriptor
+    package test_result
+    package user
+    package restock_order
+    package return_order
+    package internal_order
+    package item
+}
+
+sku - AppDAO
+skuItem - AppDAO
+position - AppDAO
+test_descriptor - AppDAO
+test_result - AppDAO
+user - AppDAO
+restock_order - AppDAO
+return_order - AppDAO
+internal_order - AppDAO
+item - AppDAO
 
 @enduml
 ```
 
+### User Component
+
+```plantuml
+@startuml 
+    package user {
+        Class UserRoutes {
+            - ErrorHandler errorHandler
+            - UserController controller
+
+            + UserRoutes()
+
+            + initRoutes()
+        }
+
+        Class UserController {
+            + UserDAO dao
+
+            + UserController()
+
+            + getAllUsers()
+            + getAllSuppliers()
+            + getUserInfo(email)
+
+            + createUser(username, name, surname, password, type)
+            + loginManager(username, password)
+            + loginCustomer(username, password)
+            + loginSupplier(username, password)
+            + loginClerk(username, password)
+            + loginQualityEmployee(username, password)
+            + loginDeliveryEmployee(username, password)
+            + modifyRight(username, oldType, newType)
+            + deleteUser(username, type)
+
+            - login(username, password, type)
+        }
+
+        Class UserDAO extends AppDAO {
+            + UserDAO()
+
+            + getAllUsers() 
+            + getAllUsersByType(type) 
+            + getUserByID(id)
+
+            + createUser(username, name, surname, password, type) 
+            + checkUser(email, password) 
+            + modifyRight(username, oldType, newType) 
+            + deleteUser(userUsername, userType) 
+
+            - getUserByEmailAndType(email, type)
+            - deleteAllUser()
+        }
+
+        Class User {
+            - {static} ADMINISTRATOR     = "administrator";
+            - {static} MANAGER           = "manager";
+            - {static} INTERNAL_CUSTOMER = "INTERNAL_CUSTOMER";
+            - {static} CUSTOMER          = "customer";
+            - {static} SUPPLIER          = "supplier";
+            - {static} CLERK             = "clerk";
+            - {static} QUALITY_EMPLOYEE  = "qualityEmployee";
+            - {static} DELIVERY_EMPLOYEE = "deliveryEmployee";
+
+            - id
+            - name
+            - surname
+            - email
+            - password
+            - type
+
+            + User(id, name, surname, email, password, type)
+
+            - {static} isValidType(type)
+            - {static} mockUser()
+            - {static} mockUserCustomer()
+
+        }
+
+        UserRoutes -> UserController
+        UserController -> UserDAO
+        UserController .> User : <<import>>
+    }
+@enduml
+```
+
+### Sku Component
+
+```plantuml
+@startuml 
+    package sku {
+        Class SkuRoutes {
+            - ErrorHandler errorHandler
+            - SkuController controller
+
+            + SkuRoutes()
+
+            + initRoutes()
+
+        }
+
+        Class SkuController {
+            + SkuDAO dao
+
+            + SkuController()
+
+            + SKURoutes()
+
+            + getAllSkus()
+            + getSkuByID(skuId)
+
+            + createSku(description, weight, volume, notes, price, availableQuantity)
+            + modifySku(skuId, newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity)
+            + addModifySkuPosition(skuId, newPosition)
+            
+            + deleteSku(skuId)
+            + getSkuByIDInternal(skuId) 
+        }
+
+        Class SkuDAO extends AppDAO {
+            + SkuDAO()
+
+            + getAllSkus()
+            + getSkuByID(skuId)
+
+            + createSku(description, weight, volume, notes, price, availableQuantity)
+            + modifySku(skuId, newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity)
+            + addModifySkuPosition(skuId, newPosition)
+            
+            + deleteSku(skuId)
+            + getSkuByIDInternal(skuId) 
+        }
+
+        Class Sku {
+
+            - id
+            - description
+            - weight
+            - volume
+            - notes
+            - positionId
+            - availableQuantity
+            - price    
+            - testDescriptors
+
+            + Sku(id, description, weight, volume, notes, positionId, availableQuantity, price, testDescriptors)
+
+            - {static} intoJson(all)
+            - {static} mockTestSku()
+        }
+
+        SkuRoutes -> SkuController
+        SkuController -> SkuDAO
+        SkuController .> Sku : <<import>>
+    }
+@enduml
+```
+
+### Sku Item Component
+
+```plantuml
+@startuml 
+    package skuItem {
+        Class SKUItemRoutes {
+            - ErrorHandler errorHandler
+            - SKUItemController controller
+
+            + SKUItemRoutes()
+
+            + initRoutes()
+
+        }
+
+        Class SkuItemController {
+            + SKUItemDAO dao
+
+            + skuController()
+
+            + getAllSKUItems()
+            + getSKUItemBySKUID(skuId)
+            + getSKUItemByRFID(SKUItemId)
+
+            + createSKUItem(RFID, SKUId, DateOfStock)
+            + modifySKUItem(SKUItemId, newRFID, newAvailable, newDateOfStock)
+            + deleteSKUItem(SKUItemId)
+
+            + getSKUItemByRFIDInternal(rfid) 
+            + getAllSkuItemsByRestockOrder(restockOrderId)
+            + getItemByRFIDInternal(RFID, restockOrderId)
+        }
+
+        Class SKUItemDAO extends AppDAO {
+            + SKUItemDAO()
+
+            + getAllSKUItems()
+            + getSKUItemBySKUID(skuId)
+            + getSKUItemByRFID(SKUItemId)
+
+            + createSKUItem(RFID, SKUId, DateOfStock)
+            + modifySKUItem(SKUItemId, newRFID, newAvailable, newDateOfStock)
+            + deleteSKUItem(SKUItemId)
+            + deleteAllSKUItem()
+
+            + getAllSkuItemsByRestockOrder(restockOrderId) 
+            + getSupplierIdByRestockOrderId(restockOrderId)
+            + getSkuAndSKUItemByRFIDInternal(rfid, supplierId)
+        }
+
+        Class SkuItem {
+
+            - RFID
+            - SKUId
+            - available
+            - dateOfStock
+            - restockOrderId
+            - returnOrderId
+            - internalOrderId
+
+            + Sku(id , description, weight, volume, notes, positionId, availableQuantity, price, testDescriptors)
+
+            - {static} intoJson(all)
+            - {static} mockTestSkuItem()
+        }
+
+        SKUItemRoutes -> SkuItemController
+        SkuItemController -> SKUItemDAO
+        SkuItemController .> SkuItem : <<import>>
+    }
+@enduml
+```
+
+### Position Component
+
+```plantuml
+@startuml 
+    package position {
+        Class PositionRoutes {
+            - ErrorHandler errorHandler
+            - PositionController controller
+
+            + PositionRoutes()
+
+            + initRoutes()
+
+        }
+
+        Class PositionController {
+            + PositionDAO dao
+
+            
+            + getAllPositions()
+            + getPositionByID(id)
+
+            + createPosition(positionID, aisleID, row, col, maxWeight, maxVolume)
+            + modifyPosition(positionID, newAisleID, newRow, newCol, newMaxWeight, newMaxVolume,
+        newOccupiedWeight, newOccupiedVolume)
+            + modifyPositionID(oldPositionId, newPositionId)
+            + deletePosition(positionID)
+        }
+
+        Class PositionDAO extends AppDAO {
+            + PositionDAO()
+
+            + getAllPositions()
+            + getPositionByID(id)
+
+            + createPosition(positionID, aisleID, row, col, maxWeight, maxVolume)
+            + modifyPosition(positionID, newAisleID, newRow, newCol, newMaxWeight, newMaxVolume,
+        newOccupiedWeight, newOccupiedVolume)
+            + modifyPositionID(oldPositionId, newPositionId)
+            + deletePosition(positionID)
+            + deleteAllPosition()
+        }
+
+        Class Position {
+
+            - positionID
+            - aisleID
+            - row
+            - col
+            - maxWeight
+            - maxVolume
+            - occupiedWeight
+            - occupiedVolume
+
+            + Position(positionID, aisleID, row, col, maxWeight, maxVolume, occupiedWeight, occupiedVolume)
+
+            - {static} mockTestPosition()
+        }
+
+        PositionRoutes -> PositionController
+        PositionController -> PositionDAO
+        PositionController .> Position : <<import>>
+    }
+@enduml
+```
+
+### Test Descriptor Component
+
+```plantuml
+@startuml 
+    package testDescriptor {
+        Class TestDescriptorRoutes {
+            - ErrorHandler errorHandler
+            - TestDescriptorController controller
+
+            + TestDescriptorRoutes()
+
+            + initRoutes()
+
+        }
+
+        Class TestDescriptorController {
+            + TestDescriptorDAO dao
+
+            
+           
+            + getAllTestDescriptors()
+            + getTestDescriptorByID(testDescriptorId)
+
+            + createTestDescriptor(name, procedureDescription, idSKU)
+            + modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU)
+            + deleteTestDescriptor(testDescriptorId)
+        }
+
+        Class TestDescriptorDAO extends AppDAO {
+            + TestDescriptorDAO()
+
+            + getAllTestDescriptors()
+            + getTestDescriptorByID(testDescriptorId)
+
+            + createTestDescriptor(name, procedureDescription, idSKU)
+            + modifyTestDescriptor(testDescriptorId, newName, newProcedureDescription, newIdSKU)
+            + deleteTestDescriptor(testDescriptorId)
+            + deleteAllTestDescriptor()
+        }
+
+        Class TestDescriptor {
+
+            - id
+            - name
+            - procedureDescription
+            - idSKU
+
+            + TestDescriptor(id, name, procedureDescription, idSKU)
+
+            - {static} mockTestTestDescriptor()
+        }
+
+        TestDescriptorRoutes -> TestDescriptorController
+        TestDescriptorController -> TestDescriptorDAO
+        TestDescriptorController .> TestDescriptor : <<import>>
+
+    }
+@enduml
+```
+
+### Test Result Component
+```plantuml
+@startuml 
+    package testResult {
+        Class TestResultRoutes {
+            - ErrorHandler errorHandler
+            - TestResultController controller
+
+            + TestResultRoutes()
+
+            + initRoutes()
+
+        }
+
+        Class TestResultController {
+            + TestResultDAO dao
+
+            + skuItemController
+           
+            + getAllTestResults(rfid)
+            + getTestResultByID(rfid, testResultId)
+
+            + createTestResult(rfid, idTestDescriptor, Date, Result)
+            + modifyTestResult(rfid, id, newIdTestDescriptor, newDate, newResult)
+            + deleteTestResult(rfid, id)
+
+            + hasFailedTestResultsByRFID(RFID)
+        }
+
+        Class TestResultDAO extends AppDAO {
+            + TestResultDAO()
+
+           + getAllTestResults(rfid)
+            + getTestResultByID(rfid, testResultId)
+
+            + createTestResult(rfid, idTestDescriptor, Date, Result)
+            + modifyTestResult(rfid, id, newIdTestDescriptor, newDate, newResult)
+            + deleteTestResult(rfid, id)
+
+            + hasFailedTestResultsByRFID(RFID)
+        }
+
+        Class TestResult {
+
+            - id;
+            - date
+            - result
+            - testDescriptorId
+            - RFID
+
+            + TestResult(id, date, result, testDescriptorId, RFID)
+
+            - intoJson()
+            - {static} mockTestTestResult()
+        }
+
+        TestResultRoutes -> TestResultController
+        TestResultController -> TestResultDAO
+        TestResultController .> TestResult : <<import>>
+    }
+@enduml
+```
+
+### Restock Order Component
+
+```plantuml
+@startuml 
+    package restock_order {
+        Class RestockOrderDAO extends AppDAO {
+            + getAllRestockOrders()
+            + getAllIssuedRestockOrders()
+            + getRestockOrderByID(restockOrderId)
+            + createRestockOrder(issueDate, supplierId, state, products)
+            + modifyState(restockOrderId, newState)
+            + modifyRestockOrderSkuItems(restockOrderId, skuItems)
+            + modifyTransportNote(restockOrderId, deliveryDate)
+            + deleteRestockOrder(restockOrderId)
+            + deleteAllRestockOrder()
+        }
+
+        Class RestockOrderController {
+            - RestockOrderDAO dao
+            - TestResultController testResultController
+            - SkuItemController skuItemController
+            - ItemController itemController
+
+            + RestockOrderController(testResultController, skuItemController, itemController)
+
+            + getAllRestockOrders()
+            + getAllIssuedRestockOrders()
+            + getRestockOrderByID(restockOrderId)
+            + getRestockOrderReturnItemsByID(restockOrderId)
+            + createRestockOrder(issueDate, products, supplierId)
+            + modifyState(restockOrderId, newState)
+            + modifyRestockOrderSkuItems(restockOrderId, skuItems)
+            + modifyTransportNote(restockOrderId, deliveryDate)
+            + deleteRestockOrder(restockOrderId)
+
+            - buildRestockOrders(rows)
+            - getRestockOrderByIDInternal(restockOrderId)
+        }
+
+        Class RestockOrderRoutes {
+            - ErrorHandler errorHandler
+            - RestockOrderController controller
+
+            + RestockOrderRoutes(testResultController, skuItemController, itemController)
+
+            + initRoutes()
+        }
+
+        Class RestockOrder {
+            {static} ISSUED = "ISSUED"
+            {static} DELIVERY = "DELIVERY"
+            {static} DELIVERED = "DELIVERED"
+            {static} TESTED = "TESTED"
+            {static} COMPLETEDRETURN = "COMPLETEDRETURN"
+            {static} COMPLETED = "COMPLETED"
+
+            + id
+            + issueDate
+            + state
+            + deliveryDate
+            + supplierId
+            + products
+            + skuItems
+
+            + RestockOrder(id, issueDate, state, deliveryDate, supplierId, products, skuItems = [])
+
+            + intoJson()
+            + {static} isVaidState()
+            + {static} mockRestockOrder()
+        }
+
+        Class Product {
+            + Item item
+            + qty
+
+            + Product(item, qty)
+        }
+
+        RestockOrder - "*" Product
+        RestockOrderController -up-> RestockOrderDAO
+        RestockOrderRoutes -> RestockOrderController
+        RestockOrderController .> RestockOrder : <<import>>
+    }
+@enduml
+```
+
+### Return Order Component
+
+```plantuml
+@startuml 
+    package return_order {
+        Class ReturnOrderDAO extends AppDAO {
+            + getAllReturnOrders()
+            + getReturnOrderByID(returnOrderID)
+            + createReturnOrder(returnDate, restockOrderId, products)
+            + deleteReturnOrder(returnOrderID)
+        }
+
+        Class ReturnOrderController {
+            + ReturnOrderDAO dao
+            + SkuItemController skuItemController
+
+            + ReturnOrderController(skuItemController)
+
+            + getAllReturnOrders()
+            + getReturnOrderByID(returnOrderID)
+            + createReturnOrder(returnDate, products, restockOrderId)
+            + deleteReturnOrder(returnOrderID)
+            
+            - buildReturnOrders(rows)
+        }
+
+        Class ReturnOrderRoutes {
+            - ErrorHandler errorHandler
+            - ReturnOrderController controller
+
+            + ReturnOrderRoutes(testResultController, skuItemController, itemController)
+
+            + initRoutes()
+        }
+
+        Class ReturnOrder {
+            + id
+            + returnDate
+            + products
+            + restockOrderId
+
+            + ReturnOrder(id = null, returnDate, products, restockOrderId)
+        }
+
+        Class Products {
+            + SKUId
+            + description
+            + price
+            + RFID
+            
+            + Products(SKUId, description, price, RFID)
+        }
+
+        ReturnOrder - "*" Products
+        ReturnOrderController -up-> ReturnOrderDAO
+        ReturnOrderRoutes -> ReturnOrderController
+        ReturnOrderController .> ReturnOrder : <<import>>
+    }
+
+@enduml
+```
+
+### Internal Order Component
+
+```plantuml
+@startuml 
+    package internal_order {
+        Class InternalOrderDAO extends AppDAO {
+            + getAllInternalOrders()
+            + getInternalOrderByID(internalOrderID)
+            + getInternalOrdersAccepted()
+            + getInternalOrdersIssued()
+            + createInternalOrder(issueDate, customerId, state, products)
+            + modifyStateInternalOrder(internalOrderId, newState, products = undefined)
+            + deleteInternalOrder(internalOrderID)
+            + deleteAllInternalOrder()
+        }
+
+        Class InternalOrderController {
+            + InternalOrderDAO dao
+            + SkuController skuController
+
+            + getAllInternalOrders() {
+            + getInternalOrdersAccepted() {
+            + getInternalOrdersIssued() {
+            + getInternalOrderByID(internalOrderID) {
+            + createInternalOrder(issueDate, products, customerId) {
+            + modifyStateInternalOrder(internalOrderId, newState, products) {
+            + deleteInternalOrder(internalOrderID) {
+            
+            - buildInternalOrders(rows) {
+            - getInternalOrderByIDInternal(internalOrderId) {
+        }
+
+        Class InternalOrderRoutes {
+            - ErrorHandler errorHandler
+            - InternalOrderController controller
+
+            + InternalOrderRoutes(suController)
+
+            + initRoutes()
+        }
+
+        Class InternalOrder {
+            + {static} ISSUED = "ISSUED"
+            + {static} ACCEPTED = "ACCEPTED"
+            + {static} REFUSED = "REFUSED"
+            + {static} CANCELED = "CANCELED"
+            + {static} COMPLETED = "COMPLETED"
+
+            + id
+            + issueDate
+            + state
+            + products
+            + customerId
+
+            + InternalOrder(id = null, issueDate, state, products, customerId)
+
+            + {static} isValidState(state)
+            + {static} mockTestInternalOrder() 
+            + {static} mockTestInternalOrder2()
+        }
+
+        InternalOrderController -up-> InternalOrderDAO
+        InternalOrderRoutes -> InternalOrderController
+        InternalOrderController .> InternalOrder : <<import>>
+    }
+
+@enduml
+```
+
+```plantuml
+@startuml 
+    package item {
+        Class ItemDAO extends AppDAO {
+            + getAllItems()
+            + getItemByID(itemId)
+            + createItem(id, description, price, SKUId, supplierId)
+            + modifyItem(id, description, price)
+            + deleteItem(id)
+            + getItemBySkuIdAndSupplierId(skuId, supplierId)
+            + deleteAllItem()
+        }
+
+        Class ItemController {
+            + ItemDAO dao
+
+            + ItemController()
+
+            + getAllItems()
+            + getItemByID(itemId)
+            + createItem(id, description, price, SKUId, supplierId)
+            + modifyItem(id, description, price)
+            + deleteItem(id)
+
+            - getItemBySkuIdAndSupplierId(skuId, supplierId)
+            - getItemByIDInternal(itemId)
+        }
+
+        Class ItemRoutes {
+            - ErrorHandler errorHandler
+            - ItemController controller
+
+            + ItemRoutes()
+
+            + initRoutes()
+        }
+
+        Class Item {
+            + id
+            + description
+            + price
+            + SKUId
+            + supplierId
+
+            + Item(id = null, description, price, SKUId, supplierId)
+
+            + {static} mockItem()
+        }
+
+        ItemController -up-> ItemDAO
+        ItemRoutes -> ItemController
+        ItemController .> Item : <<import>>
+    }
+@enduml
+```
+To make the diagram more readable, we extrapolated the Error classes in the following diagram:
+
+```plantuml
+@startuml ErrorDiagram
+package user {
+    Class UserErrorFactory {
+        + {static} newCustomerNotFound
+        + {static} newUserNotFound
+        + {static} newWrongCredential
+        + {static} newTypeNotFound
+        + {static} newUserConflict
+        + {static} newAttemptCreationPrivilegedAccount
+    }
+}
+
+package sku {
+    Class SkuErrorFactory {
+        + {static} newSkuNotFound
+        + {static} newPositionNotCapable
+        + {static} newPositionAlreadyOccupied
+        + {static} newSkuWithAssociatedSkuItems
+    }
+}
+
+package skuItem {
+    Class SkuItemErrorFactory {
+        + {static} newSKUItemNotFound
+        + {static} newSKUItemRFIDNotUnique
+        + {static} newSKUItemRelatedToItemNotOwned
+    }
+}
+
+package position {
+    Class PositionErrorFactory {
+        + {static} newPositionNotFound
+        + {static} newPositionIdNotSymmetric
+        + {static} newPositionIDNotUnique
+        + {static} newGreaterThanMaxWeightPosition
+        + {static} newGreaterThanMaxVolumePosition
+    }
+}
+
+package test_descriptor {
+    Class TestDescriptorErrorFactory {
+        + {static} newTestDescriptorNotFound
+        + {static} newSKUAlreadyWithTestDescriptor
+        + {static} newTestDescriptorWithAssociatedTestResults
+    }
+}
+
+package test_result {
+    Class TestResultErrorFactory {
+        + {static} newTestResultNotFound
+        + {static} newTestDescriptorOrSkuItemNotFound
+    }
+}
+ package restock_order {
+     Class RestockOrderErrorFactory {
+        + {static} newRestockOrderNotFound()
+        + {static} newRestockOrderNotReturned()
+        + {static} newRestockOrderNotDelivered()
+        + {static} newRestockOrderNotDelivery()
+        + {static} newRestockOrderDeliveryBeforeIssue()
+    }
+ }
+
+package return_order {
+    Class ReturnOrderErrorFactory {
+        + {static} newReturnOrderNotFound()
+    }
+}
+
+package item {
+    Class ItemErrorFactory {
+        + {static} itemNotFound()
+        + {static} skuAlreadyAssociatedForSupplier()
+        + {static} itemAlreadySoldBySupplier()
+        + {static} newSkuOrSupplierNotFound()
+    }
+}
+@enduml
+```
 
 # Verification traceability matrix
 
-|       FR Code        |  FR1  |  FR2  |  FR3  |  FR4  |  FR5  |  FR6  |  FR7  |
-| :------------------: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-|         EZWH         |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-|     UserManager      |   X   |       |       |   X   |       |       |       |
-|         User         |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-|    SKUItemManager    |       |       |       |       |   X   |   X   |       |
-|       SKUItem        |       |       |       |       |   X   |   X   |       |
-|      TestResult      |       |       |       |       |   X   |       |       |
-|     ItemManager      |       |       |       |       |       |       |   X   |
-|         Item         |       |       |       |       |       |       |   X   |
-|   WarehouseManager   |       |       |   X   |       |       |       |       |
-|       Position       |       |       |   X   |       |       |       |       |
-|  ReturnOrderManager  |       |       |       |       |   X   |       |       |
-|     ReturnOrder      |       |       |       |       |   X   |       |       |
-| InternalOrderManager |       |       |       |       |       |   X   |       |
-|    InternalOrder     |       |       |       |       |       |   X   |       |
-| RestockOrderManager  |       |       |   X   |       |   X   |       |       |
-|     RestockOrder     |       |       |       |       |   X   |       |       |
-|    TestDescriptor    |       |       |   X   |       |       |       |       |
-|      SKUManager      |       |   X   |       |       |   X   |   X   |       |
-|         SKU          |       |   X   |       |       |   X   |   X   |       |
+|       FR Code           |  FR1  |  FR2  |  FR3  |  FR4  |  FR5  |  FR6  |  FR7  |
+| :------------------:    | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+|         EZWH            |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+|     UserController      |   X   |       |       |   X   |       |       |       |
+|         User            |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+|    SKUItemController    |       |       |       |       |   X   |   X   |       |
+|       SKUItem           |       |       |       |       |   X   |   X   |       |
+|      TestResult         |       |       |       |       |   X   |       |       |
+|     ItemController      |       |       |       |       |       |       |   X   |
+|         Item            |       |       |       |       |       |       |   X   |
+|   WarehouseController   |       |       |   X   |       |       |       |       |
+|       Position          |       |       |   X   |       |       |       |       |
+|  ReturnOrderController  |       |       |       |       |   X   |       |       |
+|     ReturnOrder         |       |       |       |       |   X   |       |       |
+| InternalOrderController |       |       |       |       |       |   X   |       |
+|    InternalOrder        |       |       |       |       |       |   X   |       |
+| RestockOrderController  |       |       |   X   |       |   X   |       |       |
+|     RestockOrder        |       |       |       |       |   X   |       |       |
+|    TestDescriptor       |       |       |   X   |       |       |       |       |
+|      SKUController      |       |   X   |       |       |   X   |   X   |       |
+|         SKU             |       |   X   |       |       |   X   |   X   |       |
 
 # Verification sequence diagrams
 
