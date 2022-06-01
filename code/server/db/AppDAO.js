@@ -132,7 +132,7 @@ function initDB() {
             "id"	INTEGER,
             "name"	TEXT,
             "procedureDescription"	TEXT,
-            "idSKU"	INTEGER UNIQUE,
+            "idSKU"	INTEGER /*UNIQUE*/,
             FOREIGN KEY("idSKU") REFERENCES "sku"("id") ON DELETE SET NULL ON UPDATE CASCADE,
             PRIMARY KEY("id" AUTOINCREMENT)
         )`);

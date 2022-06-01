@@ -38,14 +38,15 @@ class SKUItemController {
 
 	async createSKUItem(RFID, SKUId, DateOfStock) {
 		try {
+			// Check if exists
+			await this.skuController.getSkuByID(SKUId);
+
 			await this.dao.createSKUItem(RFID, SKUId, DateOfStock);
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("skuItem.RFID"))
 					err = SKUItemErrorFactory.newSKUItemRFIDNotUnique();
 
-				if (err.message.includes("FOREIGN"))
-					err = SkuErrorFactory.newSkuNotFound();
 			}
 
 			throw err;

@@ -38,6 +38,14 @@ class UserErrorFactory {
 		return error;
     }
 
+    static newTypeNotFound422() {
+        let error = new Error();
+		error.customMessage = INEXISTENT_TYPE;
+        error.customCode = 422;
+
+		return error;
+    }
+
     static newUserConflict() {
         let error = new Error();
 		error.customMessage = USER_CONFLICT;

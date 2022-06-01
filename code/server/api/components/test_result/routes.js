@@ -15,6 +15,7 @@ class TestResultRoutes {
 	initRoutes() {
         this.router.get(
 			'/:rfid/testResults',
+			param('rfid').isString().isLength({min: 32, max: 32}),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.getAllTestResults(req.params.rfid)
 				.then((testResults) => res.status(200).json(testResults))

@@ -127,7 +127,7 @@ class UserRoutes {
 		this.router.delete(
 			'/users/:username/:type',
 			param('username').isEmail(),
-			param('type').isString().isIn(['customer', 'manager', 'clerk', 'supplier', 'administrator', 'INTERNAL_CUSTOMER', 'qualityEmployee', 'deliveryEmployee']),
+			param('type').isString(),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.deleteUser(req.params.username, req.params.type)
 				.then(() => res.status(204).send())
