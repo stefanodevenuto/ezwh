@@ -1,6 +1,6 @@
 class Product {
-    constructor(item, qty) {
-        this.item = item;
+    constructor(sku, qty) {
+        this.sku = sku;
         this.qty = qty;
     }
 }

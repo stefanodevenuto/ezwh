@@ -98,7 +98,19 @@ class SKUItemController {
 		return skuItems;
 	}
 
-	async getItemByRFIDInternal(RFID, restockOrderId) {
+	async getSkuByRFIDInternal(RFID) {
+		const row = await this.dao.getSkuByRFIDInternal(RFID);
+		if (row === undefined)
+			return undefined;
+
+		return {
+			SKUId: row.SKUId,
+			description: row.description,
+			price: row.price,
+		};
+	}
+
+	/*async getItemByRFIDInternal(RFID, restockOrderId) {
 		const supplier = await this.dao.getSupplierIdByRestockOrderId(restockOrderId);
 		if (supplier === undefined)
 			throw RestockOrderErrorFactory.newRestockOrderNotFound();
@@ -112,7 +124,7 @@ class SKUItemController {
 			description: row.description,
 			price: row.price,
 		};
-	}
+	}*/
 }
 
 module.exports = SKUItemController;

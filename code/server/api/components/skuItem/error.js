@@ -19,13 +19,13 @@ class SKUItemErrorFactory {
 		return error;
     }
 
-    static newSKUItemRelatedToItemNotOwned() {
+    /*static newSKUItemRelatedToItemNotOwned() {
         let error = new Error();
 		error.customCode = 404;
         error.customMessage = ITEM_NOT_OWNED;
 
 		return error;
-    }
+    }*/
 
 }
 

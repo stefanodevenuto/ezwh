@@ -2,11 +2,11 @@ const AppDAO = require("../../../db/AppDAO");
 
 class ReturnOrderDAO extends AppDAO{    
     async getAllReturnOrders() {
-        const query = 'SELECT RO.id, RO.returnDate, I.SKUId, I.description, I.price, SI.RFID, RO.restockOrderId \
+        const query = 'SELECT RO.id, RO.returnDate, S.id AS SKUId, S.description, S.price, SI.RFID, RO.restockOrderId \
             FROM returnOrder RO  \
-            JOIN restockOrder_item ROI ON ROI.restockOrderId = RO.restockOrderId \
-            JOIN item I ON ROI.itemId = I.id \
-            JOIN SKUItem SI ON SI.returnOrderId = RO.id \
+            LEFT JOIN restockOrder_sku ROI ON ROI.restockOrderId = RO.restockOrderId \
+            LEFT JOIN sku S ON ROI.skuId = S.id \
+            LEFT JOIN SKUItem SI ON SI.returnOrderId = RO.id \
             GROUP BY RO.id, SI.RFID \
             ORDER BY RO.id, SI.RFID';
 
@@ -14,10 +14,10 @@ class ReturnOrderDAO extends AppDAO{
     }
 
     async getReturnOrderByID(returnOrderID) {
-        const query = 'SELECT RO.id, RO.returnDate, I.SKUId, I.description, I.price, SI.RFID, RO.restockOrderId \
+        const query = 'SELECT RO.id, RO.returnDate, S.id AS SKUId, S.description, S.price, SI.RFID, RO.restockOrderId \
             FROM returnOrder RO  \
-            JOIN restockOrder_item ROI ON ROI.restockOrderId = RO.restockOrderId \
-            JOIN item I ON ROI.itemId = I.id \
+            JOIN restockOrder_sku ROI ON ROI.restockOrderId = RO.restockOrderId \
+            JOIN sku S ON ROI.skuId = S.id \
             JOIN SKUItem SI ON SI.returnOrderId = RO.id \
             WHERE RO.id = ? \
             GROUP BY RO.id, SI.RFID \

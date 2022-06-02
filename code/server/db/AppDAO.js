@@ -161,7 +161,7 @@ function initDB() {
             "id"	INTEGER,
             "returnDate"	TEXT,
             "restockOrderId"	INTEGER,
-            FOREIGN KEY("restockOrderId") REFERENCES "restockOrder"("id") ON DELETE SET NULL ON UPDATE CASCADE,
+            FOREIGN KEY("restockOrderId") REFERENCES "restockOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE,
             PRIMARY KEY("id" AUTOINCREMENT)
         )`);
 
@@ -204,13 +204,13 @@ function initDB() {
             UNIQUE("supplierId","SKUId")
         )`);
 
-        this.run(`CREATE TABLE IF NOT EXISTS "restockOrder_item" (
-            "itemId"	INTEGER,
+        this.run(`CREATE TABLE IF NOT EXISTS "restockOrder_sku" (
+            "skuId"	INTEGER,
             "restockOrderId"	INTEGER,
             "qty"	INTEGER,
-            FOREIGN KEY("itemId") REFERENCES "item"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY("skuId") REFERENCES "sku"("id") ON DELETE CASCADE ON UPDATE CASCADE,
             FOREIGN KEY("restockOrderId") REFERENCES "restockOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-            PRIMARY KEY("itemId","restockOrderId")
+            PRIMARY KEY("skuId","restockOrderId")
         )`);
 
         this.run(`CREATE TABLE IF NOT EXISTS "internalOrder_sku" (

@@ -4,10 +4,10 @@ const ReturnOrderController = require('./controller');
 const { ErrorHandler } = require("../../helper");
 
 class ReturnOrderRoutes {
-	constructor(skuItemController) {
+	constructor(skuItemController, restockOrderController) {
 		this.errorHandler = new ErrorHandler();
 		this.name = 'returnOrder';
-		this.controller = new ReturnOrderController(skuItemController);
+		this.controller = new ReturnOrderController(skuItemController, restockOrderController);
 		this.router = express.Router();
 		this.initRoutes();
 	}
