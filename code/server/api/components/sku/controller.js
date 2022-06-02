@@ -15,7 +15,7 @@ class SkuController {
 		const skus = rows.map(record => new Sku(record.id, record.description, record.weight, record.volume, record.notes,
 			record.positionId, record.availableQuantity, record.price, record.testDescriptor).intoJson());
 
-		return skus;
+		return rows;
 	}
 
 	async getSkuByID(skuId) {
