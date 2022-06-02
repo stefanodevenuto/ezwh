@@ -24,7 +24,7 @@ class SkuController {
 	}
 
 	async createSku(description, weight, volume, notes, price, availableQuantity) {
-		return await this.dao.createSku(description, weight, volume, notes, price, availableQuantity);
+		await this.dao.createSku(description, weight, volume, notes, price, availableQuantity);
 	}
 
 	async modifySku(skuId, newDescription, newWeight, newVolume, newNotes, newPrice, newAvailableQuantity) {
