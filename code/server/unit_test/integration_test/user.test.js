@@ -42,6 +42,7 @@ describe("User Controller suite", () => {
         testUserClerk.id = clerkID
     });
 
+
     describe("Login", () => {
         test("Login Supplier", async () => {
             try{
@@ -191,7 +192,7 @@ describe("User Controller suite", () => {
 
         test("Modify inexistent User", async () => {
             try{
-                await userController.modifyRight(-1, testUser.type, User.CUSTOMER)
+                await userController.modifyRight("null", testUser.type, User.CUSTOMER)
             } catch (err) {
                 let error = UserErrorFactory.newUserNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);
@@ -202,9 +203,9 @@ describe("User Controller suite", () => {
 
         test("Modify valid User with inexistent type", async () => {
             try{
-                await userController.modifyRight(testUser.email, testUser.type, "TYPE")
+                await userController.modifyRight(testUser.email, testUser.type, "NULL")
             } catch (err) {
-                let error = UserErrorFactory.newTypeNotFound();
+                let error = UserErrorFactory.newTypeNotFound422();
                 expect(err.customCode).toStrictEqual(error.customCode);
                 expect(err.customMessage).toMatch(error.customMessage);
             }
@@ -213,7 +214,7 @@ describe("User Controller suite", () => {
 
         test("Modify valid User", async () => {
             try{
-                await userController.modifyRight(testUser.email, testUser.type, User.CUSTOMER)
+                await userController.modifyRight(testUser.email, testUser.type, User.CLERK)
             } catch (err) {
                 let error = UserErrorFactory.newUserNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);
@@ -251,7 +252,7 @@ describe("User Controller suite", () => {
 
         test("Delete inexistent user", async () => {
             try{
-                await userController.deleteUser(testUser.email, -1)
+                await userController.deleteUser(undefined, User.CUSTOMER)
             } catch (err) {
                 let error = UserErrorFactory.newUserNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);

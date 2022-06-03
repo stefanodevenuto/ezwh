@@ -99,7 +99,7 @@ describe("Item Controller suite", () => {
         test("Create valid Item with invalid supplierID", async () => {
             try {
                 await itemController.createItem(testItem.id+2, testItem.description, 
-                    testItem.price, -1, -1);
+                    testItem.price,  testItem.SKUId, -1);
             } catch (err) {
                 let error = ItemErrorFactory.newSkuOrSupplierNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);

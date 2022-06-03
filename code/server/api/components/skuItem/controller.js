@@ -1,13 +1,14 @@
 const SKUItemDAO = require('./dao')
 const SKUItem = require("./SKUItem");
+const SkuController = require("../sku/controller");
 const { SKUItemErrorFactory } = require('./error');
 const { SkuErrorFactory } = require('../sku/error');
 const { RestockOrderErrorFactory } = require('../restock_order/error');
 
 class SKUItemController {
-	constructor(skuController) {
+	constructor() {
 		this.dao = new SKUItemDAO();
-		this.skuController = skuController;
+		this.skuController = new SkuController();
 	}
 
 	async getAllSKUItems(req, res, next) {

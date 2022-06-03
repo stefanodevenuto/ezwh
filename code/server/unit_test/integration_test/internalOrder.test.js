@@ -209,7 +209,6 @@ describe("Internal Order Controller suite", () => {
         });
 
         test("Modify Internal Order into COMPLETED state with inexistent Sku Items", async () => {
-            expect.assertions(2);
             try {
                 await internalOrderController.modifyStateInternalOrder(testInternalOrder.id, 
                     InternalOrder.COMPLETED, testInternalOrder.products.map((p) => ({SKUId: p.SKUId, RFID: "-1"})));
