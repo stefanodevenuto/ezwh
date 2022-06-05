@@ -1,12 +1,11 @@
 const ItemDAO = require('./dao');
 const Item = require("./item");
-const SkuController = require("../sku/controller")
 const { ItemErrorFactory } = require('./error');
 
 class ItemController {
-	constructor() {
+	constructor(skuController) {
 		this.dao = new ItemDAO();
-		this.skuController = new SkuController();
+		this.skuController = skuController;
 	}
 
 	async getAllItems() {
@@ -31,7 +30,7 @@ class ItemController {
 	async createItem(id, description, price, SKUId, supplierId) {
 		try {
 			// Check if exists
-			await this.skuController.getSkuByID(SKUId)
+			await this.skuController.getSkuByIDInternal(SKUId)
 			
 			await this.dao.createItem(id, description, price, SKUId, supplierId);
 		} catch (err) {

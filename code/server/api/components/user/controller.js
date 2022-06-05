@@ -120,22 +120,13 @@ class UserController {
 	}
 
 	async deleteUser(username, type) {
-		try {
-			if (type === User.MANAGER || type === User.ADMINISTRATOR)
-				throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
+		if (type === User.MANAGER || type === User.ADMINISTRATOR)
+			throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
 
-			if (!User.isValidType(type))
-				throw UserErrorFactory.newTypeNotFound422();
+		if (!User.isValidType(type))
+			throw UserErrorFactory.newTypeNotFound422();
 
-			await this.dao.deleteUser(username, type);
-		} catch (err) {
-			if (err.code === "SQLITE_CONSTRAINT") {
-				if (err.message.includes("associated"))
-					err = UserErrorFactory.newUserNotFound();
-			}
-
-			throw err;
-		}
+		await this.dao.deleteUser(username, type);
 	}
 }
 

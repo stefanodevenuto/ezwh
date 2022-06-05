@@ -24,7 +24,6 @@ chai.use(chaiHttp);
 chai.should();
 
 const app = require('../server');
-const { expect } = require('chai');
 var agent = chai.request.agent(app);
 
 describe("Testing Scenarios", () => {
@@ -73,6 +72,7 @@ describe("Testing Scenarios", () => {
             const response = await agent.post(`/api/sku/`)
                 .send(newSku)
             response.should.have.status(201);
+            console.log(response.body)
         });
 
         afterEach(async () => {
@@ -389,16 +389,10 @@ describe("Testing Scenarios", () => {
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
 
-            // Setup Items
-            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
-                testSku.id, testUser.id);
-            testItem.SKUId = testSku.id;
-            testItem.supplierId = testUser.id;
-
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                { item: testItem, qty: 10 }
+                { sku: testSku, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -417,7 +411,7 @@ describe("Testing Scenarios", () => {
                 .send({ newState: RestockOrder.DELIVERED });
             resRestock.should.have.status(200);
 
-            const resGetFirstSkuItem = await agent.get(`/api/skuitems/sku/${testItem.SKUId}`);
+            const resGetFirstSkuItem = await agent.get(`/api/skuitems/sku/${testSku.id}`);
             resGetFirstSkuItem.should.have.status(200);
 
             resGetFirstSkuItem.body.map((skuItem) => {
@@ -434,7 +428,6 @@ describe("Testing Scenarios", () => {
         afterEach(async () => {
             await skuDao.deleteSku(testSku.id);
             await userDao.deleteUser(testUser.email, testUser.type);
-            await itemDao.deleteItem(testItem.id);
             await restockOrderDao.deleteRestockOrder(testRestockOrder.id);
         })
     });
@@ -453,16 +446,10 @@ describe("Testing Scenarios", () => {
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
 
-            // Setup Items
-            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
-                testSku.id, testUser.id);
-            testItem.SKUId = testSku.id;
-            testItem.supplierId = testUser.id;
-
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                { item: testItem, qty: 10 }
+                { sku: testSku, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -509,7 +496,6 @@ describe("Testing Scenarios", () => {
         afterEach(async () => {
             await skuDao.deleteSku(testSku.id);
             await userDao.deleteUser(testUser.email, testUser.type);
-            await itemDao.deleteItem(testItem.id);
             await restockOrderDao.deleteRestockOrder(testRestockOrder.id);
             await skuItemDao.deleteAllSKUItem();
             await testDescriptorDao.deleteTestDescriptor(testTestDescriptor.id);
@@ -535,16 +521,10 @@ describe("Testing Scenarios", () => {
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
 
-            // Setup Items
-            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
-                testSku.id, testUser.id);
-            testItem.SKUId = testSku.id;
-            testItem.supplierId = testUser.id;
-
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                { item: testItem, qty: 10 }
+                { sku: testSku, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -593,7 +573,6 @@ describe("Testing Scenarios", () => {
         afterEach(async () => {
             await skuDao.deleteSku(testSku.id);
             await userDao.deleteUser(testUser.email, testUser.type);
-            await itemDao.deleteItem(testItem.id);
             await restockOrderDao.deleteRestockOrder(testRestockOrder.id);
             await skuItemDao.deleteAllSKUItem();
             await testDescriptorDao.deleteTestDescriptor(testTestDescriptor.id);
@@ -614,16 +593,10 @@ describe("Testing Scenarios", () => {
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
 
-            // Setup Items
-            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
-                testSku.id, testUser.id);
-            testItem.SKUId = testSku.id;
-            testItem.supplierId = testUser.id;
-
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                { item: testItem, qty: 10 }
+                { sku: testSku, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -709,7 +682,6 @@ describe("Testing Scenarios", () => {
         afterEach(async () => {
             await skuDao.deleteSku(testSku.id);
             await userDao.deleteUser(testUser.email, testUser.type);
-            await itemDao.deleteItem(testItem.id);
             await restockOrderDao.deleteRestockOrder(testRestockOrder.id);
             await skuItemDao.deleteAllSKUItem();
             await testDescriptorDao.deleteTestDescriptor(testTestDescriptor.id);
@@ -770,7 +742,7 @@ describe("Testing Scenarios", () => {
                             newVolume: sku.volume,
                             newNotes: sku.notes,
                             newPrice: sku.price,
-                            newAvailableQuantity: sku.availableQuantity - (sku.availableQuantity * 10)
+                            newAvailableQuantity: sku.availableQuantity - 1
                         });
                     resSku.should.have.status(200);
                 }

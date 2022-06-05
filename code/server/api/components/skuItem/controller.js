@@ -6,9 +6,9 @@ const { SkuErrorFactory } = require('../sku/error');
 const { RestockOrderErrorFactory } = require('../restock_order/error');
 
 class SKUItemController {
-	constructor() {
+	constructor(skuController) {
 		this.dao = new SKUItemDAO();
-		this.skuController = new SkuController();
+		this.skuController = skuController;
 	}
 
 	async getAllSKUItems(req, res, next) {

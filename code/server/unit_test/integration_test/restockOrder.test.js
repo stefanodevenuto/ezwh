@@ -1,36 +1,29 @@
 const RestockOrderController = require('../../api/components/restock_order/controller');
-const ItemController = require('../../api/components/item/controller');
 const SkuController = require('../../api/components/sku/controller');
 const UserController = require('../../api/components/user/controller');
 const SKUItemController = require('../../api/components/skuItem/controller');
 const TestResultController = require('../../api/components/test_result/controller');
 
 const RestockOrder = require('../../api/components/restock_order/restockOrder');
-const Item = require('../../api/components/item/item');
 const Sku = require('../../api/components/sku/sku');
 const User = require('../../api/components/user/user');
 const SKUItem = require('../../api/components/skuItem/SKUItem');
 
-const { ItemErrorFactory } = require('../../api/components/item/error');
+const { SkuErrorFactory } = require('../../api/components/sku/error');
 const { RestockOrderErrorFactory } = require('../../api/components/restock_order/error');
 const { SKUItemErrorFactory } = require('../../api/components/skuItem/error');
 
 describe("Testing RestockOrderController", () => {
-    const itemController = new ItemController();
     const skuController = new SkuController();
     const userController = new UserController();
     const skuItemController = new SKUItemController(skuController);
     const testResultController = new TestResultController(skuItemController);
     const restockOrderController = new RestockOrderController(testResultController, 
-        skuItemController, itemController);
+        skuItemController, skuController);
 
     let testUser = User.mockUser();
     let testSku = Sku.mockTestSku();
     let secondTestSku = Sku.mockTestSku();
-
-    let testItem = Item.mockItem();
-    let secondTestItem = Item.mockItem();
-    secondTestItem.id = testItem.id + 1;
 
     let testSkuItem = SKUItem.mockTestSkuItem();
     let secondTestSkuItem = SKUItem.mockTestSkuItem();
@@ -59,22 +52,11 @@ describe("Testing RestockOrderController", () => {
             testUser.surname, testUser.password, testUser.type)
         testUser.id = userId;
 
-        // Setup Items
-        await itemController.dao.createItem(testItem.id, testItem.description, testItem.price, 
-            testSku.id, testUser.id);
-        testItem.SKUId = testSku.id;
-        testItem.supplierId = testUser.id;
-
-        await itemController.dao.createItem(secondTestItem.id, secondTestItem.description, secondTestItem.price, 
-            secondTestSku.id, testUser.id);
-        secondTestItem.SKUId = secondTestSku.id;
-        secondTestItem.supplierId = testUser.id;
-
         // Setup Restock Order
         testRestockOrder.supplierId = testUser.id;
         testRestockOrder.products = [
-            {SKUId: testItem.SKUId, description: testItem.description, price: testItem.price, qty: 10},
-            {SKUId: secondTestItem.SKUId, description: secondTestItem.description, price: secondTestItem.price, qty: 10}
+            {SKUId: testSku.id, description: testSku.description, price: testSku.price, qty: 10},
+            {SKUId: secondTestSku.id, description: secondTestSku.description, price: secondTestSku.price, qty: 10}
         ];
     });
 
@@ -82,8 +64,8 @@ describe("Testing RestockOrderController", () => {
         beforeEach(async () => {
             const restockOrderId = await restockOrderController.dao.createRestockOrder(testRestockOrder.issueDate, 
                 testRestockOrder.supplierId, testRestockOrder.state, [
-                    {item: testItem, qty: 10},
-                    {item: secondTestItem, qty: 10}
+                    {sku: testSku, qty: 10},
+                    {sku: secondTestSku, qty: 10}
                 ]);
             testRestockOrder.id = restockOrderId;
         });
@@ -154,7 +136,7 @@ describe("Testing RestockOrderController", () => {
                 await restockOrderController.createRestockOrder(testRestockOrder.issueDate, 
                     testRestockOrder.products.map((s) => s.SKUId = -1), testRestockOrder.supplierId);
             } catch(err) {
-                let error = ItemErrorFactory.itemNotFound();
+                let error = SkuErrorFactory.newSkuNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);
                 expect(err.customMessage).toMatch(error.customMessage);
             }
@@ -172,8 +154,8 @@ describe("Testing RestockOrderController", () => {
         beforeEach(async () => {
             const restockOrderId = await restockOrderController.dao.createRestockOrder(testRestockOrder.issueDate, 
                 testRestockOrder.supplierId, testRestockOrder.state, [
-                    {item: testItem, qty: 10},
-                    {item: secondTestItem, qty: 10}
+                    {sku: testSku, qty: 10},
+                    {sku: secondTestSku, qty: 10}
                 ]);
             testRestockOrder.id = restockOrderId;
         });
@@ -200,8 +182,8 @@ describe("Testing RestockOrderController", () => {
         beforeEach(async () => {
             const restockOrderId = await restockOrderController.dao.createRestockOrder(testRestockOrder.issueDate, 
                 testRestockOrder.supplierId, testRestockOrder.state, [
-                    {item: testItem, qty: 10},
-                    {item: secondTestItem, qty: 10}
+                    {sku: testSku, qty: 10},
+                    {sku: secondTestSku, qty: 10}
                 ]);
             testRestockOrder.id = restockOrderId;
 
@@ -240,20 +222,14 @@ describe("Testing RestockOrderController", () => {
             }
         });
 
-        test("Modify Sku Item list of Restock Order with invalid ones", async () => {
-            expect.assertions(2);
+        test("Modify Sku Item list of Restock Order with inexistent ones", async () => {
             await restockOrderController.dao.modifyState(testRestockOrder.id, RestockOrder.DELIVERED);
-
-            try {
-                await restockOrderController.modifyRestockOrderSkuItems(testRestockOrder.id, [
+            await expect(restockOrderController.modifyRestockOrderSkuItems(testRestockOrder.id, [
                     {SKUId: testSkuItem.SKUId, rfid: "-1"},
                     {SKUId: testSkuItem.SKUId, rfid: "-2"},
-                ])
-            } catch(err) {
-                let error = SKUItemErrorFactory.newSKUItemNotFound();
-                expect(err.customCode).toStrictEqual(error.customCode);
-                expect(err.customMessage).toMatch(error.customMessage);
-            }
+                ]))
+                .resolves
+                .not.toThrowError();
         });
 
         test("Modify Sku Item list with valid Sku Items", async () => {
@@ -269,8 +245,8 @@ describe("Testing RestockOrderController", () => {
         beforeEach(async () => {
             const restockOrderId = await restockOrderController.dao.createRestockOrder(testRestockOrder.issueDate, 
                 testRestockOrder.supplierId, testRestockOrder.state, [
-                    {item: testItem, qty: 10},
-                    {item: secondTestItem, qty: 10}
+                    {sku: testSku, qty: 10},
+                    {sku: secondTestSku, qty: 10}
                 ]);
             testRestockOrder.id = restockOrderId;
         });
@@ -322,7 +298,5 @@ describe("Testing RestockOrderController", () => {
         await skuController.dao.deleteSku(testSku.id);
         await skuController.dao.deleteSku(secondTestSku.id);
         await userController.dao.deleteUser(testUser.email, testUser.type);
-        await itemController.dao.deleteItem(testItem.id);
-        await itemController.dao.deleteItem(secondTestItem.id);
     })
 });

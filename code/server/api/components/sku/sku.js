@@ -34,7 +34,7 @@ class Sku {
     
 
     static mockTestSku() {
-        const sku = new Sku(null, "test sku", 20, 20, "test sku", null, 50, 10.99, [])
+        const sku = new Sku(null, "test sku", 20, 20, "test sku", null, 50, 10, [])
         return sku;        
     }
 

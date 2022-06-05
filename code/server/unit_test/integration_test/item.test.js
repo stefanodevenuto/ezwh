@@ -7,12 +7,13 @@ const User = require('../../api/components/user/user');
 const Sku = require('../../api/components/sku/sku');
 
 const { ItemErrorFactory } = require('../../api/components/item/error');
+const { SkuErrorFactory } = require('../../api/components/sku/error');
 
 describe("Item Controller suite", () => {
 
-    const itemController = new ItemController();
-    const userController = new UserController();
     const skuController = new SkuController();
+    const itemController = new ItemController(skuController);
+    const userController = new UserController();
 
     let testItem = Item.mockItem();
     let testSku = Sku.mockTestSku();
@@ -73,23 +74,20 @@ describe("Item Controller suite", () => {
        
 
         test("Create valid Item", async () => {
-            try {
-                await itemController.createItem(testItem.id, testItem.description, 
-                    testItem.price, testItem.SKUId, testItem.supplierId);
-            } catch (err) {
-                let error = ItemErrorFactory.itemNotFound();
-                expect(err.customCode).toStrictEqual(error.customCode);
-                expect(err.customMessage).toMatch(error.customMessage);
-            }
+            await expect(itemController.createItem(testItem.id, testItem.description, 
+                testItem.price, testItem.SKUId, testItem.supplierId))
+                .resolves
+                .not.toThrowError();
         });
 
         
         test("Create valid Item with invalid SKUID", async () => {
+            expect.assertions(2);
             try {
                 await itemController.createItem(testItem.id, testItem.description, 
-                    testItem.price, testItem.SKUId, testItem.supplierId);
+                    testItem.price, -1, testItem.supplierId);
             } catch (err) {
-                let error = ItemErrorFactory.itemAlreadySoldBySupplier();
+                let error = SkuErrorFactory.newSkuNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);
                 expect(err.customMessage).toMatch(error.customMessage);
             }
@@ -97,6 +95,7 @@ describe("Item Controller suite", () => {
 
          
         test("Create valid Item with invalid supplierID", async () => {
+            expect.assertions(2);
             try {
                 await itemController.createItem(testItem.id+2, testItem.description, 
                     testItem.price,  testItem.SKUId, -1);
@@ -121,7 +120,8 @@ describe("Item Controller suite", () => {
             testSku.id = skuId;
         });
 
-        test("Modify inexistent Ite ", async () => {
+        test("Modify inexistent Item", async () => {
+            expect.assertions(2);
             try {
                 await itemController.modifyItem(-1, testItem.description, 
                     testItem.price);
@@ -141,23 +141,15 @@ describe("Item Controller suite", () => {
     describe("Delete Item", () => {
 
         test("Delete inexistent Item", async () => {
-            try{
-                await itemController.deleteItem(-1)
-            } catch (err) {
-                let error = ItemErrorFactory.itemNotFound();
-                expect(err.customCode).toStrictEqual(error.customCode);
-                expect(err.customMessage).toMatch(error.customMessage);
-            }
+            await expect(itemController.deleteItem(-1))
+                .resolves
+                .not.toThrowError();
         });
 
-        test("Delete SKUItem", async () => {
-            try{
-                await itemController.deleteItem(testItem.id)
-            } catch (err) {
-                let error = ItemErrorFactory.itemNotFound();
-                expect(err.customCode).toStrictEqual(error.customCode);
-                expect(err.customMessage).toMatch(error.customMessage);
-            }
+        test("Delete valid Item", async () => {
+            await expect(itemController.deleteItem(testItem.id))
+                .resolves
+                .not.toThrowError();
         });
     })
 

@@ -1,18 +1,15 @@
 const RestockOrderDAO = require('../api/components/restock_order/dao');
-const ItemDAO = require('../api/components/item/dao');
 const SkuDAO = require('../api/components/sku/dao');
 const UserDAO = require('../api/components/user/dao');
 const SKUItemDAO = require('../api/components/skuItem/dao');
 
 const RestockOrder = require('../api/components/restock_order/restockOrder');
-const Item = require('../api/components/item/item');
 const Sku = require('../api/components/sku/sku');
 const User = require('../api/components/user/user');
 const SKUItem = require('../api/components/skuItem/SKUItem');
 
 describe("Testing RestockOrderDAO", () => {
     const restockOrderDao = new RestockOrderDAO();
-    const itemDao = new ItemDAO();
     const skuDao = new SkuDAO();
     const userDao = new UserDAO();
     const skuItemDao = new SKUItemDAO();
@@ -20,10 +17,6 @@ describe("Testing RestockOrderDAO", () => {
     let testUser = User.mockUser();
     let testSku = Sku.mockTestSku();
     let secondTestSku = Sku.mockTestSku();
-
-    let testItem = Item.mockItem();
-    let secondTestItem = Item.mockItem();
-    secondTestItem.id = testItem.id + 1;
 
     let testSkuItem = SKUItem.mockTestSkuItem();
     let secondTestSkuItem = SKUItem.mockTestSkuItem();
@@ -47,22 +40,11 @@ describe("Testing RestockOrderDAO", () => {
             testUser.surname, testUser.password, testUser.type)
         testUser.id = userId;
 
-        // Setup Items
-        await itemDao.createItem(testItem.id, testItem.description, testItem.price, 
-            testSku.id, testUser.id);
-        testItem.SKUId = testSku.id;
-        testItem.supplierId = testUser.id;
-
-        await itemDao.createItem(secondTestItem.id, secondTestItem.description, secondTestItem.price, 
-            secondTestSku.id, testUser.id);
-        secondTestItem.SKUId = secondTestSku.id;
-        secondTestItem.supplierId = testUser.id;
-
         // Setup Restock Order
         testRestockOrder.supplierId = testUser.id;
         testRestockOrder.products = [
-            {item: testItem, qty: 10},
-            {item: secondTestItem, qty: 10}
+            {sku: testSku, qty: 10},
+            {sku: secondTestSku, qty: 10}
         ];
     });
 
@@ -81,9 +63,9 @@ describe("Testing RestockOrderDAO", () => {
             expect(result[i].supplierId).toStrictEqual(testRestockOrder.supplierId);
             expect(result[i].deliveryDate).toStrictEqual(null);
 
-            expect(result[i].SKUId).toStrictEqual(testRestockOrder.products[i].item.SKUId);
-            expect(result[i].description).toStrictEqual(testRestockOrder.products[i].item.description);
-            expect(result[i].price).toStrictEqual(testRestockOrder.products[i].item.price);
+            expect(result[i].SKUId).toStrictEqual(testRestockOrder.products[i].sku.id);
+            expect(result[i].description).toStrictEqual(testRestockOrder.products[i].sku.description);
+            expect(result[i].price).toStrictEqual(testRestockOrder.products[i].sku.price);
             expect(result[i].qty).toStrictEqual(testRestockOrder.products[i].qty);
         }
     });
@@ -205,8 +187,6 @@ describe("Testing RestockOrderDAO", () => {
         await skuDao.deleteSku(testSku.id);
         await skuDao.deleteSku(secondTestSku.id);
         await userDao.deleteUser(testUser.email, testUser.type);
-        await itemDao.deleteItem(testItem.id);
-        await itemDao.deleteItem(secondTestItem.id);
         await restockOrderDao.deleteRestockOrder(testRestockOrder.id);
     })
 
