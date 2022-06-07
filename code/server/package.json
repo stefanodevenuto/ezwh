@@ -34,7 +34,7 @@
   "scripts": {
     "apiTest": ".\\node_modules\\.bin\\mocha test --exit",
     "test": ".\\node_modules\\.bin\\jest --runInBand",
-    "acceptanceTest": "npx mocha --runInBand --spec acceptanceTest/testEzWhAPI.js --reporter mochawesome --timeout 10000 --exit",
+    "acceptanceTest": "npx mocha --runInBand --spec acceptanceTest/testEzWhAPI.js --reporter mochawesome --timeout 100000 --exit",
     "totalcoverage": "./node_modules/.bin/nyc ./node_modules/.bin/mocha test --runInBand --timeout 10000 --exit"
   }
 }
