@@ -39,7 +39,6 @@ class ReturnOrderController {
         let totalProducts = [];
         for (let row of products) {
             // Check if RestockOrder and SKUItem exist
-            //let result = await this.skuItemController.getItemByRFIDInternal(row.RFID, restockOrderId);
             let sku = await this.skuItemController.getSkuByRFIDInternal(row.RFID);
             if (sku === undefined) {
                 await this.skuItemController.createSKUItem(row.RFID, row.SKUId, dayjs().format());
@@ -69,7 +68,6 @@ class ReturnOrderController {
             for (let row of rows) {
                 // If it's the same restockOrder, continue adding the related Skus
                 if (row.id == lastReturnOrder.id) {
-                    //let item = await this.skuItemController.getItemByRFIDInternal(row.RFID, row.restockOrderId);
                     let sku = await this.skuItemController.getSkuByRFIDInternal(row.RFID);
                     products.push({
                         RFID: row.RFID,
@@ -87,7 +85,6 @@ class ReturnOrderController {
                     products = [];
 
                     // Don't lose the current Sku Item!
-                    //let item = await this.skuItemController.getItemByRFIDInternal(row.RFID, row.restockOrderId);
                     let sku = await this.skuItemController.getSkuByRFIDInternal(row.RFID);
                     products.push({
                         RFID: row.RFID,

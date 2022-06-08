@@ -79,9 +79,6 @@ class InternalOrderController {
 
             const changes = await this.dao.modifyStateInternalOrder(internalOrderId,
                 InternalOrder.COMPLETED, products);
-
-            //if (changes < products.length)
-            //    throw SKUItemErrorFactory.newSKUItemNotFound();
         } else {
             await this.dao.modifyStateInternalOrder(internalOrderId, newState);
         }

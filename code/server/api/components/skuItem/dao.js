@@ -61,15 +61,6 @@ class SKUItemDAO extends AppDAO{
 
         return await this.get(query, [rfid]);
     }
-
-    /*async getSkuAndSKUItemByRFIDInternal(rfid, supplierId) {
-        const query = 'SELECT I.SKUId, I.description, I.price\
-            FROM skuItem SI \
-            JOIN item I ON (I.supplierId = ? AND I.SKUId = SI.SKUId ) \
-            WHERE SI.RFID = ? ';
-
-        return await this.get(query, [supplierId, rfid]);
-    }*/
 }
 
 module.exports = SKUItemDAO;

@@ -110,22 +110,6 @@ class SKUItemController {
 			price: row.price,
 		};
 	}
-
-	/*async getItemByRFIDInternal(RFID, restockOrderId) {
-		const supplier = await this.dao.getSupplierIdByRestockOrderId(restockOrderId);
-		if (supplier === undefined)
-			throw RestockOrderErrorFactory.newRestockOrderNotFound();
-
-		const row = await this.dao.getSkuAndSKUItemByRFIDInternal(RFID, supplier.supplierId);
-		if (row === undefined)
-			throw SKUItemErrorFactory.newSKUItemRelatedToItemNotOwned();
-
-		return {
-			SKUId: row.SKUId,
-			description: row.description,
-			price: row.price,
-		};
-	}*/
 }
 
 module.exports = SKUItemController;

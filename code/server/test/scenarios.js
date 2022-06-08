@@ -72,7 +72,6 @@ describe("Testing Scenarios", () => {
             const response = await agent.post(`/api/sku/`)
                 .send(newSku)
             response.should.have.status(201);
-            console.log(response.body)
         });
 
         afterEach(async () => {

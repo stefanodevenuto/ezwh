@@ -73,7 +73,6 @@ describe("SKU Controller suite", () => {
             try {
                 await skuItemController.createSKUItem("null", testSkuItem.SKUId, testSkuItem.dateOfStock)
             } catch (err) {
-                console.log(err);
                 let error = SKUItemErrorFactory.newSKUItemNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);
                 expect(err.customMessage).toMatch(error.customMessage);
