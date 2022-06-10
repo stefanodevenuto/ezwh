@@ -47,7 +47,7 @@ class UserDao extends AppDAO{
     // ############# Utilities
 
     async getUserByEmailAndType(email, type) {
-        const query = 'SELECT * FROM user WHERE email = ? AND type = ?';
+        const query = 'SELECT id, name, surname, email, type FROM user WHERE email = ? AND type = ?';
         return await this.get(query, [email, type]);
     }
 

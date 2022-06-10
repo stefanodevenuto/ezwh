@@ -79,9 +79,6 @@ class InternalOrderController {
 
             const changes = await this.dao.modifyStateInternalOrder(internalOrderId,
                 InternalOrder.COMPLETED, products);
-
-            if (changes < products.length)
-                throw SKUItemErrorFactory.newSKUItemNotFound();
         } else {
             await this.dao.modifyStateInternalOrder(internalOrderId, newState);
         }
@@ -105,7 +102,7 @@ class InternalOrderController {
             for (let row of rows) {
                 // If it's the same internalOrder, continue adding the related Skus
                 if (row.id == lastInternalOrder.id) {
-                    if (row.state !== "COMPLETED") {
+                    if (row.state !== InternalOrder.COMPLETED) {
                         product = {
                             SKUId : row.SKUId,
                             description : row.description,
@@ -133,7 +130,7 @@ class InternalOrderController {
                     products = [];
 
                     // Don't lose the current Sku!
-                    if (row.state !== "COMPLETED") {
+                    if (row.state !== InternalOrder.COMPLETED) {
                         product = {
                             SKUId : row.SKUId,
                             description : row.description,

@@ -1,5 +1,6 @@
 const SKUItemDAO = require('./dao')
 const SKUItem = require("./SKUItem");
+const SkuController = require("../sku/controller");
 const { SKUItemErrorFactory } = require('./error');
 const { SkuErrorFactory } = require('../sku/error');
 const { RestockOrderErrorFactory } = require('../restock_order/error');
@@ -38,14 +39,15 @@ class SKUItemController {
 
 	async createSKUItem(RFID, SKUId, DateOfStock) {
 		try {
+			// Check if exists
+			await this.skuController.getSkuByID(SKUId);
+
 			await this.dao.createSKUItem(RFID, SKUId, DateOfStock);
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("skuItem.RFID"))
 					err = SKUItemErrorFactory.newSKUItemRFIDNotUnique();
 
-				if (err.message.includes("FOREIGN"))
-					err = SkuErrorFactory.newSkuNotFound();
 			}
 
 			throw err;
@@ -97,14 +99,10 @@ class SKUItemController {
 		return skuItems;
 	}
 
-	async getItemByRFIDInternal(RFID, restockOrderId) {
-		const supplier = await this.dao.getSupplierIdByRestockOrderId(restockOrderId);
-		if (supplier === undefined)
-			throw RestockOrderErrorFactory.newRestockOrderNotFound();
-
-		const row = await this.dao.getSkuAndSKUItemByRFIDInternal(RFID, supplier.supplierId);
+	async getSkuByRFIDInternal(RFID) {
+		const row = await this.dao.getSkuByRFIDInternal(RFID);
 		if (row === undefined)
-			throw SKUItemErrorFactory.newSKUItemRelatedToItemNotOwned();
+			return undefined;
 
 		return {
 			SKUId: row.SKUId,

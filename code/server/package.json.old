@@ -23,6 +23,7 @@
   "scripts": {
     "dev": "concurrently \"nodemon -q server.js\"",
     "apiTest": ".\\node_modules\\.bin\\mocha test --exit",
+    "acceptanceTest": "npx mocha --runInBand --spec acceptanceTest/testEzWhAPI.js --reporter mochawesome --timeout 10000 --exit",
     "test": ".\\node_modules\\.bin\\jest --runInBand"
   }
 }

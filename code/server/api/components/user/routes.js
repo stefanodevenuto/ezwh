@@ -2,6 +2,7 @@ const express = require('express');
 const { param, body } = require("express-validator")
 const UserController = require('./controller');
 const { ErrorHandler } = require("../../helper");
+const User = require('./user');
 
 class UserRoutes {
 	constructor() {
@@ -114,8 +115,8 @@ class UserRoutes {
 		this.router.put(
 			'/users/:username',
 			param('username').isEmail(),
-			body('oldType').isString(),
-			body('newType').isString(),
+			body('oldType').isString().isIn(['customer', 'manager', 'clerk', 'supplier', 'administrator', 'INTERNAL_CUSTOMER', 'qualityEmployee', 'deliveryEmployee']),
+			body('newType').isString().isIn(['customer', 'manager', 'clerk', 'supplier', 'administrator', 'INTERNAL_CUSTOMER', 'qualityEmployee', 'deliveryEmployee']),
 			this.errorHandler.validateRequest,
 			(req, res, next) => this.controller.modifyRight(req.params.username, 
 					req.body.oldType, req.body.newType)

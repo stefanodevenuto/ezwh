@@ -3,8 +3,9 @@ const Item = require("./item");
 const { ItemErrorFactory } = require('./error');
 
 class ItemController {
-	constructor() {
+	constructor(skuController) {
 		this.dao = new ItemDAO();
+		this.skuController = skuController;
 	}
 
 	async getAllItems() {
@@ -28,6 +29,9 @@ class ItemController {
 
 	async createItem(id, description, price, SKUId, supplierId) {
 		try {
+			// Check if exists
+			await this.skuController.getSkuByIDInternal(SKUId)
+			
 			await this.dao.createItem(id, description, price, SKUId, supplierId);
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {

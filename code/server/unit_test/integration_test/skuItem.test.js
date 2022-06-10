@@ -1,23 +1,22 @@
 const SkuItemController = require('../../api/components/skuItem/controller');
 const SkuController = require('../../api/components/sku/controller');
-const PositionController = require('../../api/components/position/controller');
 
 const SkuItem = require('../../api/components/skuItem/SKUItem');
 const Sku = require('../../api/components/sku/sku');
-const Position = require('../../api/components/position/position');
 
 const { SKUItemErrorFactory } = require('../../api/components/skuItem/error');
 
 describe("SKU Controller suite", () => {
 
-    const skuItemController = new SkuItemController();
     const skuController = new SkuController();
-    const positionController = new PositionController();
+    const skuItemController = new SkuItemController(skuController);
 
     let testSkuItem = SkuItem.mockTestSkuItem();
-    let testSku = Sku.mockTestSku();
-    let testPosition = Position.mockTestPosition();
+    let secondTestSkuItem = SkuItem.mockTestSkuItem();
+    secondTestSkuItem.RFID = testSkuItem.RFID.replace(/.$/,"2")
+    const newValidRFID = testSkuItem.RFID.replace(/.$/,"3");
 
+    let testSku = Sku.mockTestSku();
             
     beforeAll(async () => {
         await skuItemController.dao.deleteAllSKUItem();
@@ -72,7 +71,7 @@ describe("SKU Controller suite", () => {
 
         test("Create invalid SKUItem", async () => {
             try {
-                await skuItemController.createSKUItem(undefined, testSkuItem.SKUId, testSkuItem.dateOfStock)
+                await skuItemController.createSKUItem("null", testSkuItem.SKUId, testSkuItem.dateOfStock)
             } catch (err) {
                 let error = SKUItemErrorFactory.newSKUItemNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);
@@ -82,14 +81,9 @@ describe("SKU Controller suite", () => {
         });
 
         test("Create valid SKUItem", async () => {
-            try {
-                await skuItemController.createSKUItem(testSkuItem.RFID, testSkuItem.SKUId, testSkuItem.dateOfStock)
-            } catch (err) {
-                let error = SKUItemErrorFactory.newSKUItemNotFound();
-                expect(err.customCode).toStrictEqual(error.customCode);
-                expect(err.customMessage).toMatch(error.customMessage);
-            }
-                
+            await expect(skuItemController.createSKUItem(testSkuItem.RFID, testSkuItem.SKUId, testSkuItem.dateOfStock))
+                .resolves
+                .not.toThrowError();     
         });
 
         test("Create double SKUItem", async () => {
@@ -123,12 +117,16 @@ describe("SKU Controller suite", () => {
                 testSku.price);
 
             testSkuItem.SKUId = skuId;
-
-            await skuItemController.dao.createSKUItem(testSkuItem.RFID, testSkuItem.SKUId, testSkuItem.dateOfStock);
+            secondTestSkuItem.SKUId = skuId;                
             
+            await skuItemController.dao.createSKUItem(testSkuItem.RFID, 
+                testSkuItem.SKUId, testSkuItem.dateOfStock);
+            await skuItemController.dao.createSKUItem(secondTestSkuItem.RFID, 
+                secondTestSkuItem.SKUId, secondTestSkuItem.dateOfStock);            
         });
 
         test("Modify inexistent SKUItem", async () => {
+            expect.assertions(2);
             try{
                 await skuItemController.modifySKUItem(undefined, testSkuItem.RFID, testSkuItem.SKUId, testSkuItem.dateOfStock)
             } catch (err) {
@@ -141,33 +139,31 @@ describe("SKU Controller suite", () => {
 
        
         test("Modify valid SKUItem", async () => {
-            try{
-                let newSkuitem = {
-                    newRFID : "12312312312312312312312312312312",
-                    newAvailable : 1,
-                    newDataOfStock : "2022/05/02 08:30"
-                }
-                await skuItemController.modifySKUItem(testSkuItem.RFID, newSkuitem.newRFID, newSkuitem.newAvailable, newSkuitem.newDataOfStock)
-
-                testSkuItem.RFID = newSkuitem.newRFID;
-                
-            } catch (err) {
-                let error = SKUItemErrorFactory.newSKUItemNotFound();
-                expect(err.customCode).toStrictEqual(error.customCode);
-                expect(err.customMessage).toMatch(error.customMessage);
+            let newSkuitem = {
+                newRFID : newValidRFID,
+                newAvailable : 1,
+                newDataOfStock : "2022/05/02 08:30"
             }
+            await expect(skuItemController.modifySKUItem(testSkuItem.RFID, 
+                newSkuitem.newRFID, newSkuitem.newAvailable, newSkuitem.newDataOfStock))
+                    .resolves
+                    .not.toThrowError();
+
+            testSkuItem.RFID = newSkuitem.newRFID;
 
         });
 
         test("Modify SKUItem with a RFID that already exist", async () => {
+            expect.assertions(2);
             try{
                 let newSkuitem = {
-                    newRFID : "12312312312312312312312312312312",
+                    newRFID : secondTestSkuItem.RFID,
                     newAvailable : 1,
                     newDataOfStock : "2022/05/02 08:30"
                 }
             
-                await skuItemController.modifySKUItem(testSkuItem.RFID, newSkuitem.newRFID, newSkuitem.newAvailable, newSkuitem.newDataOfStock)
+                await skuItemController.modifySKUItem(testSkuItem.RFID, newSkuitem.newRFID, 
+                    newSkuitem.newAvailable, newSkuitem.newDataOfStock)
             } catch (err) {
                 let error = SKUItemErrorFactory.newSKUItemRFIDNotUnique();
                 expect(err.customCode).toStrictEqual(error.customCode);
@@ -176,39 +172,28 @@ describe("SKU Controller suite", () => {
 
         });
 
-        
-
         afterAll(async () => {
             await skuItemController.dao.deleteAllSKUItem();
         });
-
     });
 
     describe("Delete SKU", () => {
 
         test("Delete inexistent SKUitem", async () => {
-            try{
-                await skuItemController.deleteSKUItem(-1)
-            } catch (err) {
-                let error = SKUItemErrorFactory.newSKUItemNotFound();
-                expect(err.customCode).toStrictEqual(error.customCode);
-                expect(err.customMessage).toMatch(error.customMessage);
-            }
+            await expect(skuItemController.deleteSKUItem(-1))
+                .resolves
+                .not.toThrowError();
         });
 
         test("Delete SKUItem", async () => {
-            try{
-                await skuItemController.deleteSKUItem(testSkuItem.RFID)
-            } catch (err) {
-                let error = SKUItemErrorFactory.newSKUItemNotFound();
-                expect(err.customCode).toStrictEqual(error.customCode);
-                expect(err.customMessage).toMatch(error.customMessage);
-            }
+            await expect(skuItemController.deleteSKUItem(testSkuItem.RFID))
+                .resolves
+                .not.toThrowError();
         });
     })
 
     afterAll(async () => {
-        await positionController.deletePosition(testPosition.positionID);
+        await skuController.dao.deleteAllSKU();
     })
 
 

@@ -63,13 +63,6 @@ describe("Testing SKUItemDAO", () => {
     });
 
     describe("Delete SKUItem", () => {
-
-       /* beforeEach(async () => {
-            sku = await skuDao.createSku(undefined, undefined, undefined, undefined, undefined, undefined);
-            await skuItemDao.createSKUItem(testSKUItem.RFID, sku.id, testSKUItem.DateOfStock);
-        });*/
-       
-
         test("Delete inexistent SkuItem", async () => {
             const { changes } = await skuItemDao.deleteSKUItem(-1);
             expect(changes).toStrictEqual(0);

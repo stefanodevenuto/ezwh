@@ -4,10 +4,10 @@ const ItemController = require('./controller');
 const { ErrorHandler } = require("../../helper");
 
 class ItemRoutes {
-	constructor() {
+	constructor(skuController) {
 		this.errorHandler = new ErrorHandler();
 		this.name = 'item';
-		this.controller = new ItemController();
+		this.controller = new ItemController(skuController);
 		this.router = express.Router();
 		this.initRoutes();
 	}
