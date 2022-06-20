@@ -106,9 +106,10 @@ class SKUItemController {
 
 		const row = await this.dao.getSkuAndSKUItemByRFIDInternal(RFID, supplier.supplierId);
 		if (row === undefined)
-			throw SKUItemErrorFactory.newSKUItemRelatedToItemNotOwned();
+			return undefined;
 
 		return {
+            itemId: row.id,
 			SKUId: row.SKUId,
 			description: row.description,
 			price: row.price,

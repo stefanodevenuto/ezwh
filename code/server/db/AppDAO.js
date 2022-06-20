@@ -161,7 +161,7 @@ function initDB() {
             "id"	INTEGER,
             "returnDate"	TEXT,
             "restockOrderId"	INTEGER,
-            FOREIGN KEY("restockOrderId") REFERENCES "restockOrder"("id") ON DELETE SET NULL ON UPDATE CASCADE,
+            FOREIGN KEY("restockOrderId") REFERENCES "restockOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE,
             PRIMARY KEY("id" AUTOINCREMENT)
         )`);
 

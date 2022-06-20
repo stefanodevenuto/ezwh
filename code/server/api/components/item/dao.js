@@ -33,9 +33,9 @@ class ItemDAO extends AppDAO{
 
     // ###################### Utilities
 
-    async getItemBySkuIdAndSupplierId(skuId, supplierId) {
-        const query = "SELECT * FROM item WHERE SKUId = ? AND supplierId = ?";
-        return await this.get(query, [skuId, supplierId]);
+    async getItemByItemIdAndSupplierId(itemId, supplierId) {
+        const query = "SELECT * FROM item WHERE id = ? AND supplierId = ?";
+        return await this.get(query, [itemId, supplierId]);
     }
 
 

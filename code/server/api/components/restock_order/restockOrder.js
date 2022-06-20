@@ -22,6 +22,7 @@ class RestockOrder {
         let productsToJson = this.products.map((p) => {
             return {
                 SKUId: p.item.SKUId,
+                itemId: p.item.id,
                 description: p.item.description,
                 price: p.item.price,
                 qty: p.qty

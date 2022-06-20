@@ -58,7 +58,7 @@ class RestockOrderController {
 
         let totalProducts = [];
         for (let rawItem of products) {
-            let item = await this.itemController.getItemBySkuIdAndSupplierId(rawItem.SKUId, supplierId);
+            let item = await this.itemController.getItemByItemIdAndSupplierId(rawItem.itemId, supplierId);
             let product = new Product(item, rawItem.qty);
             totalProducts.push(product);
         }
@@ -124,8 +124,8 @@ class RestockOrderController {
             for (let row of rows) {
                 // If it's the same restockOrder, continue adding the related Skus
                 if (row.id == lastRestockOrder.id) {
-                    let item = await this.itemController.getItemBySkuIdAndSupplierId(
-                        row.SKUId, lastRestockOrder.supplierId);
+                    let item = await this.itemController.getItemByItemIdAndSupplierId(
+                        row.itemId, lastRestockOrder.supplierId);
 
                     let product = new Product(item, row.qty);
                     products.push(product);
@@ -142,7 +142,7 @@ class RestockOrderController {
                     products = [];
 
                     // Don't lose the current product!
-                    let item = await this.itemController.getItemBySkuIdAndSupplierId(row.SKUId, lastRestockOrder.supplierId)
+                    let item = await this.itemController.getItemByItemIdAndSupplierId(row.itemId, lastRestockOrder.supplierId)
                     let product = new Product(item, row.qty);
                     products.push(product);
                 }

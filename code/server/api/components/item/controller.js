@@ -64,9 +64,9 @@ class ItemController {
 
 	// ##################### Utilities
 
-	async getItemBySkuIdAndSupplierId(skuId, supplierId) {
+	async getItemByItemIdAndSupplierId(itemId, supplierId) {
 
-		const row = await this.dao.getItemBySkuIdAndSupplierId(skuId, supplierId);
+		const row = await this.dao.getItemByItemIdAndSupplierId(itemId, supplierId);
 		if (row === undefined)
 			throw ItemErrorFactory.itemNotFound();
 

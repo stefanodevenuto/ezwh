@@ -2,7 +2,7 @@ const AppDAO = require("../../../db/AppDAO");
 
 class RestockOrderDAO extends AppDAO{        
     async getAllRestockOrders() {
-        const query = 'SELECT RO.id AS id, RO.issueDate, RO.state, RO.supplierId, RO.deliveryDate, I.SKUId, I.description, I.price, ROI.qty\
+        const query = 'SELECT RO.id AS id, RO.issueDate, RO.state, RO.supplierId, RO.deliveryDate, I.id AS itemId, I.SKUId, I.description, I.price, ROI.qty\
             FROM restockOrder RO \
             JOIN restockOrder_item ROI ON RO.id = ROI.restockOrderId \
             JOIN item I ON ROI.itemId = I.id \
@@ -13,7 +13,7 @@ class RestockOrderDAO extends AppDAO{
     }
 
     async getAllIssuedRestockOrders() {
-        const query = 'SELECT RO.id AS id, RO.issueDate, RO.state, RO.supplierId, RO.deliveryDate, I.SKUId, I.description, I.price, ROI.qty\
+        const query = 'SELECT RO.id AS id, RO.issueDate, RO.state, RO.supplierId, RO.deliveryDate, I.id AS itemId, I.SKUId, I.description, I.price, ROI.qty\
             FROM restockOrder RO \
             JOIN restockOrder_item ROI ON RO.id = ROI.restockOrderId \
             JOIN item I ON ROI.itemId = I.id \
@@ -25,7 +25,7 @@ class RestockOrderDAO extends AppDAO{
     }
 
     async getRestockOrderByID(restockOrderId) {
-        const query = 'SELECT RO.id AS id, RO.issueDate, RO.state, RO.supplierId, RO.deliveryDate, I.SKUId, I.description, I.price, ROI.qty\
+        const query = 'SELECT RO.id AS id, RO.issueDate, RO.state, RO.supplierId, RO.deliveryDate, I.id AS itemId, I.SKUId, I.description, I.price, ROI.qty\
             FROM restockOrder RO \
             JOIN restockOrder_item ROI ON RO.id = ROI.restockOrderId \
             JOIN item I ON ROI.itemId = I.id \
