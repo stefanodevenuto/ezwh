@@ -18,7 +18,7 @@ describe("Item Controller suite", () => {
     let testItem = Item.mockItem();
     let testSku = Sku.mockTestSku();
     let testUserSupplier = User.mockUser();
-            
+
     beforeAll(async () => {
         await itemController.dao.deleteAllItem();
         await userController.dao.deleteAllUser();
@@ -26,23 +26,24 @@ describe("Item Controller suite", () => {
     });
 
 
-    beforeAll(async () => {
-        const { id : userId } = await userController.dao.createUser(testUserSupplier.email, testUserSupplier.name,
+    beforeEach(async () => {
+        const { id: userId } = await userController.dao.createUser(testUserSupplier.email, testUserSupplier.name,
             testUserSupplier.surname, testUserSupplier.password, testUserSupplier.type)
         testUserSupplier.id = userId;
         testItem.supplierId = userId;
-        const { id : skuid } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
+        const { id: skuid } = await skuController.dao.createSku(testSku.description, testSku.weight, testSku.volume, testSku.notes, testSku.price, testSku.availableQuantity);
         testSku.id = skuid;
         testItem.SKUId = skuid;
-        const { id: itemId } = await itemController.dao.createItem(testItem.id, testItem.description, 
-            testItem.price, testItem.SKUId, testItem.supplierId);
-        testItem.id = itemId;
-        
     });
 
 
     describe("Get Items", () => {
-       
+        beforeEach(async () => {
+            const { id: itemId } = await itemController.dao.createItem(testItem.id, testItem.description,
+                testItem.price, testItem.SKUId, testItem.supplierId);
+            testItem.id = itemId;
+        });
+
         test("Get All Items", async () => {
             const result = await itemController.getAllItems()
             expect(result).toHaveLength(1);
@@ -55,36 +56,35 @@ describe("Item Controller suite", () => {
         });
 
         test("Get Item by ID", async () => {
-            const result = await itemController.getItemByID(testItem.id)
+            const result = await itemController.getItemByItemIdAndSupplierId(testItem.id, testItem.supplierId)
             expect(result).toBeDefined();
 
             expect(result.description).toStrictEqual(testItem.description);
             expect(result.price).toStrictEqual(testItem.price);
             expect(result.SKUId).toStrictEqual(testItem.SKUId);
             expect(result.supplierId).toStrictEqual(testItem.supplierId);
-     });
+        });
 
-       afterAll(async () => {
+        afterEach(async () => {
             await itemController.dao.deleteAllItem();
         });
 
     })
 
     describe("Create Item", () => {
-       
 
         test("Create valid Item", async () => {
-            await expect(itemController.createItem(testItem.id, testItem.description, 
+            await expect(itemController.createItem(testItem.id, testItem.description,
                 testItem.price, testItem.SKUId, testItem.supplierId))
                 .resolves
                 .not.toThrowError();
         });
 
-        
+
         test("Create valid Item with invalid SKUID", async () => {
             expect.assertions(2);
             try {
-                await itemController.createItem(testItem.id, testItem.description, 
+                await itemController.createItem(testItem.id, testItem.description,
                     testItem.price, -1, testItem.supplierId);
             } catch (err) {
                 let error = SkuErrorFactory.newSkuNotFound();
@@ -93,12 +93,12 @@ describe("Item Controller suite", () => {
             }
         });
 
-         
+
         test("Create valid Item with invalid supplierID", async () => {
             expect.assertions(2);
             try {
-                await itemController.createItem(testItem.id+2, testItem.description, 
-                    testItem.price,  testItem.SKUId, -1);
+                await itemController.createItem(testItem.id + 2, testItem.description,
+                    testItem.price, testItem.SKUId, -1);
             } catch (err) {
                 let error = ItemErrorFactory.newSkuOrSupplierNotFound();
                 expect(err.customCode).toStrictEqual(error.customCode);
@@ -106,12 +106,9 @@ describe("Item Controller suite", () => {
             }
         });
 
-
         afterEach(async () => {
             await itemController.dao.deleteAllItem();
         });
-
-
     });
 
     describe("Modify Item", () => {
@@ -123,7 +120,7 @@ describe("Item Controller suite", () => {
         test("Modify inexistent Item", async () => {
             expect.assertions(2);
             try {
-                await itemController.modifyItem(-1, testItem.description, 
+                await itemController.modifyItem(-1, testItem.description,
                     testItem.price);
                 testItem.id = itemId;
             } catch (err) {
@@ -153,8 +150,10 @@ describe("Item Controller suite", () => {
         });
     })
 
-    afterAll(async () => {
+    afterEach(async () => {
         await itemController.dao.deleteAllItem();
+        await skuController.dao.deleteAllSKU();
+        await userController.dao.deleteAllUser();
     })
 
 

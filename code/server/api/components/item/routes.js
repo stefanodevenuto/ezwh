@@ -22,10 +22,11 @@ class ItemRoutes {
 		);
 		
         this.router.get(
-			'/:id',
-			param('id').isNumeric().withMessage("ERROR: ItemId is not a number"),
+			'/:id/:supplierId',
+			param('id').isNumeric(),
+			param('supplierId').isNumeric(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.getItemByID(req.params.id)
+			(req, res, next) => this.controller.getItemByItemIdAndSupplierId(req.params.id, req.params.supplierId)
 				.then((item) => res.status(200).json(item))
 				.catch((err) => next(err))
 		);
@@ -45,22 +46,24 @@ class ItemRoutes {
 		);
 
 		this.router.put(
-			'/:id',
+			'/:id/:supplierId',
 			param('id').isNumeric(),
+			param('supplierId').isNumeric(),
 			body('newDescription').isString(),
 			body('newPrice').isDecimal(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.modifyItem(req.params.id,
+			(req, res, next) => this.controller.modifyItem(req.params.id, req.params.supplierId,
 					req.body.newDescription, req.body.newPrice)
 				.then(() => res.status(200).send())
 				.catch((err) => next(err))
 		);
 
 		this.router.delete(
-			'/:id',
+			'/:id/:supplierId',
 			param('id').isNumeric(),
+			param('supplierId').isNumeric(),
 			this.errorHandler.validateRequest,
-			(req, res, next) => this.controller.deleteItem(req.params.id)
+			(req, res, next) => this.controller.deleteItem(req.params.id, req.params.supplierId)
 				.then(() => res.status(204).send())
 				.catch((err) => next(err))
 		);

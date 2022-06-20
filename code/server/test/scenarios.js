@@ -276,7 +276,7 @@ describe("Testing Scenarios", () => {
         it("Restock Order of SKU S issued by quantity / by supplier", async () => {
 
             // This call should be "getItemBySupplierIdAndSku"
-            const resItem = await agent.get(`/api/item/${testItem.id}`);
+            const resItem = await agent.get(`/api/item/${testItem.id}/${testItem.supplierId}`);
             resItem.should.have.status(200);
 
             // Setup Restock Order
@@ -290,6 +290,7 @@ describe("Testing Scenarios", () => {
                 supplierId: testRestockOrder.supplierId,
                 products: testRestockOrder.products.map((p) => ({
                     SKUId: p.item.SKUId,
+                    itemId: p.item.id,
                     description: p.item.description,
                     price: p.item.price,
                     qty: p.qty
@@ -388,10 +389,16 @@ describe("Testing Scenarios", () => {
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
 
+            // Setup Item
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
+                testSku.id, testUser.id);
+            testItem.SKUId = testSku.id;
+            testItem.supplierId = testUser.id;
+
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                { sku: testSku, qty: 10 }
+                { item: testItem, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -445,10 +452,16 @@ describe("Testing Scenarios", () => {
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
 
+            // Setup Item
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
+                testSku.id, testUser.id);
+            testItem.SKUId = testSku.id;
+            testItem.supplierId = testUser.id;
+
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                { sku: testSku, qty: 10 }
+                { item: testItem, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -520,10 +533,16 @@ describe("Testing Scenarios", () => {
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
 
+            // Setup Item
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
+                testSku.id, testUser.id);
+            testItem.SKUId = testSku.id;
+            testItem.supplierId = testUser.id;
+
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                { sku: testSku, qty: 10 }
+                { item: testItem, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -592,10 +611,16 @@ describe("Testing Scenarios", () => {
                 testUser.surname, testUser.password, testUser.type)
             testUser.id = userId;
 
+            // Setup Item
+            await itemDao.createItem(testItem.id, testItem.description, testItem.price,
+                testSku.id, testUser.id);
+            testItem.SKUId = testSku.id;
+            testItem.supplierId = testUser.id;
+
             // Setup Restock Order
             testRestockOrder.supplierId = testUser.id;
             testRestockOrder.products = [
-                { sku: testSku, qty: 10 }
+                { item: testItem, qty: 10 }
             ];
 
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, testRestockOrder.supplierId,
@@ -941,10 +966,10 @@ describe("Testing Scenarios", () => {
         });
 
         it("Modify Item description and price", async () => {
-            const resItem = await agent.get(`/api/item/${testItem.id}`);
+            const resItem = await agent.get(`/api/item/${testItem.id}/${testItem.supplierId}`);
             resItem.should.have.status(200);
 
-            const resPut = await agent.put(`/api/item/${testItem.id}`)
+            const resPut = await agent.put(`/api/item/${testItem.id}/${testItem.supplierId}`)
                 .send({newDescription: "a new descripton", newPrice: 10.23});
             resPut.should.have.status(200);
         });

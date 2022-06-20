@@ -1,9 +1,11 @@
 const RestockOrderDAO = require('../api/components/restock_order/dao');
+const ItemDAO = require('../api/components/item/dao');
 const SkuDAO = require('../api/components/sku/dao');
 const UserDAO = require('../api/components/user/dao');
 const SKUItemDAO = require('../api/components/skuItem/dao');
 
 const RestockOrder = require('../api/components/restock_order/restockOrder');
+const Item = require('../api/components/item/item');
 const Sku = require('../api/components/sku/sku');
 const User = require('../api/components/user/user');
 const SKUItem = require('../api/components/skuItem/SKUItem');
@@ -19,6 +21,7 @@ var agent = chai.request.agent(app);
 
 describe("Testing Restock Order Route", () => {
     const restockOrderDao = new RestockOrderDAO();
+    const itemDao = new ItemDAO();
     const skuDao = new SkuDAO();
     const userDao = new UserDAO();
     const skuItemDao = new SKUItemDAO();
@@ -26,6 +29,10 @@ describe("Testing Restock Order Route", () => {
     let testUser = User.mockUser();
     let testSku = Sku.mockTestSku();
     let secondTestSku = Sku.mockTestSku();
+
+    let testItem = Item.mockItem();
+    let secondTestItem = Item.mockItem();
+    secondTestItem.id = testItem.id + 1;
 
     let testSkuItem = SKUItem.mockTestSkuItem();
     let secondTestSkuItem = SKUItem.mockTestSkuItem();
@@ -49,11 +56,22 @@ describe("Testing Restock Order Route", () => {
             testUser.surname, testUser.password, testUser.type)
         testUser.id = userId;
 
+        // Setup Items
+        await itemDao.createItem(testItem.id, testItem.description, testItem.price, 
+            testSku.id, testUser.id);
+        testItem.SKUId = testSku.id;
+        testItem.supplierId = testUser.id;
+
+        await itemDao.createItem(secondTestItem.id, secondTestItem.description, secondTestItem.price, 
+            secondTestSku.id, testUser.id);
+        secondTestItem.SKUId = secondTestSku.id;
+        secondTestItem.supplierId = testUser.id;
+
         // Setup Restock Order
         testRestockOrder.supplierId = testUser.id;
         testRestockOrder.products = [
-            {sku: testSku, qty: 10},
-            {sku: secondTestSku, qty: 10}
+            {item: testItem, qty: 10},
+            {item: secondTestItem, qty: 10}
         ];
     });
     
@@ -77,9 +95,9 @@ describe("Testing Restock Order Route", () => {
 
             let products = response.body.products;
             for (let i = 0; i < products.length; i++) {
-                expect(products[i].SKUId).to.equal(testRestockOrder.products[i].sku.id);
-                expect(products[i].description).to.equal(testRestockOrder.products[i].sku.description);
-                expect(products[i].price).to.equal(testRestockOrder.products[i].sku.price);
+                expect(products[i].SKUId).to.equal(testRestockOrder.products[i].item.SKUId);
+                expect(products[i].description).to.equal(testRestockOrder.products[i].item.description);
+                expect(products[i].price).to.equal(testRestockOrder.products[i].item.price);
                 expect(products[i].qty).to.equal(testRestockOrder.products[i].qty);
             }
         })
@@ -90,9 +108,10 @@ describe("Testing Restock Order Route", () => {
             issueDate: testRestockOrder.issueDate,
             supplierId: testRestockOrder.supplierId,
             products: testRestockOrder.products.map((p) => ({
-                SKUId: p.sku.id,
-                description: p.sku.description,
-                price: p.sku.price,
+                SKUId: p.item.SKUId,
+                itemId: p.item.id,
+                description: p.item.description,
+                price: p.item.price,
                 qty: p.qty
             }))
         }
@@ -186,8 +205,8 @@ describe("Testing Restock Order Route", () => {
         beforeEach(async () => {
             const restockOrderId = await restockOrderDao.createRestockOrder(testRestockOrder.issueDate, 
                 testRestockOrder.supplierId, testRestockOrder.state, [
-                    {sku: testSku, qty: 10},
-                    {sku: secondTestSku, qty: 10}
+                    {item: testItem, qty: 10},
+                    {item: secondTestItem, qty: 10}
                 ]);
             testRestockOrder.id = restockOrderId;
         });
@@ -245,6 +264,8 @@ describe("Testing Restock Order Route", () => {
         await skuDao.deleteSku(testSku.id);
         await skuDao.deleteSku(secondTestSku.id);
         await userDao.deleteUser(testUser.email, testUser.type);
+        await itemDao.deleteItem(testItem.id);
+        await itemDao.deleteItem(secondTestItem.id);
         await restockOrderDao.deleteRestockOrder(testRestockOrder.id);
     })
 });
