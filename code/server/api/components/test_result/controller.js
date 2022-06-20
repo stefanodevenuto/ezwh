@@ -11,6 +11,8 @@ class TestResultController {
 	// ################################ API
 
 	async getAllTestResults(rfid) {
+		console.log("RFID: DIOCANE; : " + rfid)
+
 		// Check if the sku item exists
 		await this.skuItemController.getSKUItemByRFIDInternal(rfid);
 

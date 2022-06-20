@@ -99,10 +99,14 @@ class SKUItemController {
 		return skuItems;
 	}
 
-	async getSkuByRFIDInternal(RFID) {
-		const row = await this.dao.getSkuByRFIDInternal(RFID);
+	async getItemByRFIDInternal(RFID, restockOrderId) {
+		const supplier = await this.dao.getSupplierIdByRestockOrderId(restockOrderId);
+		if (supplier === undefined)
+			throw RestockOrderErrorFactory.newRestockOrderNotFound();
+
+		const row = await this.dao.getSkuAndSKUItemByRFIDInternal(RFID, supplier.supplierId);
 		if (row === undefined)
-			return undefined;
+			throw SKUItemErrorFactory.newSKUItemRelatedToItemNotOwned();
 
 		return {
 			SKUId: row.SKUId,

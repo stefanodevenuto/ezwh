@@ -35,6 +35,7 @@ class UserController {
 	}
 
 	async createUser(username, name, surname, password, type) {
+		console.log(username, name, surname, password, type);
 		try {
 			if (type === User.MANAGER || type === User.ADMINISTRATOR)
 				throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
@@ -42,7 +43,7 @@ class UserController {
 			if (!User.isValidType(type))
 				throw UserErrorFactory.newTypeNotFound();
 
-			await this.dao.createUser(username, name, surname, password, type);
+			console.log(await this.dao.createUser(username, name, surname, password, type));
 		} catch (err) {
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("user.email, user.type"))
@@ -95,6 +96,7 @@ class UserController {
 	}
 
 	async modifyRight(username, oldType, newType) {
+		console.log(username, oldType, newType);
 		try {
 			if (!User.isValidType(oldType) || !User.isValidType(newType))
 				throw UserErrorFactory.newTypeNotFound422();
@@ -110,6 +112,7 @@ class UserController {
 			if (changes === 0)
 				throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
 		} catch (err) {
+			console.log(err);
 			if (err.code === "SQLITE_CONSTRAINT") {
 				if (err.message.includes("user.email, user.type"))
 					err = UserErrorFactory.newUserConflict();
@@ -120,13 +123,14 @@ class UserController {
 	}
 
 	async deleteUser(username, type) {
+		console.log(username, type)
 		if (type === User.MANAGER || type === User.ADMINISTRATOR)
 			throw UserErrorFactory.newAttemptCreationPrivilegedAccount();
 
 		if (!User.isValidType(type))
 			throw UserErrorFactory.newTypeNotFound422();
 
-		await this.dao.deleteUser(username, type);
+		console.log(await this.dao.deleteUser(username, type));
 	}
 }
 

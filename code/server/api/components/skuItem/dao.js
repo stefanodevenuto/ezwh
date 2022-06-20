@@ -53,13 +53,13 @@ class SKUItemDAO extends AppDAO{
         return await this.get(query, [restockOrderId]);
     }
 
-    async getSkuByRFIDInternal(rfid) {
-        const query = 'SELECT S.id AS SKUId, S.description, S.price\
+    async getSkuAndSKUItemByRFIDInternal(rfid, supplierId) {
+        const query = 'SELECT I.SKUId, I.description, I.price\
             FROM skuItem SI \
-            JOIN sku S ON S.id = SI.SKUId \
+            JOIN item I ON (I.supplierId = ? AND I.SKUId = SI.SKUId ) \
             WHERE SI.RFID = ? ';
 
-        return await this.get(query, [rfid]);
+        return await this.get(query, [supplierId, rfid]);
     }
 }
 
