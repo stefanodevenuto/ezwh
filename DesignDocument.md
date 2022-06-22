@@ -8,7 +8,7 @@ Authors:
 
 Date: 25-04-2022
 
-Version: 1.0
+Version: .0
 
 # Contents
 
@@ -757,10 +757,10 @@ item - AppDAO
     package item {
         Class ItemDAO extends AppDAO {
             + getAllItems()
-            + getItemByID(itemId)
+            + getItemByItemIdAndSupplierId(itemId, supplierId)
             + createItem(id, description, price, SKUId, supplierId)
-            + modifyItem(id, description, price)
-            + deleteItem(id)
+            + modifyItem(id, supplierId, description, price)
+            + deleteItem(id, supplierId)
             + getItemBySkuIdAndSupplierId(skuId, supplierId)
             + deleteAllItem()
         }
@@ -771,13 +771,10 @@ item - AppDAO
             + ItemController()
 
             + getAllItems()
-            + getItemByID(itemId)
+            + getItemByIdAndSupplierId(itemId, supplierId)
             + createItem(id, description, price, SKUId, supplierId)
-            + modifyItem(id, description, price)
-            + deleteItem(id)
-
-            - getItemBySkuIdAndSupplierId(skuId, supplierId)
-            - getItemByIDInternal(itemId)
+            + modifyItem(id, supplier, description, price)
+            + deleteItem(id, supplierId)
         }
 
         Class ItemRoutes {
