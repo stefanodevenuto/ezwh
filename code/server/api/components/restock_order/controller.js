@@ -6,11 +6,11 @@ const { SKUItemErrorFactory } = require('../skuItem/error');
 const dayjs = require('dayjs');
 
 class RestockOrderController {
-    constructor(testResultController, skuItemController, skuController) {
+    constructor(testResultController, skuItemController, itemController) {
         this.dao = new RestockOrderDAO();
         this.testResultController = testResultController;
         this.skuItemController = skuItemController;
-        this.skuController = skuController;
+        this.itemController = itemController;
     }
 
     // ################################ API
@@ -58,8 +58,8 @@ class RestockOrderController {
 
         let totalProducts = [];
         for (let rawItem of products) {
-            let sku = await this.skuController.getSkuByIDInternal(rawItem.SKUId);
-            let product = new Product(sku, rawItem.qty);
+            let item = await this.itemController.getItemByItemIdAndSupplierId(rawItem.itemId, supplierId);
+            let product = new Product(item, rawItem.qty);
             totalProducts.push(product);
         }
 
@@ -124,9 +124,10 @@ class RestockOrderController {
             for (let row of rows) {
                 // If it's the same restockOrder, continue adding the related Skus
                 if (row.id == lastRestockOrder.id) {
-                    let sku = await this.skuController.getSkuByIDInternal(row.SKUId);
+                    let item = await this.itemController.getItemByItemIdAndSupplierId(
+                        row.itemId, lastRestockOrder.supplierId);
 
-                    let product = new Product(sku, row.qty);
+                    let product = new Product(item, row.qty);
                     products.push(product);
                 } else {
                     // Otherwise, create the current restockOrder and clear the products array
@@ -141,8 +142,8 @@ class RestockOrderController {
                     products = [];
 
                     // Don't lose the current product!
-                    let sku = await this.skuController.getSkuByIDInternal(row.SKUId);
-                    let product = new Product(sku, row.qty);
+                    let item = await this.itemController.getItemByItemIdAndSupplierId(row.itemId, lastRestockOrder.supplierId)
+                    let product = new Product(item, row.qty);
                     products.push(product);
                 }
             }

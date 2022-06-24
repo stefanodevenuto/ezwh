@@ -7,11 +7,9 @@ class ItemDAO extends AppDAO{
         return await this.all(query);
     }
 
-    async getItemByID(itemId) {
-        const query = 'SELECT * FROM item WHERE id = ?';
-        let row = await this.get(query, [itemId]);
-
-        return row;
+    async getItemByItemIdAndSupplierId(itemId, supplierId) {
+        const query = "SELECT * FROM item WHERE id = ? AND supplierId = ?";
+        return await this.get(query, [itemId, supplierId]);
     }
 
     async createItem(id, description, price, SKUId, supplierId) {
@@ -21,23 +19,15 @@ class ItemDAO extends AppDAO{
         return lastId;
     }
 
-    async modifyItem(id, description, price) {
-        const query = 'UPDATE item SET description = ?, price = ? WHERE id = ?';
-        return await this.run(query, [description, price, id]);
+    async modifyItem(id, supplierId, description, price) {
+        const query = 'UPDATE item SET description = ?, price = ? WHERE id = ? AND supplierId = ?';
+        return await this.run(query, [description, price, id, supplierId]);
     }
 
-    async deleteItem(id) {
-        const query = 'DELETE FROM item WHERE id = ?';
-        return await this.run(query, [id]);
+    async deleteItem(id, supplierId) {
+        const query = 'DELETE FROM item WHERE id = ? AND supplierId = ?';
+        return await this.run(query, [id, supplierId]);
     }
-
-    // ###################### Utilities
-
-    async getItemBySkuIdAndSupplierId(skuId, supplierId) {
-        const query = "SELECT * FROM item WHERE SKUId = ? AND supplierId = ?";
-        return await this.get(query, [skuId, supplierId]);
-    }
-
 
     // ##################### Test
 

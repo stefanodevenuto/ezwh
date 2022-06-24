@@ -16,8 +16,8 @@ class ItemController {
 		return items;
 	}
 
-	async getItemByID(itemId) {
-		const row = await this.dao.getItemByID(itemId);
+	async getItemByItemIdAndSupplierId(itemId, supplierId) {
+		const row = await this.dao.getItemByItemIdAndSupplierId(itemId, supplierId);
 		if (row === undefined)
 			throw ItemErrorFactory.itemNotFound();
 
@@ -39,12 +39,7 @@ class ItemController {
 					err = ItemErrorFactory.skuAlreadyAssociatedForSupplier();
 				if (err.message.includes("FOREIGN KEY"))
 					err = ItemErrorFactory.newSkuOrSupplierNotFound();
-
-				// ASSUMPTION from open Git Issue: item.id unique globally
-				//
-				// Done this way because otherwise the entire Item API 
-				// (as written as is now) would not work
-				if (err.message.includes("item.id"))
+				if (err.message.includes("item.id, item.supplierId"))
 					err = ItemErrorFactory.itemAlreadySoldBySupplier();
 			}
 
@@ -52,39 +47,14 @@ class ItemController {
 		}
 	}
 
-	async modifyItem(id, description, price) {
-		const { changes } = await this.dao.modifyItem(id, description, price);
+	async modifyItem(id, supplierId, description, price) {
+		const { changes } = await this.dao.modifyItem(id, supplierId, description, price);
 		if (changes === 0)
 			throw ItemErrorFactory.itemNotFound();
 	}
 
-	async deleteItem(id) {
-		await this.dao.deleteItem(id);
-	}
-
-	// ##################### Utilities
-
-	async getItemBySkuIdAndSupplierId(skuId, supplierId) {
-
-		const row = await this.dao.getItemBySkuIdAndSupplierId(skuId, supplierId);
-		if (row === undefined)
-			throw ItemErrorFactory.itemNotFound();
-
-		const item = new Item(row.id, row.description, row.price,
-			row.SKUId, row.supplierId);
-
-		return item;
-	}
-
-	async getItemByIDInternal(itemId) {
-		const row = await this.dao.getItemByID(itemId);
-		if (row === undefined)
-			throw ItemErrorFactory.itemNotFound();
-
-		const item = new Item(row.id, row.description, row.price,
-			row.SKUId, row.supplierId);
-
-		return item;
+	async deleteItem(id, supplierId) {
+		await this.dao.deleteItem(id, supplierId);
 	}
 }
 
